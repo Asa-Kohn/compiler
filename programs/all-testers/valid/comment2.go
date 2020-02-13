@@ -1,5 +1,7 @@
-/* A
-multi-line comment */
+/* 
+A
+multi-line comment 
+*/
 package main
 func main() {
 }

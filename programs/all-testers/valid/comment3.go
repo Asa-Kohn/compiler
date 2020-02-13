@@ -2,7 +2,11 @@
 multi
 /*
 multi 
-/&
+&
+line
+*/
+/*
+multi 
 line
 */
 package main
