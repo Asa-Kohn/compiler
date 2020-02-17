@@ -144,7 +144,7 @@ static int last_token = 0;
     OUTPUT_TOKEN(TOK_INT)
 }
 
-\"([^\\]|\\a|\\b|\\f|\\n|\\r|\\t|\\v|\\\\|\")\" {
+\"([^\\\"]|\\a|\\b|\\f|\\n|\\r|\\t|\\v|\\\\|\\\")*\" {
     size_t i = 0;
     char *c;
     for(c = yytext; *c; c++, c += (*c == '\\'))
@@ -185,6 +185,7 @@ static int last_token = 0;
             }
         else yylval.strval[i] = *c;
     }
+    printf(":%s:\n", yylval.strval);
     OUTPUT_TOKEN(TOK_STR)
 }
 
@@ -196,4 +197,9 @@ static int last_token = 0;
 [a-zA-Z_][a-zA-Z0-9_]* {
     yylval.strval = estrdup(yytext);
     OUTPUT_TOKEN(TOK_IDENT)
+}
+
+. {
+    fprintf(stderr, "Error: unexpected character '%c'\n", yytext[0]);
+    exit(1);
 }
