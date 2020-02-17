@@ -1,14 +1,19 @@
-CC = gcc
+CFLAGS = -Wall -Wextra -pedantic -g
+OBJECTS = main.o utils.o lex.yy.o golite.tab.o
 
-CFLAGS = -Wall
+winnipeg: $(OBJECTS)
+	gcc $(OBJECTS) -o winnipeg -lfl
 
-main: parser.tab.o lex.yy.o tree.o pretty.o symbol.o main.o
-	$(CC) lex.yy.o parser.tab.o tree.o pretty.o symbol.o main.o -o mini -lfl
+main.o: golite.tab.h
 
-parser.tab.c parser.tab.h: mini.y
-	bison --yacc --defines=parser.tab.c --output=parser.tab.h mini.y
+pp.o: golite.tab.h
 
-lex.yy.c: mini.l parser.tab.h
-	flex mini.l
+lex.yy.c: golite.l
+	flex golite.l
+
+golite.tab.c golite.tab.h: golite.y
+	bison --defines=golite.tab.h golite.y
+
+.PHONY: clean
 clean:
-	rm parser.tab.* lex.yy.*; rm *.o
+	rm -f golite.tab.c golite.tab.h lex.yy.c $(OBJECTS) winnipeg
