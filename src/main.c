@@ -3,9 +3,10 @@
 #include <string.h>
 
 #include "tree.h"
+#include "pretty.h"
 #include "golite.tab.h"
 
-void yylex();
+int yylex();
 int print_tokens = 0;
 PROGRAM* root;
 
