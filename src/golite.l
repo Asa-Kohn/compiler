@@ -195,4 +195,5 @@ static int last_token = 0;
 
 [a-zA-Z_][a-zA-Z0-9_]* {
     yylval.strval = estrdup(yytext);
+    OUTPUT_TOKEN(TOK_IDENT)
 }
