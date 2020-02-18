@@ -1,36 +1,34 @@
 //print all runes
 package main
 
-import "fmt"
-
 func main() {
-	fmt.Print("alert: ");
-	fmt.Println('\a');
+	print("alert: ");
+	println('\a');
 
-	fmt.Print("backspace: ");
-	fmt.Println('\b');
+	print("backspace: ");
+	println('\b');
 
-	fmt.Print("form feed: ");
-	fmt.Println('\f');
+	print("form feed: ");
+	println('\f');
 
-	fmt.Print("line feed or newline: ");
-	fmt.Println('\n');
+	print("line feed or newline: ");
+	println('\n');
 
-	fmt.Print("carriage return: ");
-	fmt.Println('\r');
+	print("carriage return: ");
+	println('\r');
 
-	fmt.Print("horizontal tab: ");
-	fmt.Println('\t');
+	print("horizontal tab: ");
+	println('\t');
 
-	fmt.Print("vertical tab: ");
-	fmt.Println('\v');
+	print("vertical tab: ");
+	println('\v');
 
-	fmt.Print("backslash: ");
-	fmt.Println('\\');
+	print("backslash: ");
+	println('\\');
 
-	fmt.Print("single quote: ");
-	fmt.Println('\'');
+	print("single quote: ");
+	println('\'');
 
-	// fmt.Print("double quote(legal only in string literals): ");
-	// fmt.Println('\');
+	// print("double quote(legal only in string literals): ");
+	// println('\');
 }
