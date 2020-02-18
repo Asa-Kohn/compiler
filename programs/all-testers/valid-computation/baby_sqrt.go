@@ -1,4 +1,7 @@
-//approximating square root using babylonian method
+/*
+approximating square root using babylonian method
+https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method
+*/
 package main
 
 func babySqrt(x float64) float64 {

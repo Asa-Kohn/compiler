@@ -1,4 +1,6 @@
 //operation type mismatch 
+
+// Will is a genius! Doesn't trigger an error in ref compiler.
 package main
 
 var d = e + f;
