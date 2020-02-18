@@ -1,4 +1,4 @@
-//print strings with esc chars 
+//print strings with esc chars
 package main
 
 func main() {
