@@ -1,7 +1,6 @@
 //approximating square root using babylonian method
 package main
 
-
 func babySqrt(x float64) float64 {
     var precision float64 = 0.0000000000001;
     var approx float64 = x;

@@ -1,7 +1,6 @@
 //recursively compute x factorial
 package main
 
-
 func recFactorial(x int) int {
 	if x == 0 {
 		return 1;

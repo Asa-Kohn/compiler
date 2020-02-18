@@ -33,7 +33,7 @@ func quickSort(unsorted []int, lo int, hi int) {
 func partition(unsorted []int, lo int, hi int) int {
 	pivot := unsorted[hi];
 	i := lo;
-	for j := lo; lo <= hi; lo++ {
+	for j := lo; j <= hi; j++ {
 		for unsorted[j] < pivot {
 			temp := unsorted[i];
 			unsorted[i] = unsorted[j];
