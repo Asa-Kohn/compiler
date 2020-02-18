@@ -2,13 +2,13 @@
 
  * *Asa Kohn*
  * *William Chien*
- * *placeholder*
+ * *Alexander Iannantuono*
  
 ### Student IDs
 
  * *260840608*
  * *260746158*
- * *placeholder*
+ * *260708934*
  
 ### Special Instructions
 
