@@ -1,7 +1,6 @@
 //recursively compute x to the power of y
 package main
 
-
 func recPower(x int, y int) int {
 	if y == 0 {
 		return 1;
