@@ -1,11 +1,8 @@
-//import syntax incorrect
+//import statements not allowed
 package main
 
 import "fmt"
-import "math"
-
 
 func main() {
 	fmt.Println();
-	math.Abs(-1);
 }

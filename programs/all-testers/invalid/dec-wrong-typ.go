@@ -1,4 +1,4 @@
-//program with main
+//operation type mismatch 
 package main
 
 var d = e + f;
