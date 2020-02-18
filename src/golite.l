@@ -40,7 +40,9 @@ static int last_token = 0;
         OUTPUT_TOKEN_CHAR(';');
 }
 
+"append" OUTPUT_TOKEN(TOK_APPEND)
 "break" OUTPUT_TOKEN(TOK_BREAK)
+"cap" OUTPUT_TOKEN(TOK_CAP)
 "case" OUTPUT_TOKEN(TOK_CASE)
 "chan" OUTPUT_TOKEN(TOK_CHAN)
 "const" OUTPUT_TOKEN(TOK_CONST)
@@ -56,8 +58,11 @@ static int last_token = 0;
 "if" OUTPUT_TOKEN(TOK_IF)
 "import" { fprintf(stderr, "Error: import not supported\n"); exit(1); }
 "interface" OUTPUT_TOKEN(TOK_INTERFACE)
+"len" OUTPUT_TOKEN(TOK_LEN)
 "map" OUTPUT_TOKEN(TOK_MAP)
 "package" OUTPUT_TOKEN(TOK_PACKAGE)
+"print" OUTPUT_TOKEN(TOK_PRINT)
+"println" OUTPUT_TOKEN(TOK_PRINTLN)
 "range" OUTPUT_TOKEN(TOK_RANGE)
 "return" OUTPUT_TOKEN(TOK_RETURN)
 "select" OUTPUT_TOKEN(TOK_SELECT)
