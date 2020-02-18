@@ -4,20 +4,19 @@
 
 package main
 
-func caesar(shift int, message string) {
+func caesar(shift byte, message string, mlength int) {
     // Iterate over the runes and change them according to shift
     // Shift can be any int, we will simply find its equivalent class mod 26
     shift %= 26;
     print("Scrambled message: ");
-    for _, r := range message {
-        print(string(shift_rune(shift, r)));
+    for i := 0; i < mlength; i++ {
+        print(string(shift_rune(shift, message[i])));
     }
     print("\n");
 }
 
-func shift_rune(shift int, letter rune) rune {
+func shift_rune(shift byte, r byte) rune {
     shift %= 26; // Just in case!
-    var r int = int(letter)
     // Given that we are just dealing with ASCII in GoLite
     switch {
         case 97 <= r && r <= 122:
@@ -32,6 +31,7 @@ func shift_rune(shift int, letter rune) rune {
 
 func main() {
     var message string = "I have a marvelous proof for P = NP, although it is too large for my floppy disk.";
+    var mlength int = 81 // I had to hard code it :(
     // The Caesar function will print it out as it goes, due to GoLite limitations.
-    caesar(11, message);
+    caesar(0, message, mlength);
 }

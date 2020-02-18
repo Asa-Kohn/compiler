@@ -3,7 +3,6 @@
 //type declarations
 //function declarations
 package main
-import "fmt"
 
 //var
 var aa int;
@@ -82,5 +81,5 @@ func main() {
 	// var cc int;
 	// var dd float64;
 	// var ee rune;
-	fmt.Println("dec-toplvl executed");
+	println("dec-toplvl executed");
 }
