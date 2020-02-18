@@ -1,3 +1,5 @@
 //string literal not terminated
 package main
-import "fmt
+
+
+var s string = "string;

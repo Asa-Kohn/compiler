@@ -1,6 +1,5 @@
 //program with main
 package main
-import "fmt"
 
 var yes = true;
 var  no = false;
@@ -11,7 +10,7 @@ var (
 )
 
 var initint = 0;
-var initint1 = -0;
+var initint1 = -5;
 var initfloat = 0.0;
 var initfloat1 = -.0;
 var initfloat2 = 1.;
@@ -32,5 +31,5 @@ var floatdiv = initfloat / initfloat2;	//test division by zero?
 
 
 func main() {
-	fmt.Println("init-toplvl executed");
+	println("init-toplvl executed");
 }
