@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 
+//emalloc throws an error if the attempt to allocate memory fail
 void *emalloc(size_t n)
 {
     void *result = malloc(n);

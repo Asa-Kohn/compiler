@@ -6,6 +6,7 @@
 #include "golite.tab.h"
 #include "utils.h"
 
+//print/return functions for string token & char tokens
 #define OUTPUT_TOKEN(TOK) { if(print_tokens) puts( #TOK ); else return TOK; }
 #define OUTPUT_TOKEN_CHAR(TOK) { if(print_tokens) printf("%c\n", TOK); else return TOK; }
 #define YY_USER_ACTION { last_token = yy_act; }
@@ -18,13 +19,13 @@ static int last_token = 0;
 
 %%
 
-[ \n\t\r]*
+[ \n\t\r]*                                          //tab, return, etc
 
-\/\/.*
+\/\/.*                                              //single line comment
 
-\/\*([^*]*|\*[^/])*\*\/
+\/\*([^*]*|\*[^\/])*\*\/                            //multi line comment
 
-\/\*([^*]*|\*[^/])*\n([^*]*|\*[^/])*\*\/|\n {
+\/\*([^*]*|\*[^/])*\n([^*]*|\*[^/])*\*\/|\n {       //semi colon insertion
     if(last_token == TOK_IDENT ||
        last_token == TOK_INT ||
        last_token == TOK_FLOAT ||

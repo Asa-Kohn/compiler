@@ -1,6 +1,32 @@
 //sorting tingz
 package main
 
+func quickSort(array []int, lo int, hi int) {
+	if lo < hi {
+		p := partition(array, lo, hi);
+		quickSort(array, lo, p-1);
+		quickSort(array, p+1, hi);
+	}
+}
+
+func partition(array []int, lo int, hi int) int {
+	pivot := array[hi];
+	i := lo;
+	for j := lo; j <= hi; j++ {
+		if array[j] < pivot {
+			temp := array[i];
+			array[i] = array[j];
+			array[j] = temp;
+			i++;
+		}
+
+	}
+	temp := array[i];
+	array[i] = array[hi];
+	array[hi] = temp;
+	return i;
+}
+
 func main() {
 	// var array [6]int;
 	// array = append(array, 7);
@@ -32,30 +58,4 @@ func main() {
 		print(array[i], " ");
 	}
 	println("\r");
-}
-
-func quickSort(array []int, lo int, hi int) {
-	if lo < hi {
-		p := partition(array, lo, hi);
-		quickSort(array, lo, p-1);
-		quickSort(array, p+1, hi);
-	}
-}
-
-func partition(array []int, lo int, hi int) int {
-	pivot := array[hi];
-	i := lo;
-	for j := lo; j <= hi; j++ {
-		if array[j] < pivot {
-			temp := array[i];
-			array[i] = array[j];
-			array[j] = temp;
-			i++;
-		}
-
-	}
-	temp := array[i];
-	array[i] = array[hi];
-	array[hi] = temp;
-	return i;
 }
