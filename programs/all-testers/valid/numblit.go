@@ -1,34 +1,32 @@
 //print numerical lits
 package main
 
-import "fmt"
-
 func main() {
 	//INT LITS
 	//decimal
-	fmt.Print(255);
-	fmt.Print(" : ");
-	fmt.Println(255);
+	print(255);
+	print(" : ");
+	println(255);
 	//octal
-	fmt.Print(0377);
-	fmt.Print(" : ");
-	fmt.Println(0377);
+	print(0377);
+	print(" : ");
+	println(0377);
 	//hex
-	fmt.Print(0xff);
-	fmt.Print(" : ");
-	fmt.Println(0xff);
+	print(0xff);
+	print(" : ");
+	println(0xff);
 
 	//FLOAT LITS
 	//int+dec
-	fmt.Print(0.12);
-	fmt.Print(" : ");
-	fmt.Println(0.12);
+	print(0.12);
+	print(" : ");
+	println(0.12);
 	//dec only
-	fmt.Print(.12);
-	fmt.Print(" : ");
-	fmt.Println(.12);
+	print(.12);
+	print(" : ");
+	println(.12);
 	//int only
-	fmt.Print(12.);
-	fmt.Print(" : ");
-	fmt.Println(12.);
+	print(12.);
+	print(" : ");
+	println(12.);
 }

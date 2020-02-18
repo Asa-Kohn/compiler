@@ -1,9 +1,10 @@
-//import syntax incorrect
+//multiple import statements with corrent syntax
 package main
 
-import "fmt"
-import "math"
-
+import (
+	"fmt"
+	"math"
+)
 
 func main() {
 	fmt.Println();
