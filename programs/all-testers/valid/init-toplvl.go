@@ -10,7 +10,7 @@ var (
 )
 
 var initint = 0;
-var initint1 = -0;
+var initint1 = -5;
 var initfloat = 0.0;
 var initfloat1 = -.0;
 var initfloat2 = 1.;
