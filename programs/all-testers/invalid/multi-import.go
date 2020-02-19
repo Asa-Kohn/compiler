@@ -1,4 +1,4 @@
-//multiple import statements with corrent syntax
+//multiple import statements with corrent syntax, however import not allowed in golite
 package main
 
 import (

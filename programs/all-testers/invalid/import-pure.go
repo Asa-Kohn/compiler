@@ -4,5 +4,6 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Println();
+	// commented because program has to be minimally invalid
+	// fmt.Println();
 }
