@@ -8,5 +8,5 @@ var intdiv = initint / initint1;
 
 
 func main() {
-	println("init-toplvl executed");
+	println("div-by-zero executed");
 }

@@ -12,11 +12,19 @@ var cc rune;
 var dd string;
 var ee bool;
 
+var aaa, bbb, ccc int;
+var ddd, eee, fff float64;
+var ggg, hhh, iii rune;
+var jjj, kkk, lll string;
+var mmm, nnn, ooo bool;
+
+var ()
 var (
 	lilstring, bigstring string
 	lilint               int
 	bigfloat             float64
 	yesno         		 bool
+	runned 				 rune
 )
 
 //funky funcs
@@ -37,7 +45,6 @@ func boolfunc() bool{ return true;}
 var ll = intfunc() + intfuncc();
 var mm = floatfunc() + floatfuncc();
 var nn = stringfunc() + stringfunc();
-var oo = boolfunc() + boolfunc();	//operator + not defined on bool
 
 //typey types
 var jj btype;
@@ -50,6 +57,7 @@ type inttype = int;
 var qq stringtype;
 type stringtype = string;
 
+type ()
 type (
 	lots int
 	and float64
