@@ -103,7 +103,7 @@ void yyerror(char const *s)
 %left TOK_OR 
 %left TOK_AND 
 %left TOK_EQ TOK_NEQ TOK_LT TOK_LEQ TOK_GT TOK_GEQ
-%left '+'  '-'  '|'  '^'
+%left '+' '-' '|' '^'
 %left '*' '/' '%' TOK_LSHIFT TOK_RSHIFT '&' TOK_ANDNOT 
 
 %left UNARY
@@ -154,8 +154,8 @@ exp : TOK_IDENT
     | '+' exp           %prec UNARY    {}
 
 
-    | '!' exp         %prec UNARY      {} //boolean
-    | '^' exp        %prec UNARY       {} //only for integers
+    | '!' exp           %prec UNARY    {} //boolean
+    | '^' exp           %prec UNARY    {} //only for integers
 
     | '(' exp ')'                      {}
     ;

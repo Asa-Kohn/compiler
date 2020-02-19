@@ -37,14 +37,17 @@ func boolfunc() bool{ return true;}
 var ll = intfunc() + intfuncc();
 var mm = floatfunc() + floatfuncc();
 var nn = stringfunc() + stringfunc();
-//var oo = boolfunc() + boolfunc();	//operator + not defined
+var oo = boolfunc() + boolfunc();	//operator + not defined on bool
 
 //typey types
 var jj btype;
 type btype = bool;
 var kk btype;
+var oo floattype;
 type floattype = float64;
+var pp inttype;
 type inttype = int;
+var qq stringtype;
 type stringtype = string;
 
 type (
@@ -53,7 +56,7 @@ type (
 	lotz string
 	types bool
 )
-type structed struct {	//struct requires curly brackets
+type structed struct {
 	echo, delta int
 	zeta, chi float64
 	bondi, zolo string
