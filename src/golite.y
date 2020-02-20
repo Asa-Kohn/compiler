@@ -142,7 +142,8 @@ var_specs:
         |       var_spec ';' var_specs
         ;
 
-var_spec:       idents '=' exps
+var_spec:       idents type
+        |       idents '=' exps
         |       idents type '=' exps
         ;
 
