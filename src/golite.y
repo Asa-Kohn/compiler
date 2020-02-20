@@ -121,7 +121,7 @@ void yyerror(char const *s)
  */
 %%
 
-program:        package_decl top_level_decls
+program:        package_decl ';' top_level_decls
         ;
 
 package_decl:

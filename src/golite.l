@@ -7,9 +7,16 @@
 #include "utils.h"
 
 //print/return functions for string token & char tokens
-#define OUTPUT_TOKEN(TOK) { if(print_tokens) puts( #TOK ); else return TOK; }
-#define OUTPUT_TOKEN_CHAR(TOK) { if(print_tokens) printf("%c\n", TOK); else return TOK; }
-#define YY_USER_ACTION { last_token = yy_act; }
+#define OUTPUT_TOKEN(TOK) { \
+    last_token = TOK; \
+    if(print_tokens) puts( #TOK ); else return TOK; \
+}
+
+#define OUTPUT_TOKEN_CHAR(TOK) { \
+    last_token = TOK; \
+    if(print_tokens) printf("%c\n", TOK); else return TOK; \
+}
+
 extern int print_tokens;
 static int last_token = 0;
 
@@ -21,44 +28,24 @@ static int last_token = 0;
 
 \/\/.*                                              //single line comment
 
-\/\*([^*]*|\*[^\/])*\*\/                            //multi line comment
-
-\/\*([^*]*|\*[^/])*\n([^*]*|\*[^/])*\*\/|[ \n\t\r]*\n[ \n\t\r]* {
+\/\*[^\*]*\*+([^\*\/][^\*]*\*+)*\/|[ \n\t\r] {      //multi line comment
     //semicolon insertion
-    if(last_token == TOK_IDENT ||
-       last_token == TOK_INT ||
-       last_token == TOK_FLOAT ||
-       last_token == TOK_RUNE ||
-       last_token == TOK_STR ||
-       last_token == TOK_BREAK ||
-       last_token == TOK_CONTINUE ||
-       last_token == TOK_FALLTHROUGH ||
-       last_token == TOK_RETURN ||
-       last_token == TOK_INC ||
-       last_token == TOK_DEC ||
-       last_token == ')' ||
-       last_token == ']' ||
-       last_token == '}')
+    if(strchr(yytext, '\n') && (last_token == TOK_IDENT ||
+                                last_token == TOK_INT ||
+                                last_token == TOK_FLOAT ||
+                                last_token == TOK_RUNE ||
+                                last_token == TOK_STR ||
+                                last_token == TOK_BREAK ||
+                                last_token == TOK_CONTINUE ||
+                                last_token == TOK_FALLTHROUGH ||
+                                last_token == TOK_RETURN ||
+                                last_token == TOK_INC ||
+                                last_token == TOK_DEC ||
+                                last_token == ')' ||
+                                last_token == ']' ||
+                                last_token == '}'))
         OUTPUT_TOKEN_CHAR(';');
-}
-
-[ \n\t\r]* {                                        //tab, return, etc
-    if(last_token == TOK_IDENT ||
-       last_token == TOK_INT ||
-       last_token == TOK_FLOAT ||
-       last_token == TOK_RUNE ||
-       last_token == TOK_STR ||
-       last_token == TOK_BREAK ||
-       last_token == TOK_CONTINUE ||
-       last_token == TOK_FALLTHROUGH ||
-       last_token == TOK_RETURN ||
-       last_token == TOK_INC ||
-       last_token == TOK_DEC ||
-       last_token == ')' ||
-       last_token == ']' ||
-       last_token == '}')
-        OUTPUT_TOKEN_CHAR(';');
-}
+ }
 
 "append" OUTPUT_TOKEN(TOK_APPEND)
 "break" OUTPUT_TOKEN(TOK_BREAK)
