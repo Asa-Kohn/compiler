@@ -1,6 +1,6 @@
 /* 
 A
-multi-line comment 
+multi-line comment
 */
 package main
 
