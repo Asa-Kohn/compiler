@@ -105,8 +105,9 @@ void yyerror(char const *s)
 %left TOK_EQ TOK_NEQ '<' TOK_LEQ '>' TOK_GEQ
 %left '+' '-' '|' '^'
 %left '*' '/' '%' TOK_LSHIFT TOK_RSHIFT '&' TOK_ANDNOT 
-
 %left UNARY
+%left '.'
+%nonassoc '(' '['
 
 /* Start token (by default if this is missing it takes the first production */
 %start program
@@ -141,9 +142,7 @@ var_specs:
         |       var_spec ';' var_specs
         ;
 
-var_spec:       TOK_IDENT type
-        |       TOK_IDENT '=' exp
-        |       idents '=' exps
+var_spec:       idents '=' exps
         |       idents type '=' exps
         ;
 
