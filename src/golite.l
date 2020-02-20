@@ -193,7 +193,6 @@ static int last_token = 0;
             }
         else yylval.strval[i] = *c;
     }
-    printf(":%s:\n", yylval.strval);
     OUTPUT_TOKEN(TOK_STR)
 }
 
