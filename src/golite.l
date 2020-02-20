@@ -19,13 +19,30 @@ static int last_token = 0;
 
 %%
 
-[ \n\t\r]*                                          //tab, return, etc
-
 \/\/.*                                              //single line comment
 
 \/\*([^*]*|\*[^\/])*\*\/                            //multi line comment
 
-\/\*([^*]*|\*[^/])*\n([^*]*|\*[^/])*\*\/|\n {       //semi colon insertion
+\/\*([^*]*|\*[^/])*\n([^*]*|\*[^/])*\*\/|[ \n\t\r]*\n[ \n\t\r]* {
+    //semicolon insertion
+    if(last_token == TOK_IDENT ||
+       last_token == TOK_INT ||
+       last_token == TOK_FLOAT ||
+       last_token == TOK_RUNE ||
+       last_token == TOK_STR ||
+       last_token == TOK_BREAK ||
+       last_token == TOK_CONTINUE ||
+       last_token == TOK_FALLTHROUGH ||
+       last_token == TOK_RETURN ||
+       last_token == TOK_INC ||
+       last_token == TOK_DEC ||
+       last_token == ')' ||
+       last_token == ']' ||
+       last_token == '}')
+        OUTPUT_TOKEN_CHAR(';');
+}
+
+[ \n\t\r]* {                                        //tab, return, etc
     if(last_token == TOK_IDENT ||
        last_token == TOK_INT ||
        last_token == TOK_FLOAT ||
