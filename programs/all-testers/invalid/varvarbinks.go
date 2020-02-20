@@ -3,5 +3,5 @@
 package main
 
 func main() {
-    var var int = 1; 
+    var var int = 1;
 }

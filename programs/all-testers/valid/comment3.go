@@ -1,12 +1,12 @@
 /*
 multi
 /*
-multi 
+multi
 &
 line
 */
 /*
-multi 
+multi
 line
 */
 package main

@@ -8,7 +8,7 @@ var  no = false;
 var (
 	kingston, yapp, trey = 1, 2, 3;
 	lulu, echo, delta = yes, no, yes;
-	solo, hawaii, alpha, omega float64 = 0.0, -.1, 2., .9; 
+	solo, hawaii, alpha, omega float64 = 0.0, -.1, 2., .9;
 )
 
 //int, float
