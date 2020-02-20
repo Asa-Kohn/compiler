@@ -122,7 +122,7 @@ static int last_token = 0;
 ">=" OUTPUT_TOKEN(TOK_GEQ)
 ":=" OUTPUT_TOKEN(TOK_ASSIGN)
 
-"..." OUTPUT_TOKEN(TOK_DOTS)
+"..." { fprintf(stderr, "Error: variadic functions not supported\n"); exit(1); }
 
 "(" OUTPUT_TOKEN_CHAR('(')
 ")" OUTPUT_TOKEN_CHAR(')')
