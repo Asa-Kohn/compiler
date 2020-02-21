@@ -34,8 +34,8 @@ func main() {
 	var l = []int{3, 5, 7, 9, 11, 13, 17}
 	var m = l[0]
 
-	println("no-semi_c executed")
 	println(a, b, f, g, h, i, j, k, l, m)
+	println("no-semi_c executed")
 	// fmt.Println(a, b, f, g, h, i, j, k, l, m)
 	// fmt.Println(a, b, c, d, e, f, g, h, i, j, k, l, m)
 	return
