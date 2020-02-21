@@ -7,9 +7,16 @@
 #include "utils.h"
 
 //print/return functions for string token & char tokens
-#define OUTPUT_TOKEN(TOK) { if(print_tokens) puts( #TOK ); else return TOK; }
-#define OUTPUT_TOKEN_CHAR(TOK) { if(print_tokens) printf("%c\n", TOK); else return TOK; }
-#define YY_USER_ACTION { last_token = yy_act; }
+#define OUTPUT_TOKEN(TOK) { \
+    last_token = TOK; \
+    if(print_tokens) puts( #TOK ); else return TOK; \
+}
+
+#define OUTPUT_TOKEN_CHAR(TOK) { \
+    last_token = TOK; \
+    if(print_tokens) printf("%c\n", TOK); else return TOK; \
+}
+
 extern int print_tokens;
 static int last_token = 0;
 
@@ -19,29 +26,26 @@ static int last_token = 0;
 
 %%
 
-[ \n\t\r]*                                          //tab, return, etc
-
 \/\/.*                                              //single line comment
 
-\/\*([^*]*|\*[^\/])*\*\/                            //multi line comment
-
-\/\*([^*]*|\*[^/])*\n([^*]*|\*[^/])*\*\/|\n {       //semi colon insertion
-    if(last_token == TOK_IDENT ||
-       last_token == TOK_INT ||
-       last_token == TOK_FLOAT ||
-       last_token == TOK_RUNE ||
-       last_token == TOK_STR ||
-       last_token == TOK_BREAK ||
-       last_token == TOK_CONTINUE ||
-       last_token == TOK_FALLTHROUGH ||
-       last_token == TOK_RETURN ||
-       last_token == TOK_INC ||
-       last_token == TOK_DEC ||
-       last_token == ')' ||
-       last_token == ']' ||
-       last_token == '}')
+\/\*[^\*]*\*+([^\*\/][^\*]*\*+)*\/|[ \n\t\r] {      //multi line comment
+    //semicolon insertion
+    if(strchr(yytext, '\n') && (last_token == TOK_IDENT ||
+                                last_token == TOK_INT ||
+                                last_token == TOK_FLOAT ||
+                                last_token == TOK_RUNE ||
+                                last_token == TOK_STR ||
+                                last_token == TOK_BREAK ||
+                                last_token == TOK_CONTINUE ||
+                                last_token == TOK_FALLTHROUGH ||
+                                last_token == TOK_RETURN ||
+                                last_token == TOK_INC ||
+                                last_token == TOK_DEC ||
+                                last_token == ')' ||
+                                last_token == ']' ||
+                                last_token == '}'))
         OUTPUT_TOKEN_CHAR(';');
-}
+ }
 
 "append" OUTPUT_TOKEN(TOK_APPEND)
 "break" OUTPUT_TOKEN(TOK_BREAK)
@@ -113,8 +117,8 @@ static int last_token = 0;
 "--" OUTPUT_TOKEN(TOK_DEC)
 
 "==" OUTPUT_TOKEN(TOK_EQ)
-"<" OUTPUT_TOKEN(TOK_LT)
-">" OUTPUT_TOKEN(TOK_GT)
+"<" OUTPUT_TOKEN_CHAR('<')
+">" OUTPUT_TOKEN_CHAR('>')
 "=" OUTPUT_TOKEN_CHAR('=')
 "!" OUTPUT_TOKEN_CHAR('!')
 "!=" OUTPUT_TOKEN(TOK_NEQ)
@@ -122,7 +126,7 @@ static int last_token = 0;
 ">=" OUTPUT_TOKEN(TOK_GEQ)
 ":=" OUTPUT_TOKEN(TOK_ASSIGN)
 
-"..." OUTPUT_TOKEN(TOK_DOTS)
+"..." { fprintf(stderr, "Error: variadic functions not supported\n"); exit(1); }
 
 "(" OUTPUT_TOKEN_CHAR('(')
 ")" OUTPUT_TOKEN_CHAR(')')
@@ -193,7 +197,6 @@ static int last_token = 0;
             }
         else yylval.strval[i] = *c;
     }
-    printf(":%s:\n", yylval.strval);
     OUTPUT_TOKEN(TOK_STR)
 }
 

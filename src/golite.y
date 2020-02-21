@@ -102,11 +102,12 @@ void yyerror(char const *s)
  */
 %left TOK_OR 
 %left TOK_AND 
-%left TOK_EQ TOK_NEQ TOK_LT TOK_LEQ TOK_GT TOK_GEQ
+%left TOK_EQ TOK_NEQ '<' TOK_LEQ '>' TOK_GEQ
 %left '+' '-' '|' '^'
 %left '*' '/' '%' TOK_LSHIFT TOK_RSHIFT '&' TOK_ANDNOT 
-
 %left UNARY
+%left '.'
+%nonassoc '(' '['
 
 /* Start token (by default if this is missing it takes the first production */
 %start program
@@ -119,45 +120,167 @@ void yyerror(char const *s)
  * same LHS may be joined together and separated with a pipe.
  */
 %%
-program: exp
-       ;
 
-exp : TOK_IDENT
-    | TOK_INT 
-    | TOK_FLOAT 
-    | TOK_RUNE 
-    | TOK_STR
-    
-    | exp '+' exp                      {}
-    | exp '-' exp                      {}
-    | exp '*' exp                      {}
-    | exp '/' exp                      {}
+program:        package_decl ';' top_level_decls
+        ;
 
-    | exp TOK_AND exp                  {}
-    | exp TOK_OR exp                   {}
-    | exp TOK_EQ exp                   {}
-    | exp TOK_NEQ exp                  {}
-    | exp TOK_LT exp                   {}
-    | exp TOK_LEQ exp                  {}
-    | exp TOK_GT exp                   {}
-    | exp TOK_GEQ exp                  {}
-    
-    | exp '|' exp                      {}
-    | exp '^' exp                      {}
-    | exp '%' exp                      {}
-    | exp TOK_LSHIFT exp               {}
-    | exp TOK_RSHIFT exp               {}
-    | exp '&' exp                      {}
-    | exp TOK_ANDNOT exp               {}
+package_decl:
+                TOK_PACKAGE TOK_IDENT
+        ;
 
-    | '-' exp           %prec UNARY    {}
-    | '+' exp           %prec UNARY    {}
+top_level_decls:
+        |       var_decl ';' top_level_decls
+        |       type_decl ';' top_level_decls
+        |       func_decl ';' top_level_decls
+        ;
+
+var_decl:       TOK_VAR var_spec
+        |       TOK_VAR '(' var_specs ')'
+        ;
+
+var_specs:
+        |       var_spec ';' var_specs
+        ;
+
+var_spec:       idents type
+        |       idents '=' exps
+        |       idents type '=' exps
+        ;
+
+idents:         TOK_IDENT
+        |       TOK_IDENT ',' idents
+        ;
+
+exps:           exp
+        |       exp ',' exps
+        ;
+
+type_decl:      TOK_TYPE TOK_IDENT type
+        |       TOK_TYPE '(' type_specs ')'
+        ;
+
+type_specs:
+        |       TOK_IDENT type ';' type_specs
+        ;
+
+func_decl:      TOK_FUNC TOK_IDENT '(' params ')' type block
+        |       TOK_FUNC TOK_IDENT '(' params ')' block
+        ;
+
+block:           '{' stmts '}'
+        ;
+
+params:
+        |       idents type ',' params
+        ;
+
+type:           TOK_IDENT
+        |       '[' ']' type
+        |       '[' TOK_INT ']' type
+        |       TOK_STRUCT '{' field_decls '}'
+        |       '('type ')'
+        ;
+
+field_decls:
+        |       idents type ';' field_decls
+        ;
 
 
-    | '!' exp           %prec UNARY    {} //boolean
-    | '^' exp           %prec UNARY    {} //only for integers
+stmts:
+        |       simplestmt ';' stmts
+        |       var_decl ';' stmts
+        |       type_decl ';' stmts
+        |       TOK_PRINT '(' exps ')' ';' stmts
+        |       TOK_PRINT '(' ')' ';' stmts
+        |       TOK_PRINTLN '(' exps ')' ';' stmts
+        |       TOK_PRINTLN '(' ')' ';' stmts
+        |       TOK_RETURN ';' stmts
+        |       TOK_RETURN exp ';' stmts
+        |       ifstmt ';' stmts
+        |       switchstmt ';' stmts
+        |       TOK_FOR block ';' stmts
+        |       TOK_FOR exp block ';' stmts
+        |       TOK_FOR simplestmt ';' exp ';' simplestmt block ';' stmts
+        |       TOK_BREAK ';' stmts
+        |       TOK_CONTINUE ';' stmts
+        |       TOK_FALLTHROUGH ';' stmts
+        ;
 
-    | '(' exp ')'                      {}
-    ;
-    ;
-%%
+simplestmt:
+        |       exp
+        |       assignment
+        |       idents TOK_ASSIGN exps
+        |       exp TOK_INC
+        |       exp TOK_DEC
+        ;
+
+assignment:     TOK_IDENT '=' exp
+        |       TOK_IDENT TOK_PLUSEQ exp
+        |       TOK_IDENT TOK_MINUSEQ exp
+        |       TOK_IDENT TOK_OREQ exp
+        |       TOK_IDENT TOK_XOREQ exp
+        |       TOK_IDENT TOK_TIMESEQ exp
+        |       TOK_IDENT TOK_DIVEQ exp
+        |       TOK_IDENT TOK_REMEQ exp
+        |       TOK_IDENT TOK_LSHIFTEQ exp
+        |       TOK_IDENT TOK_RSHIFTEQ exp
+        |       TOK_IDENT TOK_ANDEQ exp
+        |       TOK_IDENT TOK_ANDNOTEQ exp
+        ;
+
+ifstmt:         TOK_IF exp block
+        |       TOK_IF exp block TOK_ELSE ifstmt
+        |       TOK_IF exp block TOK_ELSE block
+        |       TOK_IF simplestmt ';' exp block
+        |       TOK_IF simplestmt ';' exp block TOK_ELSE ifstmt
+        |       TOK_IF simplestmt ';' exp block TOK_ELSE block
+        ;
+
+switchstmt:     TOK_SWITCH '{' cases '}'
+        |       TOK_SWITCH simplestmt ';' '{' cases '}'
+        |       TOK_SWITCH exp '{' cases '}'
+        |       TOK_SWITCH simplestmt ';' exp '{' cases '}'
+        ;
+
+cases:
+        |       TOK_CASE exps ':' stmts cases
+        |       TOK_DEFAULT ':' stmts cases
+        ;
+
+exp:            '(' exp ')'
+        |       TOK_IDENT
+        |       TOK_INT
+        |       TOK_FLOAT
+        |       TOK_RUNE
+        |       TOK_STR
+        |       '+' exp %prec UNARY
+        |       '-' exp %prec UNARY
+        |       '!' exp %prec UNARY
+        |       '^' exp %prec UNARY
+        |       exp TOK_OR exp
+        |       exp TOK_AND exp
+        |       exp TOK_EQ exp
+        |       exp TOK_NEQ exp
+        |       exp '<' exp
+        |       exp TOK_LEQ exp
+        |       exp '>' exp
+        |       exp TOK_GEQ exp
+        |       exp '+' exp
+        |       exp '-' exp
+        |       exp '|' exp
+        |       exp '^' exp
+        |       exp '*' exp
+        |       exp '/' exp
+        |       exp '%' exp
+        |       exp TOK_LSHIFT exp
+        |       exp TOK_RSHIFT exp
+        |       exp '&' exp
+        |       exp TOK_ANDNOT exp
+        |       exp '(' ')'
+        |       exp '(' exps ')'
+        |       exp '[' exp ']'
+        |       exp '.' TOK_IDENT
+        |       TOK_APPEND '(' exp ',' exp ')'
+        |       TOK_LEN '(' exp ')'
+        |       TOK_CAP '(' exp ')'
+        ;
