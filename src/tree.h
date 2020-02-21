@@ -176,7 +176,7 @@ struct tree_binaryexp
 struct tree_call
 {
     struct tree_exp *func;
-    struct tree_exps *args;
+    struct tree_exps *exps;
 };
 
 struct tree_index
@@ -187,14 +187,14 @@ struct tree_index
 
 struct tree_field
 {
-    struct tree_exp *left;
-    struct tree_exps *right;
+    struct tree_exp *instance;
+    struct char *field;
 };
 
 struct tree_append
 {
-    struct tree_exp *arg1;
-    struct tree_exps *arg2;
+    struct tree_exp *exp1;
+    struct tree_exp *exp2;
 };
 
 struct tree_exp
@@ -214,7 +214,7 @@ struct tree_exp
         struct tree_index index;
         struct tree_field field;
         struct tree_append append;
-        struct tree_exp *arg;
+        struct tree_exp *exp;
     };
 };
 
