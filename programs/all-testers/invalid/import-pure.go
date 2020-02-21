@@ -1,4 +1,4 @@
-//import statements not allowed
+// import statements not allowed, unexpected import
 package main
 
 import "fmt"

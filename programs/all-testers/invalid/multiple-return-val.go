@@ -1,4 +1,4 @@
-// Too many return statements! GoLite allows zero or one expression as a return
+// Too many return statements! GoLite allows zero or one expression as a return, unexpected ',', expecting ')'
 
 package main
 

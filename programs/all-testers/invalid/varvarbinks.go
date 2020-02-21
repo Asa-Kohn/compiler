@@ -1,4 +1,4 @@
-// Incorrect usage of reserved keyword var
+// unexpected var, expecting identifier or '('
 
 package main
 

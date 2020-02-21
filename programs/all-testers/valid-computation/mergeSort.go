@@ -20,7 +20,7 @@ func mergeSort(array []int, left int, right int) {
 
 // merging 2 slices left-middle and middle-right
 func merge(array []int, left int, middle int, right int) {
-	//temp alices
+	//temp slices
 	var lefta []int;
 	var righta []int;
 

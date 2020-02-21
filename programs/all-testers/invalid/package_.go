@@ -1,2 +1,2 @@
-// The PackageName must not be the blank identifier.
+// The PackageName must not contain blank identifier.
 package _

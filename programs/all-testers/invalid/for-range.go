@@ -1,4 +1,4 @@
-// GoLite does not support for range!
+// GoLite does not support for range!, unexpected range 
 
 package main
 

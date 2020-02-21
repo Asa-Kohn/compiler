@@ -1,4 +1,4 @@
-// Operator &&= does not exist
+// Operator &&= does not exist, unexpected and
 package main
 
 func main() {

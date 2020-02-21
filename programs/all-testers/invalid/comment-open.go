@@ -1,4 +1,4 @@
-//string literal not terminated
+// string literal not terminated, unexpected character '""
 package main
 
 

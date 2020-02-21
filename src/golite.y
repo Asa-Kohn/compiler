@@ -124,8 +124,7 @@ void yyerror(char const *s)
 program:        package_decl ';' top_level_decls
         ;
 
-package_decl:
-                TOK_PACKAGE TOK_IDENT
+package_decl:   TOK_PACKAGE TOK_IDENT
         ;
 
 top_level_decls:
@@ -167,7 +166,7 @@ func_decl:      TOK_FUNC TOK_IDENT '(' params ')' type block
         |       TOK_FUNC TOK_IDENT '(' params ')' block
         ;
 
-block:           '{' stmts '}'
+block:          '{' stmts '}'
         ;
 
 params:

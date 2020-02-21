@@ -1,4 +1,4 @@
-// Σ is not a part of ASCII, but UTF-8
+// unexepcted character, Σ is not a part of ASCII, but UTF-8
 package main
 
 func main() {

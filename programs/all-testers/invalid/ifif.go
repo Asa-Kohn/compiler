@@ -1,4 +1,4 @@
-// Malformed if statement
+// Malformed if statement, unexpected if, expecting ';'
 
 package main
 

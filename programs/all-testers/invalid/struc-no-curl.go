@@ -1,4 +1,4 @@
-//struct requires curly brackets, unexpected (, expecting {
+// struct requires curly brackets, unexpected (, expecting {
 package main
 
 type structed struct (

@@ -1,1 +1,1 @@
-//expected 'package', found 'EOF'
+// expected 'package', found 'EOF'

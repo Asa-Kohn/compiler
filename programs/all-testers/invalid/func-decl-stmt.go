@@ -1,4 +1,4 @@
-// Cannot declare a function as a statement
+// Cannot declare a function as a statement, unexpected function dec in main
 
 package main
 
