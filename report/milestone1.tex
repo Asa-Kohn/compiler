@@ -1,6 +1,8 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 
+\usepackage{cite}
+
 \title{
     Milestone 1: Teamwork Report\\
     \large Design + Implementation Decisions
@@ -8,9 +10,6 @@
 \author{Alexander Iannantuono, Asa Kohn, and William Chien}
 \date{February 21, 2020}
 
-\usepackage{natbib}
-\usepackage{graphicx}
-\usepackage{enumitem}
 \usepackage{geometry}
 \geometry{margin=1in}
 \usepackage{hyperref}
@@ -19,29 +18,42 @@
 
 \maketitle
 
-\section{Design decisions}
-
-\subsection{Scanner}
-%TODO
-
-\subsection{Parsing}
-%TODO
-
-\subsection{Abstract Syntax Tree (AST)}
-%TODO
-
-\subsection{Pretty Printing}
-%TODO
-
-\section{Implementation decisions}
+\section{Design and Implementation Decisions}
 
 \subsection{Rationale of implementation tools chosen}
 
-\subsection{Scanner}
-%TODO
+The first milestone as well as subsequent ones have and will be written in C
+using flex and bison. Given that we all used this in prior coursework, it made
+sense to go down this path of implementation tools. In the sections
+that follow, we will detail the implementation decisions undertaken for each
+component of our GoLite compiler required for this milestone.
+
+\subsection{Scanning}
+% Multiline comments (match)
+
+Most of the scanning implementation was the same as that in the assignments earlier in the semester. Given that GoLite has more keywords and built-in features than MiniLang, there were of course more to account and scan for.
+
+Multiline comments were a point of discussion and work on. We ended up deciding to match the first \verb|\*| the first occurence of the closing token \verb|*/| for the comment block, as GoLite does not support nested comments. This was implemented using an elegant regular expression:
+
+\[
+    \verb|\/\*[^\*]*\*+([^\*\/][^\*]*\*+)*\/|
+\]
+
+As far as our testing goes, it appears to be functional.
+
+% is there anything else?
 
 \subsection{Parsing}
-%TODO
+% function parsing when there are 0 and 1+ args
+% func name () <--- %noassoc pragma
+
+In order to parse functions, we decided to segregate those with no arguments and those with non-zero arguments as different rules in the grammar.
+
+% expression list when it has zero elements?
+
+% semi colon insertion (keep track of the last token)
+
+% chat with Asa
 
 \subsection{Abstract Syntax Tree}
 %TODO
@@ -51,52 +63,52 @@
 
 \subsection{Implementation difficulties encountered}
 
-% \subsection{Other issues}
-% {\bf TODO } %\hfill {other info}
-% \begin{itemize}
-% \item {Design decisions}
-% \item {implementation}
-% \item {parsing issues?}
-% \item {The rationale of the implementation tools and language that you chose}
-% \item {how the team is organized and the contribution of each member}
-% \item {Resources consulted}
-
-% \end{itemize}
+Thankfully, there was not much difficulty in implementation as far as we can tell, but time constraints induced some difficulties.
 
 \section{Division of labour and team organization}
 
 \subsection{Dividing the work}
+% speak to each individual so that I know exactly what they did
 
 \subsubsection{Asa}
 
-% lexer
+% lexer, parser
+Asa was mainly in charge with writing most (if not all) of the lexer and parser; this task was done with Will and Alex.
 
 \subsubsection{Will}
 
-% programs, etc.
+% programs, general, etc/
+
+Will had written most of the programs (both valid and invalid ones) to be
+submitted for this milestone, he did some testing to make sure that the code was good and debated on `interesting' valid programs with Alex.
 
 \subsubsection{Alex}
 
-% parser
-% to be decided by us
+% parser verification
 % pretty printing (possibly) + testing?
+
+Alex was mostly in charge with writing programs and verifying the work of
+others. This included going over the bison source code file in an attempt to discover
+\textit{elegant} ways of writing the required grammar for GoLite. He also took
+charge in organizing work and being in charge of keeping the repository in check.
+By keeping the repository `in check' we mean that what has to be accomplished is
+(or attempts to be) well established within the repository, as well as make sure
+that everything is done as properly as possible. This also includes taking charge of making pull requests and merging.
+
+% Talk about testing once that actually gets done.
 
 \subsection{Organization}
 
 % mention what tools we use to be productive, etc
 % how often we met etc
 
-\section{Resources consulted}
+In order to be productive, we decided to set up certain communication channels.
+This was done using \href{Matrix}{https://matrix.org/} which is an open source
+alternative to Slack. Further, some Markdown files were created to do basic
+TODO lists, but given the time frame, it wasn't as successful -- each team
+member had their own list of things to focus on instead on their local devices.
 
-% perhaps do some basic bibtex?
-
-\begin{itemize}
-\item \href{https://golang.org/ref/spec\#Rune\_literals}{https://golang.org/ref/spec\#Rune\_literals}
-\item \href{https://golang.org/ref/spec\#Semicolons}{https://golang.org/ref/spec\#Semicolons}
-\item \href{https://tour.golang.org/list}{https://tour.golang.org/list}
-\item \href{https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method}{https://en.wikipedia.org/wiki/Methods\_of\_computing\_square\_roots\#Babylonian\_method}
-
-% interesting how this is mentioned, just spoke about finding the square root of a perfect square with a friend...
-\end{itemize}
+%\bibliography{refs}{}
+%\bibliographystyle{plain}
 
 \end{document}
