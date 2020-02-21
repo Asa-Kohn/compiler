@@ -1,4 +1,4 @@
-//checks palindrome
+//checks whether string is palindrome
 package main
 
 func isPalindrome(s string) bool {
