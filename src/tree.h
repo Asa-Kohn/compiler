@@ -276,6 +276,8 @@ struct tree_stmt
         struct tree_switch switchstmt;
         struct tree_for forstmt;
     };
+
+    int lineno;
 };
 
 struct tree_stmts
