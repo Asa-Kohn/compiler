@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-typedef struct tree_var_spec VAR_SPEC;
+typedef struct tree_var_decl VAR_DECL;
 typedef struct tree_type_spec TYPE_SPEC;
 typedef struct tree_func_decl FUNC_DECL;
 typedef struct tree_decls DECLS;
@@ -214,7 +214,7 @@ struct tree_index
 struct tree_field
 {
     struct tree_exp *instance;
-    struct char *field;
+    char *field;
 };
 
 struct tree_append

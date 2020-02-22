@@ -12,7 +12,7 @@ void weed_stmts(STMTS *stmts) {
         case tree_stmts_kind_shortdecl:
         case tree_stmts_kind_inc:
         case tree_stmts_kind_dec:
-        case tree_stmts_kind_var_spec:
+        case tree_stmts_kind_var_decl:
         case tree_stmts_kind_type_spec:
         case tree_stmts_kind_print:
         case tree_stmts_kind_println:
@@ -24,6 +24,7 @@ void weed_stmts(STMTS *stmts) {
         case tree_stmts_kind_continue:
         case tree_stmts_kind_fallthrough:
     }
+    weed_stmts(stmts->next);
 }
 
 //decls_kind
@@ -31,8 +32,8 @@ void weed_decls(DECLS *decls) {
     if(decls == NULL) return 0;
     switch (decls->kind) {
         //TODO
-        case tree_decls_kind_var_spec:
-            weed_var_spec(decls->var_spec);
+        case tree_decls_kind_var_decl:
+            weed_var_decl(decls->var_decl);
         case tree_decls_kind_type_spec:
             weed_type_spec(decls->type_spec);
         case tree_decls_kind_func_decl:
@@ -41,10 +42,17 @@ void weed_decls(DECLS *decls) {
     weed_decls(decls->next);
 }
 
-void weed_var_spec(VAR_SPEC *var_spec) {
-    if(var_spec == NULL) return 0;
-    weed_type(var_spec->type);
-    weed_exp(var_spec->val);
+void weed_vars(VARS *vars){
+    if(vars == NULL) return 0;
+    weed_type(vars->type);
+    weed_vars(vars->next);
+}
+
+void weed_var_decl(VAR_DECL *var_decl) {
+    if(var_decl == NULL) return 0;
+    weed_type(var_decl->type);
+    weed_exp(var_decl->val);
+    weed_var_decl(var_decl->next);
 }
 
 //TODO
@@ -133,21 +141,81 @@ void weed_unaryexp(UNARYEXP *unarexp) {
     }
 }
 
-void weed_type_array(TYPE_ARRAY *type_array);
-void weed_type_slice(TYPE_SLICE *type_slice);
-void weed_type_struct(TYPE_STRUCT *type_struct);
-void weed_vars(VARS *vars);
-void weed_call(CALL *call);
-void weed_index(INDEX *index);
-void weed_field(FIELD *field);
-void weed_append(APPEND *append);
 
-void weed_cases(CASES *cases);
-void weed_assign(ASSIGN *assign);
-void weed_shortdecl(SHORTDECL *shortdecl);
+void weed_type_array(TYPE_ARRAY *type_array) {
+    if(type_array == NULL) return 0;
+    weed_type(type_array->type);
+}
 
+void weed_type_slice(TYPE_SLICE *type_slice) {
+    if(type_slice == NULL) return 0;
+    weed_type(type_slice->type);
+}
 
+void weed_type_struct(TYPE_STRUCT *type_struct) {
+    if(type_struct == NULL) return 0;
+    weed_vars(type_struct->fields);
+}
 
-void weed_if(IF_STMT *if_stmt);
-void weed_switch(SWITCH_STMT *switch_stmt);
-void weed_for(FOR_STMT *for_stmt);
+void weed_call(CALL *call) {
+    if(call == NULL) return 0;
+    weed_exp(call->func);
+    weed_exps(call->exps);
+}
+
+void weed_index(INDEX *index) {
+    if(index == NULL) return 0;
+    weed_exp(index->arr);
+    weed_exp(index->index);
+}
+
+void weed_field(FIELD *field) {
+    if(field == NULL) return 0;
+    weed_exp(field->instance);
+}
+
+void weed_append(APPEND *append){
+    if(append == NULL) return 0;
+    weed_exp(append->exp1);
+    weed_exp(append->exp2);
+}
+
+void weed_cases(CASES *cases) {
+    if(cases == NULL) return 0;
+    weed_exp(cases->val);
+    weed_stmts(cases->body);
+    weed_cases(cases->next);
+}
+
+void weed_assign(ASSIGN *assign) {
+    if(assign == NULL) return 0;
+    weed_exp(assign->exp);
+}
+
+void weed_shortdecl(SHORTDECL *shortdecl) {
+    if(shortdecl == NULL) return 0;
+    weed_exp(shortdecl->exp);
+}
+
+void weed_if(IF_STMT *if_stmt) {
+    if(if_stmt == NULL) return 0;
+    weed_stmts(if_stmt->init);
+    weed_exp(if_stmt->condition);
+    weed_stmts(if_stmt->body);
+    weed_stmts(if_stmt->elsebody);
+}
+
+void weed_switch(SWITCH_STMT *switch_stmt) {
+    if(switch_stmt == NULL) return 0;
+    weed_stmts(switch_stmt->init);
+    weed_exp(switch_stmt->exp);
+    weed_cases(switch_stmt->cases);
+}
+
+void weed_for(FOR_STMT *for_stmt) {
+    if(for_stmt == NULL) return 0;
+    weed_stmts(for_stmt->init);
+    weed_exp(for_stmt->condition);
+    weed_stmts(for_stmt->iter);
+    weed_stmts(for_stmt->body);
+}
