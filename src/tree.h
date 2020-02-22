@@ -7,7 +7,7 @@ typedef struct tree_decls PROGRAM;
 
 enum tree_decls_kind
 {
-    tree_decls_kind_var_spec,
+    tree_decls_kind_var_decl,
     tree_decls_kind_type_spec,
     tree_decls_kind_func_decl
 };
@@ -27,7 +27,7 @@ enum tree_stmts_kind
     tree_stmts_kind_shortdecl,
     tree_stmts_kind_inc,
     tree_stmts_kind_dec,
-    tree_stmts_kind_var_spec,
+    tree_stmts_kind_var_decl,
     tree_stmts_kind_type_spec,
     tree_stmts_kind_print,
     tree_stmts_kind_println,
@@ -89,11 +89,13 @@ enum tree_binaryexp_kind
 };
 
 // construct types
-struct tree_var_spec
+struct tree_var_decl
 {
     char *name;
     struct tree_type *type;
     struct tree_exp *val;
+
+    struct tree_var_decl *next;
 };
 
 struct tree_type_spec
@@ -116,7 +118,7 @@ struct tree_decls
 
     union
     {
-        struct tree_var_spec var_spec;
+        struct tree_var_decl var_decl;
         struct tree_type_spec type_spec;
         struct tree_func_decl func_decl;
     };
@@ -263,7 +265,7 @@ struct tree_stmts
         struct tree_assign assign;
         struct tree_shortdecl shortdecl;
         char *var;
-        struct tree_var_spec var_spec;
+        struct tree_var_decl var_decl;
         struct tree_type_spec type_spec;
         struct tree_exps *exps;
         struct tree_exp *exp;
