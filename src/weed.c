@@ -4,37 +4,37 @@
 #include "weed.h"
 
 //stmts_kind
-void weed_stmts(STMTS *stmts) {
-    if(stmts == NULL) return 0;
-    switch (stmts->kind) {
-        case tree_stmts_kind_exp:
-        case tree_stmts_kind_assign:
+void weed_stmt(STMT *stmt) {
+    if(stmt == NULL) return 0;
+    switch (stmt->kind) {
+        case tree_stmt_kind_exp:
+        case tree_stmt_kind_assign:
             break;
-        case tree_stmts_kind_shortdecl:
-            weed_shortdecl(stmts->shortdecl);
-        case tree_stmts_kind_inc:
-        case tree_stmts_kind_dec:
-        case tree_stmts_kind_var_decl:
-        case tree_stmts_kind_type_spec:
-        case tree_stmts_kind_print:
-        case tree_stmts_kind_println:
-        case tree_stmts_kind_return:
-        case tree_stmts_kind_if:
-        case tree_stmts_kind_switch:
-        case tree_stmts_kind_for:
+        case tree_stmt_kind_shortdecl:
+            weed_shortdecl(stmt->shortdecl);
+        case tree_stmt_kind_inc:
+        case tree_stmt_kind_dec:
+        case tree_stmt_kind_var_decl:
+        case tree_stmt_kind_type_spec:
+        case tree_stmt_kind_print:
+        case tree_stmt_kind_println:
+        case tree_stmt_kind_return:
+        case tree_stmt_kind_if:
+        case tree_stmt_kind_switch:
+        case tree_stmt_kind_for:
             return 0;
-        case tree_stmts_kind_break:
+        case tree_stmt_kind_break:
             // fprintf(stderr, "Error: break statement (line%d)", stmts->lineno);
             // exit(1);
             return 1;
-        case tree_stmts_kind_continue:
+        case tree_stmt_kind_continue:
             // fprintf(stderr, "Error: continue statement (line%d)", stmts->lineno);
             // exit(1);
             return 1;
-        case tree_stmts_kind_fallthrough:
+        case tree_stmt_kind_fallthrough:
             return 0;
     }
-    weed_stmts(stmts->next);
+    weed_stmts(stmt->next);
 }
 
 //decls_kind

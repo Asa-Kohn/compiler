@@ -24,7 +24,7 @@ typedef struct tree_shortdecl SHORTDECL;
 typedef struct tree_if IF_STMT;
 typedef struct tree_switch SWITCH_STMT;
 typedef struct tree_for FOR_STMT;
-typedef struct tree_stmts STMTS;
+typedef struct tree_stmt STMT;
 typedef struct tree_cases CASES;
 typedef struct tree_exps EXPS;
 
@@ -44,24 +44,24 @@ enum tree_type_kind
     tree_type_kind_struct
 };
 
-enum tree_stmts_kind
+enum tree_stmt_kind
 {
-    tree_stmts_kind_exp,
-    tree_stmts_kind_assign,
-    tree_stmts_kind_shortdecl,
-    tree_stmts_kind_inc,
-    tree_stmts_kind_dec,
-    tree_stmts_kind_var_decl,
-    tree_stmts_kind_type_spec,
-    tree_stmts_kind_print,
-    tree_stmts_kind_println,
-    tree_stmts_kind_return,
-    tree_stmts_kind_if,
-    tree_stmts_kind_switch,
-    tree_stmts_kind_for,
-    tree_stmts_kind_break,
-    tree_stmts_kind_continue,
-    tree_stmts_kind_fallthrough
+    tree_stmt_kind_exp,
+    tree_stmt_kind_assign,
+    tree_stmt_kind_shortdecl,
+    tree_stmt_kind_inc,
+    tree_stmt_kind_dec,
+    tree_stmt_kind_var_decl,
+    tree_stmt_kind_type_spec,
+    tree_stmt_kind_print,
+    tree_stmt_kind_println,
+    tree_stmt_kind_return,
+    tree_stmt_kind_if,
+    tree_stmt_kind_switch,
+    tree_stmt_kind_for,
+    tree_stmt_kind_break,
+    tree_stmt_kind_continue,
+    tree_stmt_kind_fallthrough
 };
 
 enum tree_exp_kind
@@ -280,9 +280,9 @@ struct tree_for
     struct tree_stmts *body;
 };
 
-struct tree_stmts
+struct tree_stmt
 {
-    enum tree_stmts_kind kind;
+    enum tree_stmt_kind kind;
 
     union
     {
@@ -290,7 +290,7 @@ struct tree_stmts
         struct tree_assign assign;
         struct tree_shortdecl shortdecl;
         char *var;
-        struct tree_var_decl var_decl;
+        struct tree_var_spec *var_spec;
         struct tree_type_spec type_spec;
         struct tree_exps *exps;
         struct tree_exp *exp;
@@ -299,7 +299,7 @@ struct tree_stmts
         struct tree_for forstmt;
     };
 
-    struct tree_stmts *next;
+    struct tree_stmt *next;
 };
 
 struct tree_cases
