@@ -9,7 +9,9 @@ void weed_stmts(STMTS *stmts) {
     switch (stmts->kind) {
         case tree_stmts_kind_exp:
         case tree_stmts_kind_assign:
+            break;
         case tree_stmts_kind_shortdecl:
+            weed_shortdecl(stmts->shortdecl);
         case tree_stmts_kind_inc:
         case tree_stmts_kind_dec:
         case tree_stmts_kind_var_decl:
@@ -207,7 +209,10 @@ void weed_assign(ASSIGN *assign) {
 
 void weed_shortdecl(SHORTDECL *shortdecl) {
     if(shortdecl == NULL) return 0;
-    weed_exp(shortdecl->exp);
+        // fprintf(stderr, "Error: short declaration (line%d)", exp->lineno);
+        // exit(1);
+        return 1;
+    // weed_exp(shortdecl->exp);
 }
 
 void weed_if(IF_STMT *if_stmt) {
