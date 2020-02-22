@@ -1,6 +1,6 @@
-// #include <stdbool.h>
-// #include <stdlib.h>
-// #include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "weed.h"
 
 //stmts_kind
@@ -20,9 +20,17 @@ void weed_stmts(STMTS *stmts) {
         case tree_stmts_kind_if:
         case tree_stmts_kind_switch:
         case tree_stmts_kind_for:
+            return 0;
         case tree_stmts_kind_break:
+            // fprintf(stderr, "Error: break statement (line%d)", stmts->lineno);
+            // exit(1);
+            return 1;
         case tree_stmts_kind_continue:
+            // fprintf(stderr, "Error: continue statement (line%d)", stmts->lineno);
+            // exit(1);
+            return 1;
         case tree_stmts_kind_fallthrough:
+            return 0;
     }
     weed_stmts(stmts->next);
 }
@@ -115,6 +123,11 @@ void weed_exp(EXP *exp) {
     if(exp == NULL) return 0;
     switch (exp->kind) {
         case tree_exp_kind_ident:
+            if(exp->ident == '_'){
+                // fprintf(stderr, "Error: blank identifier (line%d)", exp->lineno);
+                // exit(1);
+                return 1;
+            }
         case tree_exp_kind_int:
         case tree_exp_kind_float:
         case tree_exp_kind_rune:

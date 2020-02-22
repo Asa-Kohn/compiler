@@ -226,6 +226,7 @@ struct tree_append
 struct tree_exp
 {
     enum tree_exp_kind kind;
+    int lineno;
 
     union
     {
