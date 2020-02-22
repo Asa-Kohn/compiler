@@ -152,6 +152,7 @@ struct tree_type
         struct tree_type_array array;
         struct tree_type_slice slice;
         struct tree_type_struct structtype;
+        char *name;
     };
 };
 
