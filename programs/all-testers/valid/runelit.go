@@ -29,6 +29,7 @@ func main() {
 	print("single quote: ");
 	println('\'');
 
+	println("runelit executed")
 	// print("double quote(legal only in string literals): ");
 	// println('\');
 }

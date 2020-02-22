@@ -3,11 +3,35 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-typedef struct tree_decls PROGRAM;
+typedef struct tree_var_decl VAR_DECL;
+typedef struct tree_type_spec TYPE_SPEC;
+typedef struct tree_func_decl FUNC_DECL;
+typedef struct tree_decls DECLS;
+typedef struct tree_type_array TYPE_ARRAY;
+typedef struct tree_type_slice TYPE_SLICE;
+typedef struct tree_type_struct TYPE_STRUCT;
+typedef struct tree_type TYPE;
+typedef struct tree_vars VARS;
+typedef struct tree_unaryexp UNARYEXP;
+typedef struct tree_binaryexp BINARYEXP;
+typedef struct tree_call CALL;
+typedef struct tree_index INDEX;
+typedef struct tree_field FIELD;
+typedef struct tree_append APPEND;
+typedef struct tree_exp EXP;
+typedef struct tree_assign ASSIGN;
+typedef struct tree_shortdecl SHORTDECL;
+typedef struct tree_if IF_STMT;
+typedef struct tree_switch SWITCH_STMT;
+typedef struct tree_for FOR_STMT;
+typedef struct tree_stmts STMTS;
+typedef struct tree_cases CASES;
+typedef struct tree_exps EXPS;
+
 
 enum tree_decls_kind
 {
-    tree_decls_kind_var_spec,
+    tree_decls_kind_var_decl,
     tree_decls_kind_type_spec,
     tree_decls_kind_func_decl
 };
@@ -27,7 +51,7 @@ enum tree_stmts_kind
     tree_stmts_kind_shortdecl,
     tree_stmts_kind_inc,
     tree_stmts_kind_dec,
-    tree_stmts_kind_var_spec,
+    tree_stmts_kind_var_decl,
     tree_stmts_kind_type_spec,
     tree_stmts_kind_print,
     tree_stmts_kind_println,
@@ -89,11 +113,13 @@ enum tree_binaryexp_kind
 };
 
 // construct types
-struct tree_var_spec
+struct tree_var_decl
 {
     char *name;
     struct tree_type *type;
     struct tree_exp *val;
+
+    struct tree_var_decl *next;
 };
 
 struct tree_type_spec
@@ -116,7 +142,7 @@ struct tree_decls
 
     union
     {
-        struct tree_var_spec var_spec;
+        struct tree_var_decl var_decl;
         struct tree_type_spec type_spec;
         struct tree_func_decl func_decl;
     };
@@ -188,7 +214,7 @@ struct tree_index
 struct tree_field
 {
     struct tree_exp *instance;
-    struct char *field;
+    char *field;
 };
 
 struct tree_append
@@ -263,7 +289,7 @@ struct tree_stmts
         struct tree_assign assign;
         struct tree_shortdecl shortdecl;
         char *var;
-        struct tree_var_spec var_spec;
+        struct tree_var_decl var_decl;
         struct tree_type_spec type_spec;
         struct tree_exps *exps;
         struct tree_exp *exp;
@@ -288,8 +314,5 @@ struct tree_exps
     struct tree_exp *exp;
     struct tree_exps *next;
 };
-
-// signatures
-PROGRAM *tree_make_program();
 
 #endif
