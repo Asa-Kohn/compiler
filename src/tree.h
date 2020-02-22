@@ -191,7 +191,7 @@ struct tree_index
 struct tree_field
 {
     struct tree_exp *instance;
-    struct char *field;
+    char *field;
 };
 
 struct tree_append
@@ -268,7 +268,7 @@ struct tree_stmt
         struct tree_assign assign;
         struct tree_shortdecl shortdecl;
         char *var;
-        struct tree_var_decl var_decl;
+        struct tree_var_spec *var_spec;
         struct tree_type_spec type_spec;
         struct tree_exps *exps;
         struct tree_exp *exp;
