@@ -3,7 +3,31 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-typedef struct tree_decls PROGRAM;
+typedef struct tree_var_spec VAR_SPEC;
+typedef struct tree_type_spec TYPE_SPEC;
+typedef struct tree_func_decl FUNC_DECL;
+typedef struct tree_decls DECLS;
+typedef struct tree_type_array TYPE_ARRAY;
+typedef struct tree_type_slice TYPE_SLICE;
+typedef struct tree_type_struct TYPE_STRUCT;
+typedef struct tree_type TYPE;
+typedef struct tree_vars VARS;
+typedef struct tree_unaryexp UNARYEXP;
+typedef struct tree_binaryexp BINARYEXP;
+typedef struct tree_call CALL;
+typedef struct tree_index INDEX;
+typedef struct tree_field FIELD;
+typedef struct tree_append APPEND;
+typedef struct tree_exp EXP;
+typedef struct tree_assign ASSIGN;
+typedef struct tree_shortdecl SHORTDECL;
+typedef struct tree_if IF_STMT;
+typedef struct tree_switch SWITCH_STMT;
+typedef struct tree_for FOR_STMT;
+typedef struct tree_stmts STMTS;
+typedef struct tree_cases CASES;
+typedef struct tree_exps EXPS;
+
 
 enum tree_decls_kind
 {
@@ -288,8 +312,5 @@ struct tree_exps
     struct tree_exp *exp;
     struct tree_exps *next;
 };
-
-// signatures
-PROGRAM *tree_make_program();
 
 #endif
