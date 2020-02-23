@@ -47,6 +47,7 @@ enum tree_stmt_kind
 {
     tree_stmt_kind_exp,
     tree_stmt_kind_assign,
+    tree_stmt_kind_assignop,
     tree_stmt_kind_shortdecl,
     tree_stmt_kind_inc,
     tree_stmt_kind_dec,
@@ -109,6 +110,21 @@ enum tree_binaryexp_kind
     tree_binaryexp_kind_rshift,
     tree_binaryexp_kind_bitand,
     tree_binaryexp_kind_andnot
+};
+
+enum tree_assignop_kind
+{
+    tree_assignop_kind_plus,
+    tree_assignop_kind_minus,
+    tree_assignop_kind_or,
+    tree_assignop_kind_xor,
+    tree_assignop_kind_times,
+    tree_assignop_kind_div,
+    tree_assignop_kind_rem,
+    tree_assignop_kind_lshift,
+    tree_assignop_kind_rshift,
+    tree_assignop_kind_and,
+    tree_assignop_kind_andnot
 };
 
 // construct types
@@ -176,6 +192,7 @@ struct tree_type
         struct tree_type_array array;
         struct tree_type_slice slice;
         struct tree_type_struct structtype;
+        char *name;
     };
 };
 
@@ -247,16 +264,23 @@ struct tree_exp
     int lineno;
 };
 
+struct tree_assignop
+{
+    enum tree_assignop_kind kind;
+    struct tree_exp *left;
+    struct tree_exp *right;
+};
+
 struct tree_assign
 {
-    char *var;
-    struct tree_exp *exp;
+    struct tree_exps *left;
+    struct tree_exps *right;
 };
 
 struct tree_shortdecl
 {
-    char *name;
-    struct tree_exp *exp;
+    struct tree_idents *idents;
+    struct tree_exps *exps;
 };
 
 struct tree_if
@@ -290,6 +314,7 @@ struct tree_stmt
     {
         struct tree_exp expstmt;
         struct tree_assign assign;
+        struct tree_assignop assignop;
         struct tree_shortdecl shortdecl;
         char *var;
         struct tree_var_spec *var_spec;
@@ -313,10 +338,16 @@ struct tree_stmts
 
 struct tree_cases
 {
-    struct tree_exp *val;
+    struct tree_exps *val;
     struct tree_stmts *body;
 
     struct tree_cases *next;
+};
+
+struct tree_idents
+{
+    char *ident;
+    struct tree_idents *next;
 };
 
 struct tree_exps
