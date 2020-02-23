@@ -121,12 +121,6 @@ static void weed_stmts(STMTS *stmts)
             }
             weed_stmts(i->body);
         }
-        if(!hasdefault)
-        {
-            fprintf(stderr, "Error: no default case in switch at line %d\n",
-                    stmts->stmt.lineno);
-            exit(1);
-        }
     }
     else if(stmts->stmt.kind == tree_stmt_kind_for)
     {
