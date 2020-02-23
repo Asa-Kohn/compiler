@@ -68,7 +68,7 @@ void pretty_func_decl(FUNC_DECL *fd) {
     tab++;
     traverse_stmts(fd->body);
     tab--;
-    printf("}\n");
+    printf("};\n");
 }
 
 void traverse_vars_spec(VAR_SPEC vs) {
@@ -506,7 +506,7 @@ void traverse_vals(VAR_SPEC vs) {
 }
 
 void pretty_if(IF_STMT is) {
-    indentation(); printf("if ");
+    printf("if ");
 
     // initialization
     if(is.init != NULL) {
