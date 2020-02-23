@@ -296,9 +296,30 @@ void weed_cases(CASES *cases) {
     weed_cases(cases->next);
 }
 
+void weed_assignop(ASSIGNOP *assignop) {
+    if(assignop == NULL) return;
+    switch (assignop->kind) {
+        case tree_assignop_kind_plus:
+        case tree_assignop_kind_minus:
+        case tree_assignop_kind_or:
+        case tree_assignop_kind_xor:
+        case tree_assignop_kind_times:
+        case tree_assignop_kind_div:
+        case tree_assignop_kind_rem:
+        case tree_assignop_kind_lshift:
+        case tree_assignop_kind_rshift:
+        case tree_assignop_kind_and:
+        case tree_assignop_kind_andnot:
+            break;
+    }
+    weed_exp(assignop->left);
+    weed_exp(assignop->right);
+}
+
 void weed_assign(ASSIGN *assign) {
     if(assign == NULL) return;
-    weed_exp(assign->exp);
+    weed_exps(assign->left);
+    weed_exps(assign->right);
 }
 
 void weed_shortdecl(SHORTDECL *shortdecl) {

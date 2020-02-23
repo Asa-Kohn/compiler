@@ -19,6 +19,7 @@ typedef struct tree_index INDEX;
 typedef struct tree_field FIELD;
 typedef struct tree_append APPEND;
 typedef struct tree_exp EXP;
+typedef struct tree_assignop ASSIGNOP;
 typedef struct tree_assign ASSIGN;
 typedef struct tree_shortdecl SHORTDECL;
 typedef struct tree_if IF_STMT;

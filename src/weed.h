@@ -19,6 +19,7 @@ void weed_append(APPEND *append);
 void weed_cases(CASES *cases);
 void weed_stmts(STMTS *stmts);
 void weed_stmt(STMT *stmt);
+void weed_assignop(ASSIGNOP *assignop);
 void weed_assign(ASSIGN *assign);
 void weed_shortdecl(SHORTDECL *shortdecl);
 // void weed_var_decl(VAR_DECL *var_decl);
