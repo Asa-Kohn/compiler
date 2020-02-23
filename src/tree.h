@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-typedef struct tree_var_decl VAR_DECL;
+typedef struct tree_var_spec VAR_SPEC;
 typedef struct tree_type_spec TYPE_SPEC;
 typedef struct tree_func_decl FUNC_DECL;
 typedef struct tree_decls DECLS;
@@ -19,15 +19,16 @@ typedef struct tree_index INDEX;
 typedef struct tree_field FIELD;
 typedef struct tree_append APPEND;
 typedef struct tree_exp EXP;
+typedef struct tree_assignop ASSIGNOP;
 typedef struct tree_assign ASSIGN;
 typedef struct tree_shortdecl SHORTDECL;
 typedef struct tree_if IF_STMT;
 typedef struct tree_switch SWITCH_STMT;
 typedef struct tree_for FOR_STMT;
 typedef struct tree_stmts STMTS;
+typedef struct tree_stmt STMT;
 typedef struct tree_cases CASES;
 typedef struct tree_exps EXPS;
-
 
 enum tree_decls_kind
 {
@@ -157,8 +158,7 @@ struct tree_decls
 {
     enum tree_decls_kind kind;
 
-    union
-    {
+    union {
         struct tree_var_spec *var_spec;
         struct tree_type_spec type_spec;
         struct tree_func_decl func_decl;
@@ -188,8 +188,7 @@ struct tree_type
 {
     enum tree_type_kind kind;
 
-    union
-    {
+    union {
         struct tree_type_array array;
         struct tree_type_slice slice;
         struct tree_type_struct structtype;
@@ -246,8 +245,7 @@ struct tree_exp
 {
     enum tree_exp_kind kind;
 
-    union
-    {
+    union {
         char *ident;
         int intval;
         double floatval;
@@ -311,8 +309,7 @@ struct tree_stmt
 {
     enum tree_stmt_kind kind;
 
-    union
-    {
+    union {
         struct tree_exp expstmt;
         struct tree_assign assign;
         struct tree_assignop assignop;
