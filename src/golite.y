@@ -593,6 +593,7 @@ stmt:           block
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.block = $1;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       simplestmt
                 {
@@ -602,6 +603,7 @@ stmt:           block
                         $$->stmt = *$1;
                         free($1);
                         $$->stmt.lineno = yylineno;
+                        $$->next = NULL;
                     }
                     else
                         $$ = NULL;
@@ -610,11 +612,13 @@ stmt:           block
                 {
                     $$ = $1;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       type_decl_stmt
                 {
                     $$ = $1;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       TOK_PRINT '(' exps ')'
                 {
@@ -622,6 +626,7 @@ stmt:           block
                     $$->stmt.kind = tree_stmt_kind_print;
                     $$->stmt.exps = $3;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       TOK_PRINT '(' ')'
                 {
@@ -629,6 +634,7 @@ stmt:           block
                     $$->stmt.kind = tree_stmt_kind_print;
                     $$->stmt.exps = NULL;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       TOK_PRINTLN '(' exps ')'
                 {
@@ -636,6 +642,7 @@ stmt:           block
                     $$->stmt.kind = tree_stmt_kind_println;
                     $$->stmt.exps = $3;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       TOK_PRINTLN '(' ')'
                 {
@@ -643,6 +650,7 @@ stmt:           block
                     $$->stmt.kind = tree_stmt_kind_println;
                     $$->stmt.exps = NULL;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       TOK_RETURN
                 {
@@ -650,6 +658,7 @@ stmt:           block
                     $$->stmt.kind = tree_stmt_kind_return;
                     $$->stmt.exp = NULL;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       TOK_RETURN exp
                 {
@@ -657,6 +666,7 @@ stmt:           block
                     $$->stmt.kind = tree_stmt_kind_return;
                     $$->stmt.exp = $2;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       ifstmt
                 {
@@ -664,6 +674,7 @@ stmt:           block
                     $$->stmt.kind = tree_stmt_kind_if;
                     $$->stmt.ifstmt = $1;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       switchstmt
                 {
@@ -671,6 +682,7 @@ stmt:           block
                     $$->stmt.kind = tree_stmt_kind_switch;
                     $$->stmt.switchstmt = $1;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       TOK_FOR block
                 {
@@ -681,6 +693,7 @@ stmt:           block
                     $$->stmt.forstmt.iter = NULL;
                     $$->stmt.forstmt.body = $2;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       TOK_FOR exp block
                 {
@@ -691,6 +704,7 @@ stmt:           block
                     $$->stmt.forstmt.iter = NULL;
                     $$->stmt.forstmt.body = $3;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       TOK_FOR simplestmt ';' exp ';' simplestmt block
                 {
@@ -701,24 +715,28 @@ stmt:           block
                     $$->stmt.forstmt.iter = $6;
                     $$->stmt.forstmt.body = $7;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       TOK_BREAK
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_break;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       TOK_CONTINUE
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_continue;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       TOK_FALLTHROUGH
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_fallthrough;
                     $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
                 }
         ;
 
