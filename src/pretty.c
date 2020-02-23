@@ -140,6 +140,7 @@ void traverse_exps(EXPS *es) {
 }
 
 void traverse_stmts(STMTS *ss) {
+    if(ss == NULL) return;
     // Go through an stmts
     indentation();
     pretty_stmt(&ss->stmt);
@@ -556,8 +557,15 @@ void pretty_switch(SWITCH_STMT ss) {
 }
 
 void pretty_cases(CASES cs) {
-    indentation(); printf("case ");
-    traverse_exps(cs.val);
+    if(cs.val != NULL) {
+        indentation();
+        printf("case ");
+        traverse_exps(cs.val);
+    }
+    else {
+        printf("default");
+    }
+    
     printf(":\n");
     tab++;
     traverse_stmts(cs.body);
