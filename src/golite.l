@@ -5,6 +5,7 @@
 
 #include "golite.tab.h"
 #include "utils.h"
+#include "tree.h"
 
 //print/return functions for string token & char tokens
 #define OUTPUT_TOKEN(TOK) { \
@@ -51,28 +52,28 @@ static int last_token = 0;
 "break" OUTPUT_TOKEN(TOK_BREAK)
 "cap" OUTPUT_TOKEN(TOK_CAP)
 "case" OUTPUT_TOKEN(TOK_CASE)
-"chan" OUTPUT_TOKEN(TOK_CHAN)
-"const" OUTPUT_TOKEN(TOK_CONST)
+"chan" { fprintf(stderr, "Error: channels not supported\n"); exit(1); }
+"const" { fprintf(stderr, "Error: constants not supported\n"); exit(1); }
 "continue" OUTPUT_TOKEN(TOK_CONTINUE)
 "default" OUTPUT_TOKEN(TOK_DEFAULT)
-"defer" OUTPUT_TOKEN(TOK_DEFER)
+"defer" { fprintf(stderr, "Error: defer not supported\n"); exit(1); }
 "else" OUTPUT_TOKEN(TOK_ELSE)
 "fallthrough" OUTPUT_TOKEN(TOK_FALLTHROUGH)
 "for" OUTPUT_TOKEN(TOK_FOR)
 "func" OUTPUT_TOKEN(TOK_FUNC)
-"go" OUTPUT_TOKEN(TOK_GO)
-"goto" OUTPUT_TOKEN(TOK_GOTO)
+"go" { fprintf(stderr, "Error: go not supported\n"); exit(1); }
+"goto" { fprintf(stderr, "Error: goto not supported\n"); exit(1); }
 "if" OUTPUT_TOKEN(TOK_IF)
 "import" { fprintf(stderr, "Error: import not supported\n"); exit(1); }
-"interface" OUTPUT_TOKEN(TOK_INTERFACE)
+"interface" { fprintf(stderr, "Error: interfaces not supported\n"); exit(1); }
 "len" OUTPUT_TOKEN(TOK_LEN)
-"map" OUTPUT_TOKEN(TOK_MAP)
+"map" { fprintf(stderr, "Error: map not supported\n"); exit(1); }
 "package" OUTPUT_TOKEN(TOK_PACKAGE)
 "print" OUTPUT_TOKEN(TOK_PRINT)
 "println" OUTPUT_TOKEN(TOK_PRINTLN)
-"range" OUTPUT_TOKEN(TOK_RANGE)
+"range" { fprintf(stderr, "Error: range not supported\n"); exit(1); }
 "return" OUTPUT_TOKEN(TOK_RETURN)
-"select" OUTPUT_TOKEN(TOK_SELECT)
+"select" { fprintf(stderr, "Error: select not supported\n"); exit(1); }
 "struct" OUTPUT_TOKEN(TOK_STRUCT)
 "switch" OUTPUT_TOKEN(TOK_SWITCH)
 "type" OUTPUT_TOKEN(TOK_TYPE)
@@ -151,7 +152,7 @@ static int last_token = 0;
 "'\\\\'" { yylval.runeval = '\\'; OUTPUT_TOKEN(TOK_RUNE) }
 "'\\''" { yylval.runeval = '\''; OUTPUT_TOKEN(TOK_RUNE) }
 
-0x[a-fA-F]+|[0-9]+ {
+0x[0-9a-fA-F]+|[0-9]+ {
     yylval.intval = strtol(yytext, NULL, 0);
     OUTPUT_TOKEN(TOK_INT)
 }
