@@ -58,9 +58,9 @@ void pretty_type_spec(TYPE_SPEC ts) {
 
 void pretty_func_decl(FUNC_DECL *fd) {
     printf("func %s(", fd->name);
-    traverse_vars(fd->params);
+    if (fd->params != NULL) traverse_vars(fd->params);
     printf(") ");
-    if (fd->type != NULL) {
+    if(fd->type != NULL) {
         pretty_type(fd->type);
         printf(" ");
     }
@@ -83,7 +83,7 @@ void traverse_vars_spec(VAR_SPEC vs) {
 
 void traverse_vars(VARS * v) {
     printf("%s ", v->name);
-
+    pretty_type(v->type);
     if(v->next != NULL) {
         printf(", ");
         traverse_vars(v->next);
@@ -106,7 +106,7 @@ void pretty_type(TYPE * t) {
             tab++;
             pretty_struct(t->structtype);
             tab--;
-            indentation(); printf("\n}");
+            indentation(); printf("}");
             break;
     }
 }
@@ -124,9 +124,9 @@ void pretty_array(TYPE_ARRAY ta) {
 }
 
 void pretty_struct(TYPE_STRUCT tstr) {
+    indentation();
     traverse_vars(tstr.fields);
-    printf(" ");
-    pretty_type(tstr.fields->type);
+    printf("\n");
 }
 
 void traverse_exps(EXPS *es) {
@@ -143,6 +143,7 @@ void traverse_stmts(STMTS *ss) {
     // Go through an stmts
     indentation();
     pretty_stmt(&ss->stmt);
+    printf("\n;")
 
     if(ss->next != NULL) {
         traverse_stmts(ss->next);
@@ -517,11 +518,11 @@ void pretty_if(IF_STMT is) {
     pretty_exp(is.condition);
 
     // body
-    printf(" {\n"); // Asa convention (Allman style)
+    printf(" {\n");
     tab++;
     traverse_stmts(is.body);
     tab--;
-    indentation(); printf("}"); // Asa convention (Allman style)
+    indentation(); printf("}");
 
     // optional else, else if
     if(is.elsebody != NULL) {
@@ -568,7 +569,7 @@ void pretty_cases(CASES cs) {
 }
 
 void pretty_for(FOR_STMT fs) {
-    indentation(); printf("for ");
+    printf("for ");
 
     // initialization
     if(fs.init != NULL) {
@@ -686,7 +687,6 @@ void pretty_stmt(STMT *s) {
             printf("fallthrough");
             break;
     }
-    printf(";\n");
 }
 
 void indentation() {
