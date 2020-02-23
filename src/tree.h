@@ -232,8 +232,8 @@ struct tree_assign
 
 struct tree_shortdecl
 {
-    char *name;
-    struct tree_exp *exp;
+    struct tree_idents *idents;
+    struct tree_exps *exps;
 };
 
 struct tree_if
@@ -294,6 +294,12 @@ struct tree_cases
     struct tree_stmts *body;
 
     struct tree_cases *next;
+};
+
+struct tree_idents
+{
+    struct char *ident;
+    struct tree_idents *next;
 };
 
 struct tree_exps
