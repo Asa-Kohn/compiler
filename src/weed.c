@@ -7,48 +7,7 @@
 
 #include "weed.h"
 
-//for weeding invalid break & continue statement
-static void weed_bc_stmts(STMTS *stmts)
-{
-    if(stmts == NULL)
-        return;
-
-    switch(stmts->stmt.kind)
-    {
-        case tree_stmt_kind_break:
-            fprintf(stderr,
-                    "Error: invalid break statement now allowed (line %d)",
-                    stmts->stmt.lineno);
-            exit(1);
-        case tree_stmt_kind_continue:
-            fprintf(stderr,
-                    "Error: invalid continue statement now allowed(line %d)",
-                    stmts->stmt.lineno);
-            exit(1);
-        case tree_stmt_kind_if:
-            weed_bc_stmts(stmts->stmt.ifstmt->body);
-            weed_bc_stmts(stmts->stmt.ifstmt->elsebody);
-            break;
-        case tree_stmt_kind_switch:
-            weed_bc_cases(stmts->stmt.switchstmt->cases);
-            break;
-        case tree_stmt_kind_block:
-            weed_bc_stmts(stmts->stmt.block);
-            break;
-    }
-
-    weed_bc_stmts(stmts->next);
-}
-
 //iterate through cases
-static void weed_bc_cases(CASES *cases)
-{
-    if(cases == NULL)
-        return;
-    weed_c_stmts(cases->body);
-    weed_bc_cases(cases->next);
-}
-
 static void weed_c_stmts(STMTS *stmts)
 {
     if(stmts == NULL)
@@ -58,11 +17,52 @@ static void weed_c_stmts(STMTS *stmts)
     {
         fprintf(stderr,
                 "Error: invalid continue statement now allowed(line %d)",
-                stmts->->stmt.lineno);
+                stmts->stmt.lineno);
         exit(1);
     }
 
     weed_c_stmts(stmts->next);
+}
+
+static void weed_bc_cases(CASES *cases)
+{
+    if(cases == NULL)
+        return;
+    weed_c_stmts(cases->body);
+    weed_bc_cases(cases->next);
+}
+
+//for weeding invalid break & continue statement
+static void weed_bc_stmts(STMTS *stmts)
+{
+    if(stmts == NULL)
+        return;
+
+    if(stmts->stmt.kind == tree_stmt_kind_break)
+    {
+        fprintf(stderr,
+                "Error: invalid break statement now allowed (line %d)",
+                stmts->stmt.lineno);
+        exit(1);
+    }
+    else if(stmts->stmt.kind == tree_stmt_kind_continue)
+    {
+        fprintf(stderr,
+                "Error: invalid continue statement now allowed(line %d)",
+                stmts->stmt.lineno);
+        exit(1);
+    }
+    else if(stmts->stmt.kind == tree_stmt_kind_if)
+    {
+        weed_bc_stmts(stmts->stmt.ifstmt.body);
+        weed_bc_stmts(stmts->stmt.ifstmt.elsebody);
+    }
+    else if(stmts->stmt.kind == tree_stmt_kind_switch)
+        weed_bc_cases(stmts->stmt.switchstmt.cases);
+    else if(stmts->stmt.kind == tree_stmt_kind_block)
+        weed_bc_stmts(stmts->stmt.block);
+
+    weed_bc_stmts(stmts->next);
 }
 
 static void weed_stmts(STMTS *stmts)
@@ -88,8 +88,8 @@ static void weed_stmts(STMTS *stmts)
     }
     else if(stmts->stmt.kind == tree_stmt_kind_shortdecl)
     {
-        struct tree_idents *i = stmts->stmt.assign.idents;
-        struct tree_exps *j = stmts->stmt.assign.exps;
+        struct tree_idents *i = stmts->stmt.shortdecl.idents;
+        struct tree_exps *j = stmts->stmt.shortdecl.exps;
         while(i && j)
         {
             i = i->next;
@@ -128,7 +128,7 @@ static void weed_stmts(STMTS *stmts)
             exit(1);
         }
     }
-    else if(stmts->stmt.kind == tree_stmt_kind_forstmt)
+    else if(stmts->stmt.kind == tree_stmt_kind_for)
     {
         if(stmts->stmt.forstmt.iter &&
            stmts->stmt.forstmt.iter->kind == tree_stmt_kind_shortdecl)
@@ -163,7 +163,10 @@ void weed(DECLS *decls)
         return;
 
     if(decls->kind == tree_decls_kind_func_decl)
+    {
+        weed_bc_stmts(decls->func_decl.body);
         weed_stmts(decls->func_decl.body);
+    }
 
-    weed_decls(decls->next);
+    weed(decls->next);
 }
