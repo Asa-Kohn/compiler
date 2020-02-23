@@ -206,7 +206,7 @@ static int last_token = 0;
     char *c;
     for(c = yytext; *c; c++, c += (*c == '\\'))
         i++;
-    yylval.strval = emalloc(i);
+    yylval.strval = emalloc(i + 1);
     for(i = 0, c = yytext; *c; i++, c++)
     {
         if(*c == '\\')
@@ -242,6 +242,7 @@ static int last_token = 0;
             }
         else yylval.strval[i] = *c;
     }
+    yylval.strval[i] = '\0';
     OUTPUT_TOK_STR
 }
 
