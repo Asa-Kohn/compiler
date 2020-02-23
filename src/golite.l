@@ -16,34 +16,44 @@
         else return TOK;                        \
     }
 
-#define OUTPUT_TOK_INT                          \
-    {                                           \
-        last_token = TOK_INT;                   \
-        printf("TOK_INT(%d)\n", yylval.intval); \
-    }
-
-#define OUTPUT_TOK_FLOAT                            \
+#define OUTPUT_TOK_INT                              \
     {                                               \
-        last_token = TOK_FLOAT;                     \
-        printf("TOK_FLOAT(%f)\n", yylval.floatval); \
+        last_token = TOK_INT;                       \
+        if(print_tokens)                            \
+            printf("TOK_INT(%d)\n", yylval.intval); \
+        else return TOK_INT;                        \
     }
 
-#define OUTPUT_TOK_RUNE                             \
+#define OUTPUT_TOK_FLOAT                                \
+    {                                                   \
+        last_token = TOK_FLOAT;                         \
+        if(print_tokens)                                \
+            printf("TOK_FLOAT(%f)\n", yylval.floatval); \
+        else return TOK_FLOAT;                          \
+    }
+
+#define OUTPUT_TOK_RUNE                                 \
+    {                                                   \
+        last_token = TOK_RUNE;                          \
+        if(print_tokens)                                \
+            printf("TOK_RUNE(%c)\n", yylval.runeval);   \
+        else return TOK_RUNE;                           \
+    }
+
+#define OUTPUT_TOK_STR                              \
     {                                               \
-        last_token = TOK_RUNE;                      \
-        printf("TOK_RUNE(%c)\n", yylval.runeval);   \
+        last_token = TOK_STR;                       \
+        if(print_tokens)                            \
+            printf("TOK_STR(%s)\n", yylval.strval); \
+        else return TOK_STR;                        \
     }
 
-#define OUTPUT_TOK_STR                          \
-    {                                           \
-        last_token = TOK_STR;                   \
-        printf("TOK_STR(%s)\n", yylval.strval); \
-    }
-
-#define OUTPUT_TOK_IDENT                            \
-    {                                               \
-        last_token = TOK_IDENT;                     \
-        printf("TOK_IDENT(%s)\n", yylval.strval);   \
+#define OUTPUT_TOK_IDENT                                \
+    {                                                   \
+        last_token = TOK_IDENT;                         \
+        if(print_tokens)                                \
+            printf("TOK_IDENT(%s)\n", yylval.strval);   \
+        else return TOK_IDENT;                          \
     }
 
 #define OUTPUT_TOKEN_CHAR(TOK)                                  \
