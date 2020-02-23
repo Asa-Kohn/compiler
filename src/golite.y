@@ -170,6 +170,7 @@ package_decl:   TOK_PACKAGE TOK_IDENT
 dentifier");
                         exit(1);
                     }
+                    free($2);
                 }
         ;
 
@@ -231,6 +232,7 @@ var_decl_stmt:  TOK_VAR var_spec
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_var_decl;
                     $$->stmt.var_spec = $2;
+                    $$->next = NULL;
                 }
         |       TOK_VAR '(' var_specs_stmt ')'
                 {
@@ -256,7 +258,7 @@ var_spec:       idents type
                     $$ = emalloc(sizeof(struct tree_var_spec));
                     struct tree_var_spec *c = $$;
                     struct tree_idents *i = $1;
-                    while(i->next);
+                    while(i->next)
                     {
                         c->name = i->ident;
                         c->type = $2;
@@ -271,6 +273,7 @@ var_spec:       idents type
                     for(struct tree_idents *j = (i = $1)->next; j;
                         i = j, j = j->next)
                         free(i);
+                    free(i);
                 }
         |       idents '=' exps
                 {
@@ -300,9 +303,11 @@ match on line %d\n", j->exp->lineno);
                     for(struct tree_idents *k = (i = $1)->next; k;
                         i = k, k = k->next)
                         free(i);
+                    free(i);
                     for(struct tree_exps *k = (j = $3)->next; k;
                         j = k, k = k->next)
                         free(j);
+                    free(j);
                 }
         |       idents type '=' exps
                 {
@@ -332,9 +337,11 @@ match on line %d\n", j->exp->lineno);
                     for(struct tree_idents *k = (i = $1)->next; k;
                         i = k, k = k->next)
                         free(i);
+                    free(i);
                     for(struct tree_exps *k = (j = $4)->next; k;
                         j = k, k = k->next)
                         free(j);
+                    free(j);
                 }
         ;
 
@@ -438,6 +445,24 @@ func_decl:      TOK_FUNC TOK_IDENT '(' params ')' type block
                     $$->func_decl.type = NULL;
                     $$->func_decl.body = $6;
                 }
+        |       TOK_FUNC TOK_IDENT '(' ')' type block
+                {
+                    $$ = emalloc(sizeof(struct tree_decls));
+                    $$->kind = tree_decls_kind_func_decl;
+                    $$->func_decl.name = $2;
+                    $$->func_decl.params = NULL;
+                    $$->func_decl.type = $5;
+                    $$->func_decl.body = $6;
+                }
+        |       TOK_FUNC TOK_IDENT '(' ')' block
+                {
+                    $$ = emalloc(sizeof(struct tree_decls));
+                    $$->kind = tree_decls_kind_func_decl;
+                    $$->func_decl.name = $2;
+                    $$->func_decl.params = NULL;
+                    $$->func_decl.type = NULL;
+                    $$->func_decl.body = $5;
+                }
         ;
 
 block:           '{' stmts '}'
@@ -446,9 +471,25 @@ block:           '{' stmts '}'
                 }
         ;
 
-params:
+params:         idents type
                 {
-                    $$ = NULL;
+                    $$ = emalloc(sizeof(struct tree_vars));
+                    struct tree_vars *c = $$;
+                    struct tree_idents *i = $1;
+                    while(i->next)
+                    {
+                        c->type = $2;
+                        c->name = i->ident;
+                        c = c->next = emalloc(sizeof(struct tree_vars));
+                        i = i->next;
+                    }
+                    c->type = $2;
+                    c->name = i->ident;
+                    c->next = NULL;
+                    for(struct tree_idents *j = (i = $1)->next; j;
+                        i = j, j = j->next)
+                        free(i);
+                    free(i);
                 }
         |       idents type ',' params
                 {
@@ -468,6 +509,7 @@ params:
                     for(struct tree_idents *j = (i = $1)->next; j;
                         i = j, j = j->next)
                         free(i);
+                    free(i);
                 }
         ;
 
@@ -524,6 +566,7 @@ field_decls:
                     for(struct tree_idents *j = (i = $1)->next; j;
                         i = j, j = j->next)
                         free(i);
+                    free(i);
                 }
         ;
 
@@ -713,7 +756,7 @@ simplestmt:
 assignment:     exps '=' exps
                 {
                     $$.left = $1;
-                    $$.right = $1;
+                    $$.right = $3;
                 }
         ;
 
