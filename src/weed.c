@@ -16,7 +16,7 @@ static void weed_c_stmts(STMTS *stmts)
     if(stmts->stmt.kind == tree_stmt_kind_continue)
     {
         fprintf(stderr,
-                "Error: invalid continue statement now allowed(line %d)",
+                "Error: invalid continue statement not allowed(line %d)",
                 stmts->stmt.lineno);
         exit(1);
     }
@@ -41,14 +41,14 @@ static void weed_bc_stmts(STMTS *stmts)
     if(stmts->stmt.kind == tree_stmt_kind_break)
     {
         fprintf(stderr,
-                "Error: invalid break statement now allowed (line %d)",
+                "Error: invalid break statement not allowed (line %d)",
                 stmts->stmt.lineno);
         exit(1);
     }
     else if(stmts->stmt.kind == tree_stmt_kind_continue)
     {
         fprintf(stderr,
-                "Error: invalid continue statement now allowed(line %d)",
+                "Error: invalid continue statement not allowed(line %d)",
                 stmts->stmt.lineno);
         exit(1);
     }

@@ -1,9 +1,9 @@
 package main
 
-var tag = 0
+var tag = 0;
 
 func main() {
 	switch tag {
-	case 0:
+		default: println("single");
 	}
 }
