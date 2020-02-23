@@ -167,7 +167,7 @@ package_decl:   TOK_PACKAGE TOK_IDENT
                     if(strcmp($2, "_") == 0)
                     {
                         fprintf(stderr, "Error: package name may not be blank i\
-dentifier");
+dentifier\n");
                         exit(1);
                     }
                     free($2);
