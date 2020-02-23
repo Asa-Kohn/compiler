@@ -251,6 +251,7 @@ static int last_token = 0;
     yylval.strval = emalloc(len - 1);
     strncpy(yylval.strval, &yytext[1], len - 2);
     yylval.strval[len - 2] = '\0';
+    OUTPUT_TOK_STR
 }
 
 [0-9]*\.[0-9]+|[0-9]+\.[0-9]* {

@@ -124,6 +124,7 @@ void yyerror(char const *s)
 %type   <assignop>      op_assignment;
 %type   <switchstmt>    switchstmt;
 %type   <cases>         cases;
+%type   <strval>        package_decl;
 
 /* Precedence directives  resolve grammar  ambiguities by breaking  ties between
  * shift/reduce  operations. Tokens  are grouped  into precendence  levels, with
@@ -158,7 +159,10 @@ void yyerror(char const *s)
 
 program:        package_decl ';' top_level_decls
                 {
-                    root = $3;
+                    root = emalloc(sizeof(struct tree_decls));
+                    root->kind = tree_decls_kind_package;
+                    root->package = $1;
+                    root->next = $3;
                 }
         ;
 
@@ -170,7 +174,7 @@ package_decl:   TOK_PACKAGE TOK_IDENT
 dentifier\n");
                         exit(1);
                     }
-                    free($2);
+                    $$ = $2;
                 }
         ;
 
