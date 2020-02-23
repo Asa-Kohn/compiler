@@ -7,61 +7,21 @@
 //stmts_kind
 void weed_bc_stmts(STMTS *stmts) {
     if(stmts == NULL) return;
-    switch (stmts->kind) {
+    switch (stmts->stmt.kind) {
         case tree_stmt_kind_break:
-            fprintf(stderr, "Error: invalid break statement (line %d)", stmts->lineno);
+            fprintf(stderr, "Error: invalid break statement (line %d)", stmts->stmt.lineno);
             exit(1); 
         case tree_stmt_kind_continue:
-            fprintf(stderr, "Error: invalid continue statement (line %d)", stmts->lineno);
+            fprintf(stderr, "Error: invalid continue statement (line %d)", stmts->stmt.lineno);
             exit(1); 
+        case tree_stmt_kind_if:
+            weed_if(&(stmts->stmt));
+        case tree_stmt_kind_switch:
+            weed_switch(&(stmts->stmt));
+    }
     weed_stmts(stmts->next);
 }
 
-//stmt_kind
-void weed_stmt_for(STMT *stmt) {
-    if(stmt == NULL) return;
-    switch (stmt->kind) {
-        case tree_stmt_kind_shortdecl:
-            weed_shortdecl(&(stmt->shortdecl));
-            return;
-            
-        case tree_stmt_kind_break:
-            // fprintf(stderr, "Error: break statement (line %d)", stmt->lineno);
-            // exit(1);
-            return;
-
-        case tree_stmt_kind_continue:
-            // fprintf(stderr, "Error: continue statement (line %d)", stmt->lineno);
-            // exit(1);
-            return;
-
-        default:
-            return;
-    }
-    return;
-}
-//stmt_kind_switch
-void weed_stmt_switch(STMT *stmt) {
-    if(stmt == NULL) return;
-    switch (stmt->kind) {
-        case tree_stmt_kind_shortdecl:
-            weed_shortdecl(&(stmt->shortdecl));
-            return;
-            
-        case tree_stmt_kind_break:
-            // fprintf(stderr, "Error: break statement (line %d)", stmt->lineno);
-            // exit(1);
-            return;
-
-        case tree_stmt_kind_continue:
-            fprintf(stderr, "Error: continue statement (line %d)", stmt->lineno);
-            exit(1);
-
-        default:
-            return;
-    }
-    return;
-}
 //stmt_kind
 void weed_stmt(STMT *stmt) {
     if(stmt == NULL) return;
@@ -330,23 +290,23 @@ void weed_shortdecl(SHORTDECL *shortdecl) {
 
 void weed_if(IF_STMT *if_stmt) {
     if(if_stmt == NULL) return;
-    weed_stmts(if_stmt->init);
-    weed_exp(if_stmt->condition);
+    // weed_stmts(if_stmt->init);       //has to be a simple statment, where simple statement cannot syntactically be break or continue
+    // weed_exp(if_stmt->condition);    //exp cannot syntactically be break or continue
     weed_stmts(if_stmt->body);
     weed_stmts(if_stmt->elsebody);
 }
 
 void weed_switch(SWITCH_STMT *switch_stmt) {
     if(switch_stmt == NULL) return;
-    weed_stmts(switch_stmt->init);
+    weed_stmt(switch_stmt->init);
     weed_exp(switch_stmt->exp);
     weed_cases(switch_stmt->cases);
 }
 
 void weed_for(FOR_STMT *for_stmt) {
     if(for_stmt == NULL) return;
-    weed_stmts(for_stmt->init);
+    weed_stmt(for_stmt->init);
     weed_exp(for_stmt->condition);
-    weed_stmts(for_stmt->iter);
+    weed_stmt(for_stmt->iter);
     weed_stmts(for_stmt->body);
 }
