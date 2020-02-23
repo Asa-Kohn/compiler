@@ -47,6 +47,7 @@ enum tree_type_kind
 enum tree_stmt_kind
 {
     tree_stmt_kind_exp,
+    tree_stmt_kind_block,
     tree_stmt_kind_assign,
     tree_stmt_kind_assignop,
     tree_stmt_kind_shortdecl,
@@ -316,6 +317,7 @@ struct tree_stmt
         struct tree_assign assign;
         struct tree_assignop assignop;
         struct tree_shortdecl shortdecl;
+        struct tree_stmts *block;
         char *var;
         struct tree_var_spec *var_spec;
         struct tree_type_spec type_spec;

@@ -112,8 +112,8 @@ void yyerror(char const *s)
 %type   <var_decl>      var_spec;
 %type   <idents>        idents;
 %type   <exps>          exps;
-%type   <stmts>         stmts block var_decl_stmt var_specs_stmt type_decl_stmt
-                        type_specs_stmt;
+%type   <stmts>         stmt stmts block var_decl_stmt var_specs_stmt
+                        type_decl_stmt type_specs_stmt;
 %type   <vars>          params;
 %type   <type>          type;
 %type   <stmt>          simplestmt;
@@ -570,96 +570,109 @@ field_decls:
                 }
         ;
 
-
 stmts:
                 {
                     $$ = NULL;
                 }
-        |       simplestmt ';' stmts
+        |       stmt ';' stmts
+                {
+                    if($1)
+                    {
+                        struct tree_stmts *c = $$ = $1;
+                        while(c->next)
+                            c = c->next;
+                        c->next = $3;
+                    }
+                    else
+                        $$ = $3;
+                }
+        ;
+
+stmt:           block
+                {
+                    $$ = emalloc(sizeof(struct tree_stmts));
+                    $$->stmt.block = $1;
+                    $$->stmt.lineno = yylineno;
+                }
+        |       simplestmt
                 {
                     if($1)
                     {
                         $$ = emalloc(sizeof(struct tree_stmts));
                         $$->stmt = *$1;
                         free($1);
-                        $$->next = $3;
+                        $$->stmt.lineno = yylineno;
                     }
                     else
-                        $$ = $3;
+                        $$ = NULL;
                 }
-        |       var_decl_stmt ';' stmts
+        |       var_decl_stmt
                 {
                     $$ = $1;
-                    struct tree_stmts *c = $$;
-                    while(c->next)
-                        c = c->next;
-                    c->next = $3;
+                    $$->stmt.lineno = yylineno;
                 }
-        |       type_decl_stmt ';' stmts
+        |       type_decl_stmt
                 {
                     $$ = $1;
-                    struct tree_stmts *c = $$;
-                    while(c->next)
-                        c = c->next;
-                    c->next = $3;
+                    $$->stmt.lineno = yylineno;
                 }
-        |       TOK_PRINT '(' exps ')' ';' stmts
+        |       TOK_PRINT '(' exps ')'
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_print;
                     $$->stmt.exps = $3;
-                    $$->next = $6;
+                    $$->stmt.lineno = yylineno;
                 }
-        |       TOK_PRINT '(' ')' ';' stmts
+        |       TOK_PRINT '(' ')'
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_print;
                     $$->stmt.exps = NULL;
-                    $$->next = $5;
+                    $$->stmt.lineno = yylineno;
                 }
-        |       TOK_PRINTLN '(' exps ')' ';' stmts
+        |       TOK_PRINTLN '(' exps ')'
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_println;
                     $$->stmt.exps = $3;
-                    $$->next = $6;
+                    $$->stmt.lineno = yylineno;
                 }
-        |       TOK_PRINTLN '(' ')' ';' stmts
+        |       TOK_PRINTLN '(' ')'
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_println;
                     $$->stmt.exps = NULL;
-                    $$->next = $5;
+                    $$->stmt.lineno = yylineno;
                 }
-        |       TOK_RETURN ';' stmts
+        |       TOK_RETURN
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_return;
                     $$->stmt.exp = NULL;
-                    $$->next = $3;
+                    $$->stmt.lineno = yylineno;
                 }
-        |       TOK_RETURN exp ';' stmts
+        |       TOK_RETURN exp
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_return;
                     $$->stmt.exp = $2;
-                    $$->next = $4;
+                    $$->stmt.lineno = yylineno;
                 }
-        |       ifstmt ';' stmts
+        |       ifstmt
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_if;
                     $$->stmt.ifstmt = $1;
-                    $$->next = $3;
+                    $$->stmt.lineno = yylineno;
                 }
-        |       switchstmt ';' stmts
+        |       switchstmt
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_switch;
                     $$->stmt.switchstmt = $1;
-                    $$->next = $3;
+                    $$->stmt.lineno = yylineno;
                 }
-        |       TOK_FOR block ';' stmts
+        |       TOK_FOR block
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_for;
@@ -667,9 +680,9 @@ stmts:
                     $$->stmt.forstmt.condition = NULL;
                     $$->stmt.forstmt.iter = NULL;
                     $$->stmt.forstmt.body = $2;
-                    $$->next = $4;
+                    $$->stmt.lineno = yylineno;
                 }
-        |       TOK_FOR exp block ';' stmts
+        |       TOK_FOR exp block
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_for;
@@ -677,9 +690,9 @@ stmts:
                     $$->stmt.forstmt.condition = $2;
                     $$->stmt.forstmt.iter = NULL;
                     $$->stmt.forstmt.body = $3;
-                    $$->next = $5;
+                    $$->stmt.lineno = yylineno;
                 }
-        |       TOK_FOR simplestmt ';' exp ';' simplestmt block ';' stmts
+        |       TOK_FOR simplestmt ';' exp ';' simplestmt block
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_for;
@@ -687,25 +700,25 @@ stmts:
                     $$->stmt.forstmt.condition = $4;
                     $$->stmt.forstmt.iter = $6;
                     $$->stmt.forstmt.body = $7;
-                    $$->next = $9;
+                    $$->stmt.lineno = yylineno;
                 }
-        |       TOK_BREAK ';' stmts
+        |       TOK_BREAK
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_break;
-                    $$->next = $3;
+                    $$->stmt.lineno = yylineno;
                 }
-        |       TOK_CONTINUE ';' stmts
+        |       TOK_CONTINUE
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_continue;
-                    $$->next = $3;
+                    $$->stmt.lineno = yylineno;
                 }
-        |       TOK_FALLTHROUGH ';' stmts
+        |       TOK_FALLTHROUGH
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_fallthrough;
-                    $$->next = $3;
+                    $$->stmt.lineno = yylineno;
                 }
         ;
 
@@ -927,36 +940,42 @@ cases:
 exp:            '(' exp ')'
                 {
                     $$ = $2;
+                    $$->lineno = yylineno;
                 }
         |       TOK_IDENT
                 {
                     $$ = emalloc(sizeof(struct tree_exp));
                     $$->kind = tree_exp_kind_ident;
                     $$->ident = $1;
+                    $$->lineno = yylineno;
                 }
         |       TOK_INT
                 {
                     $$ = emalloc(sizeof(struct tree_exp));
                     $$->kind = tree_exp_kind_int;
                     $$->intval = $1;
+                    $$->lineno = yylineno;
                 }
         |       TOK_FLOAT
                 {
                     $$ = emalloc(sizeof(struct tree_exp));
                     $$->kind = tree_exp_kind_float;
                     $$->floatval = $1;
+                    $$->lineno = yylineno;
                 }
         |       TOK_RUNE
                 {
                     $$ = emalloc(sizeof(struct tree_exp));
                     $$->kind = tree_exp_kind_rune;
                     $$->runeval = $1;
+                    $$->lineno = yylineno;
                 }
         |       TOK_STR
                 {
                     $$ = emalloc(sizeof(struct tree_exp));
                     $$->kind = tree_exp_kind_str;
                     $$->strval = $1;
+                    $$->lineno = yylineno;
                 }
         |       '+' exp %prec UNARY
                 {
@@ -964,6 +983,7 @@ exp:            '(' exp ')'
                     $$->kind = tree_exp_kind_unary;
                     $$->unary.kind = tree_unaryexp_kind_plus;
                     $$->unary.right = $2;
+                    $$->lineno = yylineno;
                 }
         |       '-' exp %prec UNARY
                 {
@@ -971,6 +991,7 @@ exp:            '(' exp ')'
                     $$->kind = tree_exp_kind_unary;
                     $$->unary.kind = tree_unaryexp_kind_minus;
                     $$->unary.right = $2;
+                    $$->lineno = yylineno;
                 }
         |       '!' exp %prec UNARY
                 {
@@ -978,6 +999,7 @@ exp:            '(' exp ')'
                     $$->kind = tree_exp_kind_unary;
                     $$->unary.kind = tree_unaryexp_kind_not;
                     $$->unary.right = $2;
+                    $$->lineno = yylineno;
                 }
         |       '^' exp %prec UNARY
                 {
@@ -985,6 +1007,7 @@ exp:            '(' exp ')'
                     $$->kind = tree_exp_kind_unary;
                     $$->unary.kind = tree_unaryexp_kind_comp;
                     $$->unary.right = $2;
+                    $$->lineno = yylineno;
                 }
         |       exp TOK_OR exp
                 {
@@ -993,6 +1016,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_or;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp TOK_AND exp
                 {
@@ -1001,6 +1025,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_and;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp TOK_EQ exp
                 {
@@ -1009,6 +1034,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_eq;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp TOK_NEQ exp
                 {
@@ -1017,6 +1043,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_neq;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp '<' exp
                 {
@@ -1025,6 +1052,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_lt;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp TOK_LEQ exp
                 {
@@ -1033,6 +1061,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_leq;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp '>' exp
                 {
@@ -1041,6 +1070,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_gt;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp TOK_GEQ exp
                 {
@@ -1049,6 +1079,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_geq;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp '+' exp
                 {
@@ -1057,6 +1088,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_plus;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp '-' exp
                 {
@@ -1065,6 +1097,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_minus;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp '|' exp
                 {
@@ -1073,6 +1106,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_bitor;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp '^' exp
                 {
@@ -1081,6 +1115,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_xor;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp '*' exp
                 {
@@ -1089,6 +1124,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_times;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp '/' exp
                 {
@@ -1097,6 +1133,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_div;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp '%' exp
                 {
@@ -1105,6 +1142,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_rem;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp TOK_LSHIFT exp
                 {
@@ -1113,6 +1151,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_lshift;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp TOK_RSHIFT exp
                 {
@@ -1121,6 +1160,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_rshift;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp '&' exp
                 {
@@ -1129,6 +1169,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_bitand;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp TOK_ANDNOT exp
                 {
@@ -1137,6 +1178,7 @@ exp:            '(' exp ')'
                     $$->binary.kind = tree_binaryexp_kind_andnot;
                     $$->binary.left = $1;
                     $$->binary.right = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp '(' ')'
                 {
@@ -1144,6 +1186,7 @@ exp:            '(' exp ')'
                     $$->kind = tree_exp_kind_call;
                     $$->call.func = $1;
                     $$->call.exps = NULL;
+                    $$->lineno = yylineno;
                 }
         |       exp '(' exps ')'
                 {
@@ -1151,6 +1194,7 @@ exp:            '(' exp ')'
                     $$->kind = tree_exp_kind_call;
                     $$->call.func = $1;
                     $$->call.exps = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp '[' exp ']'
                 {
@@ -1158,6 +1202,7 @@ exp:            '(' exp ')'
                     $$->kind = tree_exp_kind_index;
                     $$->index.arr = $1;
                     $$->index.index = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp '.' TOK_IDENT
                 {
@@ -1165,6 +1210,7 @@ exp:            '(' exp ')'
                     $$->kind = tree_exp_kind_field;
                     $$->field.instance = $1;
                     $$->field.field = $3;
+                    $$->lineno = yylineno;
                 }
         |       TOK_APPEND '(' exp ',' exp ')'
                 {
@@ -1172,17 +1218,20 @@ exp:            '(' exp ')'
                     $$->kind = tree_exp_kind_append;
                     $$->append.exp1 = $3;
                     $$->append.exp2 = $5;
+                    $$->lineno = yylineno;
                 }
         |       TOK_LEN '(' exp ')'
                 {
                     $$ = emalloc(sizeof(struct tree_exp));
                     $$->kind = tree_exp_kind_len;
                     $$->exp = $3;
+                    $$->lineno = yylineno;
                 }
         |       TOK_CAP '(' exp ')'
                 {
                     $$ = emalloc(sizeof(struct tree_exp));
                     $$->kind = tree_exp_kind_cap;
                     $$->exp = $3;
+                    $$->lineno = yylineno;
                 }
         ;
