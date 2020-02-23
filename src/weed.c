@@ -4,6 +4,13 @@
 #include "weed.h"
 
 //stmts_kind
+void weed_stmts(STMTS *stmts) {
+    if(stmts == NULL) return 0;
+    weed_stmts(stmts->next);
+    weed_stmt(&(stmts->stmt));
+}
+
+//stmt_kind
 void weed_stmt(STMT *stmt) {
     if(stmt == NULL) return 0;
     switch (stmt->kind) {
@@ -11,7 +18,7 @@ void weed_stmt(STMT *stmt) {
         case tree_stmt_kind_assign:
             break;
         case tree_stmt_kind_shortdecl:
-            weed_shortdecl(stmt->shortdecl);
+            weed_shortdecl(&(stmt->shortdecl));
         case tree_stmt_kind_inc:
         case tree_stmt_kind_dec:
         case tree_stmt_kind_var_decl:
@@ -34,7 +41,6 @@ void weed_stmt(STMT *stmt) {
         case tree_stmt_kind_fallthrough:
             return 0;
     }
-    weed_stmts(stmt->next);
 }
 
 //decls_kind
@@ -43,11 +49,11 @@ void weed_decls(DECLS *decls) {
     switch (decls->kind) {
         //TODO
         case tree_decls_kind_var_decl:
-            weed_var_decl(decls->var_decl);
+            weed_var_decl(decls->var_spec);
         case tree_decls_kind_type_spec:
-            weed_type_spec(decls->type_spec);
+            weed_type_spec(&(decls->type_spec));
         case tree_decls_kind_func_decl:
-            weed_func_decl(decls->func_decl);
+            weed_func_decl(&(decls->func_decl));
     }
     weed_decls(decls->next);
 }
@@ -58,11 +64,11 @@ void weed_vars(VARS *vars){
     weed_vars(vars->next);
 }
 
-void weed_var_decl(VAR_DECL *var_decl) {
-    if(var_decl == NULL) return 0;
-    weed_type(var_decl->type);
-    weed_exp(var_decl->val);
-    weed_var_decl(var_decl->next);
+void weed_var_spec(VAR_SPEC *var_spec) {
+    if(var_spec == NULL) return 0;
+    weed_type(var_spec->type);
+    weed_exp(var_spec->val);
+    weed_var_spec(var_spec->next);
 }
 
 //TODO

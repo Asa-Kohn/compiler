@@ -17,10 +17,12 @@ void weed_field(FIELD *field);
 void weed_append(APPEND *append);
 
 void weed_cases(CASES *cases);
+void weed_stmts(STMTS *stmts);
 void weed_stmt(STMT *stmt);
 void weed_assign(ASSIGN *assign);
 void weed_shortdecl(SHORTDECL *shortdecl);
-void weed_var_decl(VAR_DECL *var_decl);
+// void weed_var_decl(VAR_DECL *var_decl);
+void weed_var_spec(VAR_SPEC *var_spec);
 void weed_type_spec(TYPE_SPEC *type_spec);
 void weed_if(IF_STMT *if_stmt);
 void weed_switch(SWITCH_STMT *switch_stmt);
