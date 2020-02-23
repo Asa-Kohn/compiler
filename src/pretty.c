@@ -37,6 +37,9 @@ void pretty_program(DECLS *ds) {
 
     // Go through declarations
     switch(ds->kind) {
+        case tree_decls_kind_package:
+            print("package %s;\n", ds->package);
+            break;
         case tree_decls_kind_var_decl:
             pretty_var_spec(*ds->var_spec);
             break;
@@ -47,7 +50,7 @@ void pretty_program(DECLS *ds) {
             pretty_func_decl(&ds->func_decl);
             break;
     }
-
+    printf(";\n");
     pretty_program(ds->next);
 }
 
@@ -68,7 +71,7 @@ void pretty_func_decl(FUNC_DECL *fd) {
     tab++;
     traverse_stmts(fd->body);
     tab--;
-    printf("};\n");
+    printf("}");
 }
 
 void traverse_vars_spec(VAR_SPEC vs) {
