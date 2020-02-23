@@ -2,6 +2,3 @@
 #include "pretty.h"
 
 
-void pretty_program(PROGRAM* p) {
-
-}

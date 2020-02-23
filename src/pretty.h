@@ -3,6 +3,5 @@
 
 #include "tree.h"
 
-void pretty_program(PROGRAM* p);
 
 #endif
