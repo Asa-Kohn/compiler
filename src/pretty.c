@@ -203,6 +203,7 @@ void pretty_exp(EXP *e) {
                         printf("%c", *p);
                         break;
                 }
+            break;
 
         case tree_exp_kind_unary:
             pretty_unaryexp(&e->unary);
