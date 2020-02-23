@@ -16,8 +16,8 @@ void weed_index(INDEX *index);
 void weed_field(FIELD *field);
 void weed_append(APPEND *append);
 
-void weed_cases(CASES *cases);
-void weed_stmts(STMTS *stmts);
+void weed_bc_cases(CASES *cases);
+void weed_bc_stmts(STMTS *stmts);
 void weed_stmt(STMT *stmt);
 void weed_assignop(ASSIGNOP *assignop);
 void weed_assign(ASSIGN *assign);
