@@ -1,4 +1,10 @@
 .DS_Store
-report/*
-!report/*.tex
-!report/*.bib
+winnipeg
+src/golite.tab.c
+src/golite.tab.h
+src/lex.yy.c
+*.o
+doc/*
+!doc/*.tex
+!doc/*.pdf
+!doc/*.bib
