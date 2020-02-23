@@ -544,7 +544,7 @@ void pretty_switch(SWITCH_STMT ss) {
     }
 
     // expression
-    pretty_exp(ss.exp);
+    if(ss.exp != NULL) pretty_exp(ss.exp);
 
     // cases
     printf(" {\n");
