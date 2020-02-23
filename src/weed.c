@@ -5,21 +5,19 @@
 #include <string.h>
 
 //stmts_kind
-void weed_stmts(STMTS *stmts) {
+void weed_bc_stmts(STMTS *stmts) {
     if(stmts == NULL) return;
-    if((&stmts->stmt)->kind == tree_stmt_kind_for) {
-        weed_stmt_for(&(stmts->stmt));
-    }
-    else if((&stmts->stmt)->kind == tree_stmt_kind_switch) {
-        weed_stmt_switch(&(stmts->stmt));
-    }
-    else {
-        weed_stmt(&(stmts->stmt));
-    }
+    switch (stmts->kind) {
+        case tree_stmt_kind_break:
+            fprintf(stderr, "Error: invalid break statement (line %d)", stmts->lineno);
+            exit(1); 
+        case tree_stmt_kind_continue:
+            fprintf(stderr, "Error: invalid continue statement (line %d)", stmts->lineno);
+            exit(1); 
     weed_stmts(stmts->next);
 }
 
-//stmt_kind_for
+//stmt_kind
 void weed_stmt_for(STMT *stmt) {
     if(stmt == NULL) return;
     switch (stmt->kind) {
