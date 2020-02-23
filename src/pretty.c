@@ -22,10 +22,13 @@ void pretty_program(DECLS *ds) {
     }
 }
 
-void pretty_var_decl(VAR_DECL * vd) {
-
+// TODO
+void pretty_var_spec(VAR_SPEC * vs) {
+    printf("var ");
+    traverse_
 }
 
+// TODO
 void pretty_type_spec(TYPE_SPEC ts) {
     printf("type %s ", ts->name);
     pretty_type(ts->type);
@@ -43,11 +46,27 @@ void pretty_func_decl(FUNC_DECL * fd) {
     printf("}\n");
 }
 
+void traverse_vars_spec(VAR_SPEC vs) {
+    printf("%s ", v->name);
+    pretty_type(v->type);
+
+    if(v->next != NULL) {
+        printf(", ");
+        traverse_vars(v->next);
+    }
+}
+
 void traverse_vars(VARS * v) {
     printf("%s ", v->name);
     pretty_type(v->type);
+
+    if(v->next != NULL) {
+        printf(", ");
+        traverse_vars(v->next);
+    }
 }
 
+// TODO
 void pretty_type(TYPE * t) {
     switch(t->kind) {
         case tree_type_kind_name:
@@ -61,6 +80,7 @@ void pretty_type(TYPE * t) {
             break;
         case tree_type_kind_struct:
             printf("struct");
+            // TODO FIX
             printf("\n{\n")
             tab++;
             pretty_struct(t->structtype);
@@ -80,8 +100,10 @@ void pretty_array(TYPE_ARRAY ta) {
     pretty_type(ta->type);
 }
 
+// TODO
 void pretty_struct(TYPE_STRUCT tstr) {
     traverse_vars(tstr->fields);
+
 }
 
 void traverse_exps(EXPS *es) {
@@ -89,6 +111,7 @@ void traverse_exps(EXPS *es) {
     pretty_exp(es->exp);
 
     if(es->next != NULL) {
+        printf(", ");
         traverse_exps(es->next);
     }
 }
@@ -348,14 +371,62 @@ void pretty_binaryexp(EXP *e) {
 
 }
 
-void pretty_assign(ASSIGN a) {
-    printf("%s = ", a->var);
-    pretty_exp(a->exp);
+void pretty_assignop(ASSIGNOP a) {
+    pretty_exp(a->left);
+    print(" ");
+    switch(a->kind) {
+        case tree_assignop_kind_plus:
+            print("+");
+            break;
+        case tree_assignop_kind_minus:
+            print("-");
+            break;
+        case tree_assignop_kind_or:
+            print("|");
+            break;
+        case tree_assignop_kind_xor:
+            print("^");
+            break;
+        case tree_assignop_kind_times:
+            print("*");
+            break;
+        case tree_assignop_kind_div:
+            print("/");
+            break;
+        case tree_assignop_kind_rem:
+            print("%");
+            break;
+        case tree_assignop_kind_lshift:
+            print("<<");
+            break;
+        case tree_assignop_kind_rshift:
+            print(">>");
+            break;
+        case tree_assignop_kind_and:
+            print("&");
+            break;
+        case tree_assignop_kind_andnot:
+            print("&^");
+            break;
+    }
+    print("= ");
+    pretty_exp(a->right);
+}
+
+void traverse_idents(IDENTS ids) {
+    // Go through an idents list
+    pretty_name(ids->exp);
+
+    if(ids->next != NULL) {
+        printf(", ");
+        traverse_exps(ids->next);
+    }
 }
 
 void pretty_shortdecl(SHORTDECL sd) {
-    printf("%s := ", a->name);
-    pretty_exp(a->exp);
+    traverse_idents(sd->idents);
+    printf(" := ");
+    traverse_exps(sd->exp);
 }
 
 void pretty_var_spec(VAR_DECL vs) {
@@ -385,7 +456,6 @@ void traverse_vals(VAR_DECL vs) {
     }
 }
 
-
 void pretty_if(IF_STMT is) {
     indentation(); printf("if ");
 
@@ -397,6 +467,7 @@ void pretty_if(IF_STMT is) {
 
     // condition
     pretty_exp(is->condition);
+
     // body
     printf(" ");
     indentation(); printf("\n{\n"); // Asa convention (Allman style)
@@ -440,7 +511,7 @@ void pretty_switch(SWITCH_STMT ss) {
 
 void pretty_cases(CASES cs) {
     printf("case ");
-    pretty_exp(cs->val);
+    traverse_exps(cs->val);
     printf(":\n");
     tab++;
     traverse_stmts(cs->body);
@@ -554,7 +625,7 @@ void pretty_stmt(STMT *s) {
             break;
 
         case tree_stmt_kind_fallthrough:
-            printf("fallthrough");
+            printf("fallthrough;");
             break;
     }
     printf("\n");

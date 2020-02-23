@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-typedef struct tree_var_decl VAR_DECL;
+typedef struct tree_var_spec VAR_SPEC;
 typedef struct tree_type_spec TYPE_SPEC;
 typedef struct tree_func_decl FUNC_DECL;
 typedef struct tree_decls DECLS;
@@ -27,6 +27,8 @@ typedef struct tree_for FOR_STMT;
 typedef struct tree_stmts STMTS;
 typedef struct tree_cases CASES;
 typedef struct tree_exps EXPS;
+typedef struct tree_idents IDENTS;
+typedef struct tree_assignop ASSIGNOP;
 
 enum tree_decls_kind
 {
