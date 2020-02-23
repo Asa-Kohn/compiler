@@ -102,7 +102,7 @@ void pretty_type(TYPE * t) {
             pretty_slice(t->slice);
             break;
         case tree_type_kind_struct:
-            indentation(); printf("struct {\n");
+            printf("struct {\n");
             tab++;
             pretty_struct(t->structtype);
             tab--;
@@ -112,13 +112,11 @@ void pretty_type(TYPE * t) {
 }
 
 void pretty_slice(TYPE_SLICE tsl) {
-    indentation();
     printf("[]");
     pretty_type(tsl.type);
 }
 
 void pretty_array(TYPE_ARRAY ta) {
-    indentation();
     printf("[%d]", ta.len);
     pretty_type(ta.type);
 }
@@ -170,6 +168,7 @@ void pretty_exp(EXP *e) {
             break;
 
         case tree_exp_kind_str:
+            printf("\"");
             for(char * p = e->strval; *p != 0; p++)
                 switch(*p){
                     case '\a':
@@ -203,6 +202,7 @@ void pretty_exp(EXP *e) {
                         printf("%c", *p);
                         break;
                 }
+            printf("\"");
             break;
 
         case tree_exp_kind_unary:
