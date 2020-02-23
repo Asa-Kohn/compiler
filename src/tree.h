@@ -298,7 +298,7 @@ struct tree_cases
 
 struct tree_idents
 {
-    struct char *ident;
+    char *ident;
     struct tree_idents *next;
 };
 
