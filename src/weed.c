@@ -7,10 +7,64 @@
 //stmts_kind
 void weed_stmts(STMTS *stmts) {
     if(stmts == NULL) return;
-    weed_stmt(&(stmts->stmt));
+    if((&stmts->stmt)->kind == tree_stmt_kind_for) {
+        weed_stmt_for(&(stmts->stmt));
+    }
+    else if((&stmts->stmt)->kind == tree_stmt_kind_switch) {
+        weed_stmt_switch(&(stmts->stmt));
+    }
+    else {
+        weed_stmt(&(stmts->stmt));
+    }
     weed_stmts(stmts->next);
 }
 
+//stmt_kind_for
+void weed_stmt_for(STMT *stmt) {
+    if(stmt == NULL) return;
+    switch (stmt->kind) {
+        case tree_stmt_kind_shortdecl:
+            weed_shortdecl(&(stmt->shortdecl));
+            return;
+            
+        case tree_stmt_kind_break:
+            // fprintf(stderr, "Error: break statement (line %d)", stmt->lineno);
+            // exit(1);
+            return;
+
+        case tree_stmt_kind_continue:
+            // fprintf(stderr, "Error: continue statement (line %d)", stmt->lineno);
+            // exit(1);
+            return;
+
+        default:
+            return;
+    }
+    return;
+}
+//stmt_kind_switch
+void weed_stmt_switch(STMT *stmt) {
+    if(stmt == NULL) return;
+    switch (stmt->kind) {
+        case tree_stmt_kind_shortdecl:
+            weed_shortdecl(&(stmt->shortdecl));
+            return;
+            
+        case tree_stmt_kind_break:
+            // fprintf(stderr, "Error: break statement (line %d)", stmt->lineno);
+            // exit(1);
+            return;
+
+        case tree_stmt_kind_continue:
+            fprintf(stderr, "Error: continue statement (line %d)", stmt->lineno);
+            exit(1);
+            return;
+
+        default:
+            return;
+    }
+    return;
+}
 //stmt_kind
 void weed_stmt(STMT *stmt) {
     if(stmt == NULL) return;
@@ -20,16 +74,19 @@ void weed_stmt(STMT *stmt) {
             return;
             
         case tree_stmt_kind_break:
-            fprintf(stderr, "Error: break statement (line%d)", stmt->lineno);
+            fprintf(stderr, "Error: break statement (line %d)", stmt->lineno);
             exit(1);
-            
+            return;
+
         case tree_stmt_kind_continue:
-            fprintf(stderr, "Error: continue statement (line%d)", stmt->lineno);
+            fprintf(stderr, "Error: continue statement (line %d)", stmt->lineno);
             exit(1);
-            
+            return;
+
         default:
             return;
     }
+    return;
 }
 
 //decls_kind
@@ -50,6 +107,7 @@ void weed_decls(DECLS *decls) {
             break;
     }
     if(decls->next != NULL) weed_decls(decls->next);
+    return;
 }
 
 void weed_vars(VARS *vars){
@@ -119,7 +177,9 @@ void weed_binaryexp(BINARYEXP *binaryexp){
         default:
             weed_exp(binaryexp->left);
             weed_exp(binaryexp->right);
+            break;
     }
+    return;
 }
 
 void weed_exps(EXPS *exps) {
@@ -175,81 +235,85 @@ void weed_exp(EXP *exp) {
 
         case tree_exp_kind_len:
         case tree_exp_kind_cap:
+            break;
     }
 }
 
 //unaryexp_kind
 void weed_unaryexp(UNARYEXP *unaryexp) {
-    if(unaryexp == NULL) return 0;
+    if(unaryexp == NULL) return;
     switch (unaryexp->kind) {
-        case tree_unaryexp_kind_plus:
-        case tree_unaryexp_kind_minus:
-        case tree_unaryexp_kind_not:
-        case tree_unaryexp_kind_comp:
+        // case tree_unaryexp_kind_plus:
+        // case tree_unaryexp_kind_minus:
+        // case tree_unaryexp_kind_not:
+        // case tree_unaryexp_kind_comp:
+        default:
+            weed_exp(unaryexp->right);
+            break;
     }
 }
 
 
 void weed_type_array(TYPE_ARRAY *type_array) {
-    if(type_array == NULL) return 0;
+    if(type_array == NULL) return;
     weed_type(type_array->type);
 }
 
 void weed_type_slice(TYPE_SLICE *type_slice) {
-    if(type_slice == NULL) return 0;
+    if(type_slice == NULL) return;
     weed_type(type_slice->type);
 }
 
 void weed_type_struct(TYPE_STRUCT *type_struct) {
-    if(type_struct == NULL) return 0;
+    if(type_struct == NULL) return;
     weed_vars(type_struct->fields);
 }
 
 void weed_call(CALL *call) {
-    if(call == NULL) return 0;
+    if(call == NULL) return;
     weed_exp(call->func);
     weed_exps(call->exps);
 }
 
 void weed_index(INDEX *index) {
-    if(index == NULL) return 0;
+    if(index == NULL) return;
     weed_exp(index->arr);
     weed_exp(index->index);
 }
 
 void weed_field(FIELD *field) {
-    if(field == NULL) return 0;
+    if(field == NULL) return;
     weed_exp(field->instance);
 }
 
 void weed_append(APPEND *append){
-    if(append == NULL) return 0;
+    if(append == NULL) return;
     weed_exp(append->exp1);
     weed_exp(append->exp2);
 }
 
 void weed_cases(CASES *cases) {
-    if(cases == NULL) return 0;
+    if(cases == NULL) return;
     weed_exp(cases->val);
     weed_stmts(cases->body);
     weed_cases(cases->next);
 }
 
 void weed_assign(ASSIGN *assign) {
-    if(assign == NULL) return 0;
+    if(assign == NULL) return;
     weed_exp(assign->exp);
 }
 
 void weed_shortdecl(SHORTDECL *shortdecl) {
-    if(shortdecl == NULL) return 0;
-        // fprintf(stderr, "Error: short declaration (line%d)", exp->lineno);
-        // exit(1);
-        return 1;
+    if(shortdecl == NULL) return;
+    // fprintf(stderr, "Error: short declaration (line %d)", exp->lineno);
+    // exit(1);
     // weed_exp(shortdecl->exp);
+    return;
 }
 
 void weed_if(IF_STMT *if_stmt) {
-    if(if_stmt == NULL) return 0;
+    if(if_stmt == NULL) return;
     weed_stmts(if_stmt->init);
     weed_exp(if_stmt->condition);
     weed_stmts(if_stmt->body);
@@ -257,14 +321,14 @@ void weed_if(IF_STMT *if_stmt) {
 }
 
 void weed_switch(SWITCH_STMT *switch_stmt) {
-    if(switch_stmt == NULL) return 0;
+    if(switch_stmt == NULL) return;
     weed_stmts(switch_stmt->init);
     weed_exp(switch_stmt->exp);
     weed_cases(switch_stmt->cases);
 }
 
 void weed_for(FOR_STMT *for_stmt) {
-    if(for_stmt == NULL) return 0;
+    if(for_stmt == NULL) return;
     weed_stmts(for_stmt->init);
     weed_exp(for_stmt->condition);
     weed_stmts(for_stmt->iter);
