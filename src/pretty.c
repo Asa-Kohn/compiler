@@ -4,10 +4,12 @@
 int tab = 0; // global
 
 void pretty_program(DECLS *ds) {
+    if(ds == NULL) return;
+
     // Go through declarations
     switch(ds->kind) {
         case tree_decls_kind_var_decl:
-            pretty_var_decl(ds->var_spec);
+            pretty_var_spec(ds->var_spec);
             break;
         case tree_decls_kind_type_spec:
             pretty_type_spec(ds->type_spec);
@@ -17,24 +19,15 @@ void pretty_program(DECLS *ds) {
             break;
     }
 
-    if(ds->next != NULL) {
-        pretty_program(ds->next);
-    }
+    pretty_program(ds->next);
 }
 
-// TODO
-void pretty_var_spec(VAR_SPEC * vs) {
-    printf("var ");
-    traverse_
-}
-
-// TODO
 void pretty_type_spec(TYPE_SPEC ts) {
     printf("type %s ", ts->name);
     pretty_type(ts->type);
 }
 
-void pretty_func_decl(FUNC_DECL * fd) {
+void pretty_func_decl(FUNC_DECL *fd) {
     printf("func %s(", fd->name);
     traverse_vars(fd->params);
     printf(") ");
@@ -47,18 +40,17 @@ void pretty_func_decl(FUNC_DECL * fd) {
 }
 
 void traverse_vars_spec(VAR_SPEC vs) {
-    printf("%s ", v->name);
-    pretty_type(v->type);
+    printf("%s ", vs.name);
 
-    if(v->next != NULL) {
+    if(vs.type != NULL) pretty_type(vs.type);
+    if(vs.next != NULL) {
         printf(", ");
-        traverse_vars(v->next);
+        traverse_vars_spec(vs.next);
     }
 }
 
 void traverse_vars(VARS * v) {
     printf("%s ", v->name);
-    pretty_type(v->type);
 
     if(v->next != NULL) {
         printf(", ");
@@ -66,7 +58,6 @@ void traverse_vars(VARS * v) {
     }
 }
 
-// TODO
 void pretty_type(TYPE * t) {
     switch(t->kind) {
         case tree_type_kind_name:
@@ -79,31 +70,32 @@ void pretty_type(TYPE * t) {
             pretty_slice(t->slice);
             break;
         case tree_type_kind_struct:
-            printf("struct");
-            // TODO FIX
-            printf("\n{\n")
+            indentation(); printf("struct");
+            indentation(); printf("\n{\n")
             tab++;
             pretty_struct(t->structtype);
             tab--;
-            printf("}")
+            indentation(); printf("\n}")
             break;
     }
 }
 
 void pretty_slice(TYPE_SLICE tsl) {
+    indentation();
     printf("[]");
-    pretty_type(tsl->type);
+    pretty_type(tsl.type);
 }
 
 void pretty_array(TYPE_ARRAY ta) {
-    printf("[%d]", ta->len);
-    pretty_type(ta->type);
+    indentation();
+    printf("[%d]", ta.len);
+    pretty_type(ta.type);
 }
 
-// TODO
 void pretty_struct(TYPE_STRUCT tstr) {
-    traverse_vars(tstr->fields);
-
+    traverse_vars(tstr.fields);
+    printf(" ");
+    pretty_type(tstr.fields->type);
 }
 
 void traverse_exps(EXPS *es) {
@@ -372,9 +364,9 @@ void pretty_binaryexp(EXP *e) {
 }
 
 void pretty_assignop(ASSIGNOP a) {
-    pretty_exp(a->left);
+    pretty_exp(a.left);
     print(" ");
-    switch(a->kind) {
+    switch(a.kind) {
         case tree_assignop_kind_plus:
             print("+");
             break;
@@ -410,49 +402,55 @@ void pretty_assignop(ASSIGNOP a) {
             break;
     }
     print("= ");
-    pretty_exp(a->right);
+    pretty_exp(a.right);
 }
 
 void traverse_idents(IDENTS ids) {
     // Go through an idents list
-    pretty_name(ids->exp);
+    pretty_name(ids.exp);
 
-    if(ids->next != NULL) {
+    if(ids.next != NULL) {
         printf(", ");
-        traverse_exps(ids->next);
+        traverse_exps(ids.next);
     }
 }
 
 void pretty_shortdecl(SHORTDECL sd) {
     traverse_idents(sd->idents);
     printf(" := ");
-    traverse_exps(sd->exp);
+    traverse_exps(sd->exps);
 }
 
 void pretty_var_spec(VAR_DECL vs) {
     printf("var ");
     traverse_names(vs);
 
-    printf(" ")
-    pretty_type(vs->type);
-    printf(" = ");
-    traverse_vals(vs);
+
+    if(vs.type != NULL) {
+        printf(" ");
+        pretty_type(vs.type);
+    }
+
+    if(vs.vals != NULL) {
+        printf(" = ");
+        traverse_vals(vs);
+    }
 
 }
 
 void traverse_names(VAR_DECL vs) {
-    printf("%s", vs->name);
-    if(vs->next != NULL) {
+    printf("%s", vs.name);
+    if(vs.next != NULL) {
         printf(", ");
-        traverse_names(vs->next);
+        traverse_names(vs.next);
     }
 }
 
 void traverse_vals(VAR_DECL vs) {
-    printf("%s", vs->val);
-    if(vs->next != NULL) {
+    printf("%s", vs.val);
+    if(vs.next != NULL) {
         printf(", ");
-        traverse_vals(vs->next);
+        traverse_vals(vs.next);
     }
 }
 
@@ -460,30 +458,30 @@ void pretty_if(IF_STMT is) {
     indentation(); printf("if ");
 
     // initialization
-    if(is->init != NULL) {
-        pretty_stmt(is->init);
+    if(is.init != NULL) {
+        pretty_stmt(is.init);
         printf("; ");
     }
 
     // condition
-    pretty_exp(is->condition);
+    pretty_exp(is.condition);
 
     // body
     printf(" ");
     indentation(); printf("\n{\n"); // Asa convention (Allman style)
     tab++;
-    traverse_stmts(is->body);
+    traverse_stmts(is.body);
     tab--;
     indentation(); printf("}"); // Asa convention (Allman style)
 
     // optional else, else if
-    if(is->elsebody != NULL) {
+    if(is.elsebody != NULL) {
         printf(" else ");
         indentation(); printf("\n{\n")
         tab++;
-        traverse_stmts(is->elsebody);
+        traverse_stmts(is.elsebody);
         tab--;
-        printf("}")
+        indentation(); printf("}")
     }
 }
 
@@ -491,34 +489,34 @@ void pretty_switch(SWITCH_STMT ss) {
     printf("switch ");
 
     // initialization
-    if(ss->init != NULL) {
-        pretty_stmt(ss->init);
+    if(ss.init != NULL) {
+        pretty_stmt(ss.init);
         printf("; ");
     }
 
     // expression
-    pretty_exp(ss->exp);
+    pretty_exp(ss.exp);
 
     // cases
     printf(" ");
     indentation(); printf("\n{\n");
     tab++;
-    pretty_cases(ss->cases);
+    pretty_cases(ss.cases);
     tab--;
     indentation(); printf("}");
 
 }
 
 void pretty_cases(CASES cs) {
-    printf("case ");
-    traverse_exps(cs->val);
+    indentation(); printf("case ");
+    traverse_exps(cs.val);
     printf(":\n");
     tab++;
-    traverse_stmts(cs->body);
+    traverse_stmts(cs.body);
     tab--;
 
-    if(cs->next != NULL) {
-        pretty_cases(cs->next);
+    if(cs.next != NULL) {
+        pretty_cases(cs.next);
     }
 }
 
@@ -526,27 +524,27 @@ void pretty_for(FOR_STMT fs) {
     indentation(); printf("for ");
 
     // initialization
-    if(fs->init != NULL) {
-        pretty_stmt(fs->init);
+    if(fs.init != NULL) {
+        pretty_stmt(fs.init);
         printf("; ");
     }
 
     // condition
-    if(fs->condition != NULL) {
-        pretty_exp(fs->condition);
+    if(fs.condition != NULL) {
+        pretty_exp(fs.condition);
         printf("; ");
     }
 
     // iter statement
-    if(fs->iter != NULL) {
-        pretty_stmt(fs->iter);
+    if(fs.iter != NULL) {
+        pretty_stmt(fs.iter);
         printf(" ");
     }
 
     // body
     indentation(); printf("\n{\n"); // Asa convention (Allman style)
     tab++;
-    traverse_stmts(is->body);
+    traverse_stmts(fs.body);
     tab--;
     indentation(); printf("}"); // Asa convention (Allman style)
 }
