@@ -143,7 +143,7 @@ void traverse_stmts(STMTS *ss) {
     // Go through an stmts
     indentation();
     pretty_stmt(&ss->stmt);
-    printf("\n;");
+    printf(";\n");
 
     if(ss->next != NULL) {
         traverse_stmts(ss->next);
@@ -648,13 +648,13 @@ void pretty_stmt(STMT *s) {
 
         case tree_stmt_kind_print:
             printf("print(");
-            traverse_exps(s->exps);
+            if(s->exps != NULL) traverse_exps(s->exps);
             printf(")");
             break;
 
         case tree_stmt_kind_println:
             printf("println(");
-            traverse_exps(s->exps);
+            if(s->exps != NULL) traverse_exps(s->exps);
             printf(")");
             break;
 
