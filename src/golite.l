@@ -8,15 +8,49 @@
 #include "tree.h"
 
 //print/return functions for string token & char tokens
-#define OUTPUT_TOKEN(TOK) { \
-    last_token = TOK; \
-    if(print_tokens) puts( #TOK ); else return TOK; \
-}
+#define OUTPUT_TOKEN(TOK)                       \
+    {                                           \
+        last_token = TOK;                       \
+        if(print_tokens)                        \
+            puts( #TOK );                       \
+        else return TOK;                        \
+    }
 
-#define OUTPUT_TOKEN_CHAR(TOK) { \
-    last_token = TOK; \
-    if(print_tokens) printf("%c\n", TOK); else return TOK; \
-}
+#define OUTPUT_TOK_INT                          \
+    {                                           \
+        last_token = TOK_INT;                   \
+        printf("TOK_INT(%d)\n", yylval.intval); \
+    }
+
+#define OUTPUT_TOK_FLOAT                            \
+    {                                               \
+        last_token = TOK_FLOAT;                     \
+        printf("TOK_FLOAT(%f)\n", yylval.floatval); \
+    }
+
+#define OUTPUT_TOK_RUNE                             \
+    {                                               \
+        last_token = TOK_RUNE;                      \
+        printf("TOK_RUNE(%c)\n", yylval.runeval);   \
+    }
+
+#define OUTPUT_TOK_STR                          \
+    {                                           \
+        last_token = TOK_STR;                   \
+        printf("TOK_STR(%s)\n", yylval.strval); \
+    }
+
+#define OUTPUT_TOK_IDENT                            \
+    {                                               \
+        last_token = TOK_IDENT;                     \
+        printf("TOK_IDENT(%s)\n", yylval.strval);   \
+    }
+
+#define OUTPUT_TOKEN_CHAR(TOK)                                  \
+    {                                                           \
+        last_token = TOK;                                       \
+        if(print_tokens) printf("%c\n", TOK); else return TOK;  \
+    }
 
 extern int print_tokens;
 static int last_token = 0;
@@ -141,20 +175,20 @@ static int last_token = 0;
 ":" OUTPUT_TOKEN_CHAR(':')
 ";" OUTPUT_TOKEN_CHAR(';')
 
-'.' { yylval.runeval = yytext[1]; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\a'" { yylval.runeval = '\a'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\b'" { yylval.runeval = '\b'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\f'" { yylval.runeval = '\f'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\n'" { yylval.runeval = '\n'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\r'" { yylval.runeval = '\r'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\t'" { yylval.runeval = '\t'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\v'" { yylval.runeval = '\v'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\\\'" { yylval.runeval = '\\'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\''" { yylval.runeval = '\''; OUTPUT_TOKEN(TOK_RUNE) }
+'.' { yylval.runeval = yytext[1]; OUTPUT_TOK_RUNE }
+"'\\a'" { yylval.runeval = '\a'; OUTPUT_TOK_RUNE }
+"'\\b'" { yylval.runeval = '\b'; OUTPUT_TOK_RUNE }
+"'\\f'" { yylval.runeval = '\f'; OUTPUT_TOK_RUNE }
+"'\\n'" { yylval.runeval = '\n'; OUTPUT_TOK_RUNE }
+"'\\r'" { yylval.runeval = '\r'; OUTPUT_TOK_RUNE }
+"'\\t'" { yylval.runeval = '\t'; OUTPUT_TOK_RUNE }
+"'\\v'" { yylval.runeval = '\v'; OUTPUT_TOK_RUNE }
+"'\\\\'" { yylval.runeval = '\\'; OUTPUT_TOK_RUNE }
+"'\\''" { yylval.runeval = '\''; OUTPUT_TOK_RUNE }
 
 0x[0-9a-fA-F]+|[0-9]+ {
     yylval.intval = strtol(yytext, NULL, 0);
-    OUTPUT_TOKEN(TOK_INT)
+    OUTPUT_TOK_INT
 }
 
 \"([^\\\"]|\\a|\\b|\\f|\\n|\\r|\\t|\\v|\\\\|\\\")*\" {
@@ -198,17 +232,17 @@ static int last_token = 0;
             }
         else yylval.strval[i] = *c;
     }
-    OUTPUT_TOKEN(TOK_STR)
+    OUTPUT_TOK_STR
 }
 
 [0-9]*\.[0-9]+|[0-9]+\.[0-9]* {
     yylval.floatval = strtod(yytext, NULL);
-    OUTPUT_TOKEN(TOK_FLOAT)
+    OUTPUT_TOK_FLOAT
 }
 
 [a-zA-Z_][a-zA-Z0-9_]* {
     yylval.strval = estrdup(yytext);
-    OUTPUT_TOKEN(TOK_IDENT)
+    OUTPUT_TOK_IDENT
 }
 
 . {
