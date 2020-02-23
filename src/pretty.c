@@ -170,8 +170,39 @@ void pretty_exp(EXP *e) {
             break;
 
         case tree_exp_kind_str:
-            printf("%s", e->strval);
-            break;
+            for(char * p = e->strval; *p != 0; p++)
+                switch(*p){
+                    case '\a':
+                        printf("\\a");
+                        break;
+                    case '\b':
+                        printf("\\b");
+                        break;
+                    case '\f':
+                        printf("\\f");
+                        break;
+                    case '\n':
+                        printf("\\n");
+                        break;
+                    case '\r':
+                        printf("\\r");
+                        break;
+                    case '\t':
+                        printf("\\t");
+                        break;
+                    case '\v':
+                        printf("\\v");
+                        break;
+                    case '\\':
+                        printf("\\\\");
+                        break;
+                    case '"':
+                        printf("\"");
+                        break;
+                    default:
+                        printf("%c", *p);
+                        break;
+                }
 
         case tree_exp_kind_unary:
             pretty_unaryexp(&e->unary);
@@ -565,7 +596,7 @@ void pretty_cases(CASES cs) {
     else {
         printf("default");
     }
-    
+
     printf(":\n");
     tab++;
     traverse_stmts(cs.body);
