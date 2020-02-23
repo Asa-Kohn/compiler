@@ -38,7 +38,7 @@ void pretty_program(DECLS *ds) {
     // Go through declarations
     switch(ds->kind) {
         case tree_decls_kind_package:
-            printf("package %s;\n", ds->package);
+            printf("package %s", ds->package);
             break;
         case tree_decls_kind_var_decl:
             pretty_var_spec(*ds->var_spec);
