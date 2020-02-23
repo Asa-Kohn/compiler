@@ -3,6 +3,33 @@
 
 int tab = 0; // global
 
+void pretty_program(DECLS *ds);
+void pretty_type_spec(TYPE_SPEC ts);
+void pretty_func_decl(FUNC_DECL *fd);
+void traverse_vars_spec(VAR_SPEC vs);
+void traverse_vars(VARS * v);
+void pretty_type(TYPE * t);
+void pretty_slice(TYPE_SLICE tsl);
+void pretty_array(TYPE_ARRAY ta);
+void pretty_struct(TYPE_STRUCT tstr);
+void traverse_exps(EXPS *es);
+void traverse_stmts(STMTS *ss);
+void pretty_exp(EXP *e);
+void pretty_unaryexp(EXP *e);
+void pretty_binaryexp(EXP *e);
+void pretty_assignop(ASSIGNOP a);
+void traverse_idents(IDENTS ids);
+void pretty_shortdecl(SHORTDECL sd);
+void pretty_var_spec(VAR_DECL vs);
+void traverse_names(VAR_DECL vs);
+void traverse_vals(VAR_DECL vs);
+void pretty_if(IF_STMT is);
+void pretty_switch(SWITCH_STMT ss);
+void pretty_cases(CASES cs);
+void pretty_for(FOR_STMT fs);
+void pretty_stmt(STMT *s);
+void indentation();
+
 void pretty_program(DECLS *ds) {
     if(ds == NULL) return;
 
@@ -122,41 +149,51 @@ void pretty_exp(EXP *e) {
     switch(e->kind) {
         case tree_exp_kind_ident:
             printf("%s", e->ident);
+            break;
 
         case tree_exp_kind_int:
             printf("%d", e->intval);
+            break;
 
         case tree_exp_kind_float:
             printf("%lf", e->floatval);
+            break;
 
         case tree_exp_kind_rune:
             printf("%c", e->runeval);
+            break;
 
         case tree_exp_kind_str:
             printf("%s", e->strval);
+            break;
 
         case tree_exp_kind_unary:
             pretty_unaryexp(e->unary);
+            break;
 
         case tree_exp_kind_binary:
             pretty_binaryexp(e->binary);
+            break;
 
         case tree_exp_kind_call:
             pretty_exp(e->call->func);
             printf("(");
             traverse_exps(e->call->exps);
             printf(")");
+            break;
 
         case tree_exp_kind_index:
             pretty_exp(e->index->arr);
             printf("[");
             pretty_exp(e->call->index);
             printf("]");
+            break;
 
         case tree_exp_kind_field:
             pretty_exp(e->field->instance);
             printf(".");
             printf("%s", e->field->field);
+            break;
 
         case tree_exp_kind_append:
             printf("append(");
@@ -164,16 +201,19 @@ void pretty_exp(EXP *e) {
             printf(", ");
             pretty_exp(e->field->instance);
             printf(")");
+            break;
 
         case tree_exp_kind_len:
             printf("len(");
             pretty_exp(e->exp);
             printf(")");
+            break;
 
         case tree_exp_kind_cap:
             printf("cap(");
             pretty_exp(e->exp);
             printf(")");
+            break;
     }
 }
 
