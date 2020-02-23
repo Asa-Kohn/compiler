@@ -29,6 +29,8 @@ typedef struct tree_stmts STMTS;
 typedef struct tree_stmt STMT;
 typedef struct tree_cases CASES;
 typedef struct tree_exps EXPS;
+typedef struct tree_idents IDENTS;
+typedef struct tree_assignop ASSIGNOP;
 
 enum tree_decls_kind
 {
@@ -138,6 +140,7 @@ struct tree_var_spec
     struct tree_exp *val;
 
     struct tree_var_spec *next;
+
 };
 
 struct tree_type_spec
