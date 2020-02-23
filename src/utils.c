@@ -19,5 +19,5 @@ void *emalloc(size_t n)
 
 char *estrdup(char *s)
 {
-    return strcpy(emalloc(strlen(s)), s);
+    return strcpy(emalloc(strlen(s) + 1), s);
 }
