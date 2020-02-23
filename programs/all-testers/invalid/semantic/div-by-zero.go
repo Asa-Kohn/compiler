@@ -1,4 +1,4 @@
-//program with main
+// program with main
 package main
 
 var initint = 5;

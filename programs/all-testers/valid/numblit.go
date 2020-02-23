@@ -29,4 +29,6 @@ func main() {
 	print(12.);
 	print(" : ");
 	println(12.);
+
+	println("numblit executed")
 }
