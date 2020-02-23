@@ -204,10 +204,10 @@ static int last_token = 0;
 \"([^\\\"]|\\a|\\b|\\f|\\n|\\r|\\t|\\v|\\\\|\\\")*\" {
     size_t i = 0;
     char *c;
-    for(c = yytext; *c; c++, c += (*c == '\\'))
+    for(c = &yytext[1]; *c; c++, c += (*c == '\\'))
         i++;
-    yylval.strval = emalloc(i + 1);
-    for(i = 0, c = yytext; *c; i++, c++)
+    yylval.strval = emalloc(i);
+    for(i = 0, c = &yytext[1]; *c != '"'; i++, c++)
     {
         if(*c == '\\')
             switch(*++c)
@@ -244,6 +244,13 @@ static int last_token = 0;
     }
     yylval.strval[i] = '\0';
     OUTPUT_TOK_STR
+}
+
+`[^`]*` {
+    size_t len = strlen(yytext - 1);
+    yylval.strval = emalloc(len - 1);
+    strncpy(yylval.strval, &yytext[1], len - 2);
+    yylval.strval[len - 2] = '\0';
 }
 
 [0-9]*\.[0-9]+|[0-9]+\.[0-9]* {
