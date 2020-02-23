@@ -33,10 +33,10 @@ component of our GoLite compiler required for this milestone.
 
 Most of the scanning implementation was the same as that in the assignments
 earlier in the semester. Given that GoLite has more keywords and built-in
-features than MiniLang, there were of course more to account and scan for.
+features than MiniLang, there was of course more to account and scan for.
 
 Multiline comments were a point of discussion and work on. We ended up deciding
-to match the first \verb|\*| the first occurence of the closing token \verb|*/|
+to match the first \verb|/*| with the first occurence of the closing token \verb|*/|
 for the comment block, as GoLite does not support nested comments.
 This was implemented using an elegant regular expression:
 
@@ -46,30 +46,27 @@ This was implemented using an elegant regular expression:
 
 As far as our testing goes, it appears to be functional.
 
-% semicolon insertion (keep track of the last token)
-
 For semicolon insertion rules, we decided to keep track of the last token prior
 to seeing any of the tokens found in the insertion rules. This can be found in
-the Go language documentation [[ref]].
+the Go language documentation \cite{gosemi}.
 
 % is there anything else?
 
 \subsection{Parsing}
-% function parsing when there are 0 and 1+ args
-% func name () <--- %noassoc pragma
 
 In order to parse functions, we decided to segregate those with no arguments and
 those with non-zero arguments as different rules in the grammar.
 This allowed for better legibility and hopefully
 causes less issues when it comes to grammar rules which could result in
-unwanted grammar productions. For the functions with zero arguments, we used the
+unwanted grammar productions. For the functions calls, we used the
 \verb|%nonassoc| pragma on the \verb|(| and \verb|[| tokens. We gave this the
 highest precedence as this needs to be considered first.
 It appears as if that this could also be completed using
 the \verb|%right| pragma, although it didn't
-seem as elegant and appeared to be more work to implement correctly. The same
-thing was done for expression lists of zero and non-zero size. This allowed for
-easier reading and understanding of the grammar.
+seem as elegant and appeared to be more work to implement correctly.
+
+We decided to defer the verification of the blank specifier in the type checking
+phase of the compiler.
 
 % chat with Asa
 
@@ -80,44 +77,65 @@ of implementation. It follows the same structure as the assignment although
 there were a couple of differences as to what Alex and Will had done in their
 respective solo assignments. In this part we decided to create many C structures
 in order to keep the different kind of node types separated. The \verb|else if|
-linking follows more of what Asa had done in his assignment.
-
-% talk about this more
+linking follows more of what Asa had done in his assignment. This actually helped
+immensely when it came to coding up the pretty printer as the structure of
+the AST was sound (after we sorted out all the kinks).
 
 \subsection{Pretty Printing}
-%TODO
+
+Thankfully, a lot of the boilerplate code for pretty printing from the notes
+and the second assignment was used for this milestone. Given the very rich
+structure of the AST design (modulo the ``back and forth'' of design choice
+changes), writing the pretty printer was rather straight forward.
 
 \subsection{Implementation difficulties encountered}
 
-Thankfully, there was not much difficulty in implementation as far as we can
-tell, but time constraints induced some challenges.
+When working through this milestone, we realized that declarations can have
+arbitrarily long variables and values. This means that there does not exist
+a fixed $k$ such that the parser is $LR(k)$. Thus, we decided to make it a GLR
+parser and with some work, the issues seemed to work themselves out.
+
+Designing the AST posed some issues as well. There were a couple of periods  of
+``back and forth'' where something that we thought would fix an issue did not
+and vice versa. Examples of this includes how to organize expression lists. We
+decided on one way to do it, which we then agreed to fix after this milestone
+as time until submission was rapidly approaching.
+
+Given the back and forth nature of our progress, this set us back progressing
+in other parts of the compiler components required for this milestone, as we'd
+have to change the code written based on the new structure of some components of
+the AST nodes.
+
+Finally, time constraints induced some challenges and late nights.
 
 \section{Division of labour and team organization}
 
 \subsection{Dividing the work}
 
-% speak to each individual so that I know exactly what they did
+We'd like to note that everyone in the group contributed equal amounts of
+respective work and time. We also all did testing together.
 
 \subsubsection{Asa}
 
 % lexer, parser
-Asa was mainly in charge with writing most of the lexer and parser,
-although decisions and discussions were done as a group.
+Asa was mainly in charge with writing most of the lexer and parser, although
+decisions and discussions were done as a group. He also spearheaded the AST part
+of the compiler, although we all decided together how to implement certain
+intracacies that presented themselves. Given that Asa did most of the structure
+of core components of the compiler, other group members had to rely on his ideas
+on how he thought components further down in the pipeline should be implemented.
 
 \subsubsection{Will}
 
 % programs, general, etc
 
-Will had written most of the programs (both valid and invalid ones) to be
+Will had written half of programs (both valid and invalid ones) to be
 submitted for this milestone. He did some testing to make sure that the code was
 correct and debated on what were `interesting' valid programs with Alex.
- He was responsible for organizing that part of the project to confirm it
- met the specifications of the first milestone.
+He was responsible for organizing that part of the project to confirm it
+met the specifications of the first milestone.
 
 \subsubsection{Alex}
-
-% parser verification
-% pretty printing (possibly) + testing?
 
 Alex was mostly in charge with writing programs and verifying the work of
 others. This included going over the bison source code file in an attempt to discover
@@ -129,12 +147,10 @@ making sure
 that everything is done as properly as possible. Finally, taking charge
 of making pull requests and merging is a part of this task.
 
-% Talk about testing once that actually gets done.
+Alex also did most of the pretty printing, which was of course verified and
+discussed with the other members of the group.
 
 \subsection{Organization}
-
-% mention what tools we use to be productive, etc
-% how often we met etc
 
 In order to be productive, we decided to set up certain communication channels.
 This was done using \href{https://matrix.org/}{Matrix} which is an open source
@@ -142,7 +158,13 @@ alternative to Slack. Further, some markdown files were created to do basic
 TODO lists, but given the time frame, it wasn't as successful -- each team
 member had their own list of things to focus on instead.
 
-%\bibliography{refs}{}
-%\bibliographystyle{plain}
+We also met quite frequently as the deadline for submission approached, this
+includes the time of writing this report as we all work together in Burnside
+basement.
+
+\nocite{*}
+
+\bibliography{refs.bib}{}
+\bibliographystyle{plain}
 
 \end{document}
