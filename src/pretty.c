@@ -143,7 +143,7 @@ void traverse_stmts(STMTS *ss) {
     // Go through an stmts
     indentation();
     pretty_stmt(&ss->stmt);
-    printf("\n;")
+    printf("\n;");
 
     if(ss->next != NULL) {
         traverse_stmts(ss->next);
