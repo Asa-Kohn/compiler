@@ -2,33 +2,33 @@
 #define WEED_H
 #include "tree.h"
 
-int weed_func_decl(FUNC_DECL *func_decl);
-int weed_decls(DECLS *decls);
-int weed_type_array(TYPE_ARRAY *type_array);
-int weed_type_slice(TYPE_SLICE *type_slice);
-int weed_type_struct(TYPE_STRUCT *type_struct);
-int weed_type(TYPE *type);
-int weed_vars(VARS *vars);
-int weed_unaryexp(UNARYEXP *unarexp);
-int weed_binaryexp(BINARYEXP *binaryexp);
-int weed_call(CALL *call);
-int weed_index(INDEX *index);
-int weed_field(FIELD *field);
-int weed_append(APPEND *append);
+void weed_func_decl(FUNC_DECL *func_decl);
+void weed_decls(DECLS *decls);
+void weed_type_array(TYPE_ARRAY *type_array);
+void weed_type_slice(TYPE_SLICE *type_slice);
+void weed_type_struct(TYPE_STRUCT *type_struct);
+void weed_type(TYPE *type);
+void weed_vars(VARS *vars);
+void weed_unaryexp(UNARYEXP *unarexp);
+void weed_binaryexp(BINARYEXP *binaryexp);
+void weed_call(CALL *call);
+void weed_index(INDEX *index);
+void weed_field(FIELD *field);
+void weed_append(APPEND *append);
 
-int weed_cases(CASES *cases);
-int weed_stmts(STMTS *stmts);
-int weed_stmt(STMT *stmt);
-int weed_assign(ASSIGN *assign);
-int weed_shortdecl(SHORTDECL *shortdecl);
-// int weed_var_decl(VAR_DECL *var_decl);
-int weed_var_spec(VAR_SPEC *var_spec);
-int weed_type_spec(TYPE_SPEC *type_spec);
-int weed_if(IF_STMT *if_stmt);
-int weed_switch(SWITCH_STMT *switch_stmt);
-int weed_for(FOR_STMT *for_stmt);
+void weed_cases(CASES *cases);
+void weed_stmts(STMTS *stmts);
+void weed_stmt(STMT *stmt);
+void weed_assign(ASSIGN *assign);
+void weed_shortdecl(SHORTDECL *shortdecl);
+// void weed_var_decl(VAR_DECL *var_decl);
+void weed_var_spec(VAR_SPEC *var_spec);
+void weed_type_spec(TYPE_SPEC *type_spec);
+void weed_if(IF_STMT *if_stmt);
+void weed_switch(SWITCH_STMT *switch_stmt);
+void weed_for(FOR_STMT *for_stmt);
 
-int weed_exps(EXPS *exps);
-int weed_exp(EXP *exp); 
+void weed_exps(EXPS *exps);
+void weed_exp(EXP *exp); 
 
 #endif
