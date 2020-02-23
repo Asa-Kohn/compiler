@@ -58,7 +58,6 @@ void weed_stmt_switch(STMT *stmt) {
         case tree_stmt_kind_continue:
             fprintf(stderr, "Error: continue statement (line %d)", stmt->lineno);
             exit(1);
-            return;
 
         default:
             return;
@@ -76,12 +75,10 @@ void weed_stmt(STMT *stmt) {
         case tree_stmt_kind_break:
             fprintf(stderr, "Error: break statement (line %d)", stmt->lineno);
             exit(1);
-            return;
 
         case tree_stmt_kind_continue:
             fprintf(stderr, "Error: continue statement (line %d)", stmt->lineno);
             exit(1);
-            return;
 
         default:
             return;
