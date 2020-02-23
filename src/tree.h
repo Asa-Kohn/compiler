@@ -36,7 +36,8 @@ enum tree_decls_kind
 {
     tree_decls_kind_var_decl,
     tree_decls_kind_type_spec,
-    tree_decls_kind_func_decl
+    tree_decls_kind_func_decl,
+    tree_decls_kind_package
 };
 
 enum tree_type_kind
@@ -165,6 +166,7 @@ struct tree_decls
         struct tree_var_spec *var_spec;
         struct tree_type_spec type_spec;
         struct tree_func_decl func_decl;
+        char *package;
     };
 
     struct tree_decls *next;
