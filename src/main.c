@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     else if(strcmp(argv[1], "pretty") == 0)
     {
         yyparse();
-//        pretty_program(root);
+        pretty_program(root);
     }
 
     return 0;
