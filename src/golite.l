@@ -196,7 +196,7 @@ static int last_token = 0;
 "'\\\\'" { yylval.runeval = '\\'; OUTPUT_TOK_RUNE }
 "'\\''" { yylval.runeval = '\''; OUTPUT_TOK_RUNE }
 
-0x[0-9a-fA-F]+|[0-9]+ {
+0x[0-9a-fA-F]+|[1-9][0-9]*|0[0-7]* {
     yylval.intval = strtol(yytext, NULL, 0);
     OUTPUT_TOK_INT
 }
