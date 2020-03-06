@@ -605,6 +605,7 @@ stmts:
 stmt:           block
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
+                    $$->stmt.kind = tree_stmt_kind_block;
                     $$->stmt.block = $1;
                     $$->stmt.lineno = yylineno;
                     $$->next = NULL;
@@ -775,6 +776,13 @@ simplestmt:
                 }
         |       exp
                 {
+                    if($1->kind != tree_exp_kind_call)
+                    {
+                        fprintf(stderr,
+                                "Error: expression statement on line %d is not \
+function call\n", $1->lineno);
+                        exit(1);
+                    }
                     $$ = emalloc(sizeof(struct tree_stmt));
                     $$->kind = tree_stmt_kind_exp;
                     $$->expstmt = *$1;

@@ -134,14 +134,6 @@ aration\n", stmts->stmt.lineno);
         }
         weed_stmts(stmts->stmt.forstmt.body);
     }
-    else if(stmts->stmt.kind == tree_stmt_kind_exp &&
-            stmts->stmt.expstmt.kind != tree_exp_kind_call)
-    {
-            fprintf(stderr,
-                    "Error: expression statement on line %d is not function cal\
-l\n", stmts->stmt.lineno);
-            exit(1);
-    }
     else if(stmts->stmt.kind == tree_stmt_kind_block)
         weed_stmts(stmts->stmt.block);
     else if(stmts->stmt.kind == tree_stmt_kind_if)
@@ -149,6 +141,8 @@ l\n", stmts->stmt.lineno);
         weed_stmts(stmts->stmt.ifstmt.body);
         weed_stmts(stmts->stmt.ifstmt.elsebody);
     }
+
+    weed_stmts(stmts->next);
 }
 
 void weed(DECLS *decls)
