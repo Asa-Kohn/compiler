@@ -201,7 +201,7 @@ static int last_token = 0;
     OUTPUT_TOK_INT
 }
 
-\"([^\\\"]|\\a|\\b|\\f|\\n|\\r|\\t|\\v|\\\\|\\\")*\" {
+\"([^\\\"\n]|\\a|\\b|\\f|\\n|\\r|\\t|\\v|\\\\|\\\")*\" {
     size_t i = 0;
     char *c;
     for(c = &yytext[1]; *c; c++, c += (*c == '\\'))
