@@ -185,7 +185,7 @@ static int last_token = 0;
 ":" OUTPUT_TOKEN_CHAR(':')
 ";" OUTPUT_TOKEN_CHAR(';')
 
-'.' { yylval.runeval = yytext[1]; OUTPUT_TOK_RUNE }
+'[^\\']' { yylval.runeval = yytext[1]; OUTPUT_TOK_RUNE }
 "'\\a'" { yylval.runeval = '\a'; OUTPUT_TOK_RUNE }
 "'\\b'" { yylval.runeval = '\b'; OUTPUT_TOK_RUNE }
 "'\\f'" { yylval.runeval = '\f'; OUTPUT_TOK_RUNE }

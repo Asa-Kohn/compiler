@@ -184,19 +184,29 @@ top_level_decls:
                 }
         |       var_decl ';' top_level_decls
                 {
-                    $$ = $1;
-                    struct tree_decls *c = $$;
-                    while(c->next)
-                        c = c->next;
-                    c->next = $3;
+                    if($1)
+                    {
+                        $$ = $1;
+                        struct tree_decls *c = $$;
+                        while(c->next)
+                            c = c->next;
+                        c->next = $3;
+                    }
+                    else
+                        $$ = $3;
                 }
         |       type_decl ';' top_level_decls
                 {
-                    $$ = $1;
-                    struct tree_decls *c = $$;
-                    while(c->next)
-                        c = c->next;
-                    c->next = $3;
+                    if($1)
+                    {
+                        $$ = $1;
+                        struct tree_decls *c = $$;
+                        while(c->next)
+                            c = c->next;
+                        c->next = $3;
+                    }
+                    else
+                        $$ = $3;
                 }
         |       func_decl ';' top_level_decls
                 {
@@ -614,15 +624,19 @@ stmt:           block
                 }
         |       var_decl_stmt
                 {
-                    $$ = $1;
-                    $$->stmt.lineno = yylineno;
-                    $$->next = NULL;
+                    if(($$ = $1))
+                    {
+                        $$->stmt.lineno = yylineno;
+                        $$->next = NULL;
+                    }
                 }
         |       type_decl_stmt
                 {
-                    $$ = $1;
-                    $$->stmt.lineno = yylineno;
-                    $$->next = NULL;
+                    if(($$ = $1))
+                    {
+                        $$->stmt.lineno = yylineno;
+                        $$->next = NULL;
+                    }
                 }
         |       TOK_PRINT '(' exps ')'
                 {
@@ -718,6 +732,17 @@ stmt:           block
                     $$->stmt.forstmt.condition = $4;
                     $$->stmt.forstmt.iter = $6;
                     $$->stmt.forstmt.body = $7;
+                    $$->stmt.lineno = yylineno;
+                    $$->next = NULL;
+                }
+        |       TOK_FOR simplestmt ';' ';' simplestmt block
+                {
+                    $$ = emalloc(sizeof(struct tree_stmts));
+                    $$->stmt.kind = tree_stmt_kind_for;
+                    $$->stmt.forstmt.init = $2;
+                    $$->stmt.forstmt.condition = NULL;
+                    $$->stmt.forstmt.iter = $5;
+                    $$->stmt.forstmt.body = $6;
                     $$->stmt.lineno = yylineno;
                     $$->next = NULL;
                 }

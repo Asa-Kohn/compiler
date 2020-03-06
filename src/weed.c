@@ -135,7 +135,7 @@ aration\n", stmts->stmt.lineno);
         weed_stmts(stmts->stmt.forstmt.body);
     }
     else if(stmts->stmt.kind == tree_stmt_kind_exp &&
-            stmts->stmt.exp->kind != tree_exp_kind_call)
+            stmts->stmt.expstmt.kind != tree_exp_kind_call)
     {
             fprintf(stderr,
                     "Error: expression statement on line %d is not function cal\
