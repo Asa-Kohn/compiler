@@ -1,4 +1,11 @@
 .DS_Store
-report/*
-!report/*.tex
-!report/*.bib
+
+
+report/*/*
+!report/*/*.tex
+!report/*/*.bib
+
+doc/*
+!doc/*.pdf
+
+*.o
