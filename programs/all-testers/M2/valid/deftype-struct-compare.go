@@ -1,4 +1,4 @@
-// Error: (line 12) assigment lhs type is incompatible with rhs type [num != int]
+// Error: (line 14) assigment lhs type is incompatible with rhs type [num != natural]
 package main
 
 type num int;
@@ -9,7 +9,7 @@ var y = num(0);
 var z struc;
 
 func assign() bool{ 
-	return y == z.a;
+	return x == z.a;
 }
 
 

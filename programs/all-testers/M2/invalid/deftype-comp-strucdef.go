@@ -2,7 +2,8 @@
 package main
 
 type num int;
-type struc struct{ a, b int; }
+type struc struct{ a, b int; }	// syntax error if semi-colon not inserted here
+// however, https://golang.org/ref/spec#Type_identity, golang specs did not use semi-colon for struct def
 
 var x int = 0;
 var y = num(0);
