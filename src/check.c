@@ -25,7 +25,7 @@ void unscope(symboltable st)
     st->head = st->head->next;
 }
 
-type widest(type s, type t)
+TYPE widest(TYPE s, TYPE t)
 {
     if(s == tree_exp_kind_float || t == tree_exp_kind_float)
     {
@@ -48,7 +48,7 @@ type widest(type s, type t)
 }
 
 // void for now, returns the resolved type
-type resolve(type t)
+TYPE t resolve(TYPE t)
 {
     // go up the type inheritance tree until we hit a base type
     while
@@ -68,21 +68,21 @@ type resolve(type t)
     }
 }
 
-bool commonresolve(type t1, type t2)
+bool commonresolve(TYPE t1, TYPE t2)
 {
     // Here we do not know where they land in inheritance tree
 
     // TODO
 }
 
-bool isnumeric(type t)
+bool isnumeric(TYPE t)
 {
     if(isinteger(t) || t == tree_exp_kind_float) return true;
 
     return false;
 }
 
-bool isinteger(type t)
+bool isinteger(TYPE t)
 {
     if(t == tree_exp_kind_int || t == tree_exp_kind_rune) return true;
 
@@ -126,7 +126,7 @@ symbol getsymbol(symboltable * st, expr * e)
     - [ ] Special functions
 */
 
-void checkdecl_var(symboltable st, ident id, type t)
+void checkdecl_var(symboltable st, ident id, TYPE t)
 {
     /*
         Adds the mapping x:T to the symbol table
@@ -145,7 +145,6 @@ void checkdecl_var(symboltable st, ident id, type t)
     {
         if(cs.id == id && cs.type == t)
         {
-            // TODO: NEEDS LINENO
             // TODO: ID needs to be a string not some ident whatever
             fprintf(stderr, "Error: (line %d) variable (%s) \
                 previously declared in current scope.\n", lineno, id);
@@ -366,11 +365,22 @@ void checkstmt_block(symboltable st, STMTS * block)
 
     // create a new scope
     st = scope(st);
-    //
+
+    // iterate over all the statements
+    while(block != NULL)
+    {
+        checkstmt(block->stmt);
+        block = block->next;
+    }
 }
-void checkstmt_print_ln()
+void checkstmt_print_ln(EXPS * es)
 {
     // Typechecks if all expressions are well typed and resolve to a base type
+    while(es != NULL)
+    {
+        checkexp(es->exp);
+        TYPE t = resolve(es->exp);
+    }
 }
 
 void checkstmt_for()
@@ -410,7 +420,7 @@ void checkstmt_incdec()
 
 */
 
-type checkexp_literal(EXP * e)
+TYPE checkexp_literal(EXP * e)
 {
     /*
         Check if int, float, rune or string literal by checking struct
@@ -469,7 +479,7 @@ void checkexp_unary(unaryop uop, EXP * e)
     checkexp(e);
 
     // resolve if we passed
-    type t = resolve(e);
+    TYPE t = resolve(e);
 
     if((uop == tUNARY || uop == tNEG) && isnumeric(t))
     {
@@ -492,7 +502,7 @@ void checkexp_unary(unaryop uop, EXP * e)
     return t;
 
 }
-type checkexp_binary(binaryop bop, EXP * e1, EXP * e2)
+TYPE checkexp_binary(binaryop bop, EXP * e1, EXP * e2)
 {
     /*
         Many different things going on here, refer to spec for this.
@@ -503,8 +513,8 @@ type checkexp_binary(binaryop bop, EXP * e1, EXP * e2)
     checkexp(e2);
 
     // resolve both
-    type t1 = resolve(e1);
-    type t2 = resolve(e2);
+    TYPE t1 = resolve(e1);
+    TYPE t2 = resolve(e2);
 
     switch(bop)
     {
@@ -621,8 +631,8 @@ void checkexp_funccall(EXP * e, EXPS * args)
 
     typelist protolist = prototype(e);
 
-    type a; // arg type
-    type p; // prototype type
+    TYPE a; // arg type
+    TYPE p; // prototype type
 
     while(args != NULL && protolist != NULL){
         a = checkexp(args);
@@ -645,7 +655,7 @@ void checkexp_funccall(EXP * e, EXPS * args)
     return rtype(e);
 
 }
-type checkexp_index(EXP * e, type index)
+TYPE checkexp_index(EXP * e, TYPE index)
 {
     /*
         expr[index] is well typed if `expr` resolves to []T or [N]T, and
@@ -654,10 +664,10 @@ type checkexp_index(EXP * e, type index)
         We can check if the index makes sense at runtime
     */
 
-    type t = resolve(e);
-    type i = resolve(index);
+    TYPE t = resolve(e);
+    TYPE i = resolve(index);
 
-    if(t != tree_type_kind_slice && t != tree_type_kind_array) && i != tree_exp_kind_int)
+    if((t != tree_type_kind_slice && t != tree_type_kind_array) && i != tree_exp_kind_int)
     {
         fprintf(stderr, "Error: (line %d).\n", lineno);
         exit(1);
@@ -665,7 +675,7 @@ type checkexp_index(EXP * e, type index)
 
     return t;
 }
-type checkexp_field(EXP * e, field id)
+TYPE checkexp_field(EXP * e, field id)
 {
     /*
         `expr` is well typed and has type S
@@ -674,13 +684,13 @@ type checkexp_field(EXP * e, field id)
         the type of the field is the type who has the id in the struct def
     */
 
-    type s = checkexp(e);
+    TYPE s = checkexp(e);
 
     // find the struct that s resolves to and find the
 
-    type f = resolve(id); // ?
+    TYPE f = resolve(id); // ?
 }
-type checkexp_builtin_append(EXP * e1, EXP * e2)
+TYPE checkexp_builtin_append(EXP * e1, EXP * e2)
 {
     /*
         `append(e1, e2)` is well typed if e1 is well typed and has type S and
@@ -691,8 +701,8 @@ type checkexp_builtin_append(EXP * e1, EXP * e2)
 
 
     // TODO: helper function to determine if s can resolve to type t
-    type s = checkexp(e1);
-    type t = checkexp(e2);
+    TYPE s = checkexp(e1);
+    TYPE t = checkexp(e2);
 
     if(!commonresolve(s, t))
     {
@@ -704,14 +714,14 @@ type checkexp_builtin_append(EXP * e1, EXP * e2)
     return s;
 
 }
-type checkexp_builtin_cap(EXP * e)
+TYPE checkexp_builtin_cap(EXP * e)
 {
     /*
         `cap(expr)` is well type if `expr` is well typed and has type S and S
         resolves to []T or [N]T. The result has type int
     */
 
-    type s = checkexp(e);
+    TYPE s = checkexp(e);
 
     if(s != tree_type_kind_slice && s != tree_type_kind_array))
     {
@@ -723,7 +733,7 @@ type checkexp_builtin_cap(EXP * e)
     return tree_exp_kind_str;
 
 }
-type checkexp_builtin_len(EXP * e)
+TYPE checkexp_builtin_len(EXP * e)
 {
     /*
         `len(expr)` is well typed if its argument is well typed, has type S, and
@@ -731,7 +741,7 @@ type checkexp_builtin_len(EXP * e)
     */
     // determines what kind of expression it is and feeds
     // into appropriate function
-    type s = checkexp(e); // Will trigger error if something is wrong inside
+    TYPE s = checkexp(e); // Will trigger error if something is wrong inside
 
     if
     (
@@ -748,7 +758,7 @@ type checkexp_builtin_len(EXP * e)
     return tree_exp_kind_str;
 
 }
-type checkexp_typecast(type cast, expr e)
+TYPE checkexp_typecast(TYPE cast, expr e)
 {
     /*
         `type(expr)` is well typed if type resolves to one of the base types
@@ -758,8 +768,8 @@ type checkexp_typecast(type cast, expr e)
         (int or rune).
     */
 
-    type tc = resolve(cast);
-    type te = resolve(e);
+    TYPE tc = resolve(cast);
+    TYPE te = resolve(e);
 
     if(tc == te)
     {
