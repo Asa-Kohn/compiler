@@ -1,4 +1,4 @@
-// (line 7) assigment lhs type is incompatible with rhs type [float64 != int]
+// Error: (line 7) assigment lhs type is incompatible with rhs type [float64 != int]
 // operation type mismatch 
 
 package main

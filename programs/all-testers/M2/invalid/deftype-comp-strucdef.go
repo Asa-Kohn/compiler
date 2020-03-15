@@ -9,8 +9,9 @@ var x int = 0;
 var y = num(0);
 var z struc;
 
-func assign() bool{ 
-	return y == z.a;
+func compare() bool{ 
+	//z.a type int
+	return y == z.a;	
 }
 
 
