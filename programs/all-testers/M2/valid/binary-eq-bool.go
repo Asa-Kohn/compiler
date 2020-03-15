@@ -1,4 +1,3 @@
-// Error: (line 9) incompatible type in logical op && [received bool, expected bool]
 package main
 
 var d bool = false;
