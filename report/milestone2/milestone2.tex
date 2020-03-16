@@ -2,13 +2,14 @@
 \usepackage[utf8]{inputenc}
 
 \usepackage{cite}
+\usepackage{amsmath}
 
 \title{
     Milestone 2: Teamwork Report\\
     \large Design Decisions + Contributions
 }
 \author{Alexander Iannantuono, Asa Kohn, and William Chien}
-\date{March 15, 2020}
+\date{Some date in the future, 2020}
 
 \usepackage{geometry}
 \geometry{margin=1in}
@@ -24,10 +25,10 @@
 % OF YOUR SYMBOL TABLE / TYPE CHECKER. IF THERE ARE PARSING ISSUES THAT YOU
 % IMPLEMENTED AS A WEEDING PHASE, DOCUMENT THEM HERE.
 %
-% - AN OVERVIEW OF THE SCOPING RULES USED
-% - FOR EACH INVALID PROGRAM, THE CORRESPONDING TYPING RULE
-% - SUMMARIZE HOW YOUR TEAM IS ORGANIZED AND WHAT EACH MEMBER CONTRIBUTED
-% - RESOURCES CONSULTED
+% - TODO AN OVERVIEW OF THE SCOPING RULES USED
+% - TODO FOR EACH INVALID PROGRAM, THE CORRESPONDING TYPING RULE
+% - TODO SUMMARIZE HOW YOUR TEAM IS ORGANIZED AND WHAT EACH MEMBER CONTRIBUTED
+% - TODO RESOURCES CONSULTED
 
 \section{Design and Implementation Decisions}
 
@@ -51,10 +52,9 @@ type-checked and resulted in a cleaner and easier function.
 Another example of this would be
 for error printing. Most, if not all, of the errors have the same format of the
 form:
-    \[
+\[
         \verb|Error: (line #) Something went wrong with this (part).|
-    \]
-
+\]
 We say that it \textit{would be} given that we opted to copy-paste the code every time
 that it was needed. This was due to the fact that some errors needed to output more
 information than others. In terms of a function, we could implement that as
@@ -65,10 +65,10 @@ In terms of code, we wrote a few helper functions to be able to not have to
 re-use code all the time, which is quite the standard practice, but it saved
 us a lot of time. This includes functions that would add to the symbol table, or
 add or remove a scope.
-% add more after you put in stuff about the symbol table and stack implementation
+% TODO add more after you put in stuff about the symbol table and stack implementation
 
 For scoping, we used a linked list to be able to implement scoping in our compiler.
-For example, ... %add more here
+For example, ... % TODO add more here
 
 There were a few difficulties encountered while writing the typechecker. Firstly,
 there are a lot of rules to keep track of. This is why we decided on separating
@@ -87,39 +87,86 @@ define a \verb$bool$ to be considered in our compiler (as opposed to in GoLite).
 
 \section{Amending issues from the first milestone}
 
-% included bool literal because we need it here
-% fixing pretty printing invariance
+% TODO include bool literal because we need it here
+% TODO fixing pretty printing invariance
 
-% To discuss with @asa and @will
+% TODO to discuss with @asa and @will
 
 \section{Division of labour and team organization}
 
 \subsection{Dividing the work}
 
  We'd like to note again that everyone in the group contributed equal amounts of
- respective work. We also all did testing together, this time it
- was done remotely via audio calling as we are all self-isolating at home.
+ respective work. We also all did testing together, this time it was done
+ remotely via audio (and video) calling as we are all self-isolating at home.
+
+ Asa had decided that he wanted to work on the symbol table and modeled it after
+ what he did in his assignment\footnote{This will be explained in Asa's section.}.
+ As a result of this, Alex decided that he would work on the
+ typechecker and put in a lot of the boilerplate code for this. Alex was also
+ going to write some of the programs, but that left Will with virtually nothing
+ to work on by himself at first and therefore writing the programs was given to
+ Will as a task. As Alex wrote the report last time and wanted to improve on his
+ report writing skills, he decided to have another go at writing this
+ one\footnote{He hopes that this report is more thorough and less ambiguous
+ than the previous one.}.
 
 \subsubsection{Asa}
 
-% symbol table, fixing problems from first milestone
+% TODO @asa: symbol table, fixing problems from first milestone
+% TODO @asa: write about how you implemented your symbol table and typechecker in the second assignment
 
 \subsubsection{Will}
 
-% programs, helping others out
+% TODO @will: programs, helping others out
+% TODO @will: write about how you implemented your symbol table and typechecker in the second assignment
+
 
 \subsubsection{Alex}
 
-% report, typechecking, testing, fixing pretty printing invariance?
-% repo organization
+% TODO? report
+% TODO typechecking
+% TODO testing
+% TODO fixing pretty printing invariance?
+% TODO repo organization
+% TODO @alex: write about how you implemented your symbol table and typechecker in the second assignment
+
+% TODO WRITE MORE ABOUT THIS, IT'S STILL WISHY WASHY
+Alex spent most of his time working on the typechecking from boilerplate code
+to the testing (hopefully fixing of bugs). As mentioned above, the report was
+mainly written by him, except for the parts that involved the work of others.
+Those parts were written by the members involved. Another portion of the
+assignment that he decided to work on was fixing the pretty printing invariance.
+He had been informed that most of the pretty printing that was done did not
+satisfy the following invariance:
+\[
+    \text{pretty(pretty(code)) = pretty(code)}
+\]
+
+% TODO talk about the bug once you find it!
 
 \subsection{Organization}
 
 % Organization
 
+Organizing this time was a bit more of a challenge than for the first milestone.
+Given the ongoing and evolving global pandemic, we decided to work remotely at
+our homes and communicate via various platforms: Matrix via Riot.im,
+GitHub issues, email and text messaging.
+
+Alex decided to use small to-do lists in the files that he was working on just
+to keep track of the work he still had to do. Putting \verb|TODO: (thing)|
+was also very helpful in case he missed something in the big files that he was
+working on. For other parts of the project, such as writing this report, Alex
+added small comments tagging either Will or Asa with \verb|@<name>: message| in
+case there was something where their input was needed or Alex was requesting that
+they possibly do that part.
+
+% @will, @asa: please add what you used to stay organized for yourselves
+
 \nocite{*}
 
-% TODO!!
+% TODO fix the dates and references to remove old and put in new ones
 \bibliography{refs.bib}{}
 \bibliographystyle{plain}
 
