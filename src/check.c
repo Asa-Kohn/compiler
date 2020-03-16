@@ -4,6 +4,7 @@
 
 // TODO: decide if we should make symbol table a global variable?
 // TODO: bool in {0, 1}
+// TODO: check for terminating statements
 
 // Some helper functions
 
