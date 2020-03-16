@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 // TODO: decide if we should make symbol table a global variable?
+// TODO: bool in {0, 1}
 
 // Some helper functions
 
@@ -89,6 +90,7 @@ bool isinteger(TYPE t)
     return false;
 }
 
+// TODO: this can be changed, we fetch the immediate declaration in the table
 symbol getsymbol(symboltable * st, expr * e)
 {
 
@@ -122,11 +124,34 @@ symbol getsymbol(symboltable * st, expr * e)
 - [ ] Declarations
     - [ ] Variable decl
     - [ ] Type decl
-    - [ ] Function decl
+    - [~] Function decl
     - [ ] Special functions
 */
 
-void checkdecl_var(symboltable st, ident id, TYPE t)
+void checkdecls(DECLS * d)
+{
+    while(d)
+    {
+        switch(d->kind)
+        {
+            case tree_decls_kind_var_decl:
+                checkdecl_var(d);
+                break;
+            case tree_decls_kind_type_spec:
+                checkdecl_type(d);
+                break;
+            case tree_decls_kind_func_decl:
+                checkdecl_func(d);
+                break;
+            case tree_decls_kind_package:
+                // ignore?
+                break;
+        }
+        d = d->next;
+    }
+}
+
+void checkdecl_var(symboltable st, DECL * d)
 {
     /*
         Adds the mapping x:T to the symbol table
@@ -141,6 +166,7 @@ void checkdecl_var(symboltable st, ident id, TYPE t)
     s->type = t;
 
     // Check if it already exists in the current scope
+    // TODO: this can be deleted soon, according to new symtab format
     for(symbol cs = st->head->table; cs; cs = cs->next)
     {
         if(cs.id == id && cs.type == t)
@@ -157,8 +183,10 @@ void checkdecl_var(symboltable st, ident id, TYPE t)
 
     addsymbol(st, s);
 }
-void checkdecl_type()
+void checkdecl_type(TYPE child, TYPE parent)
 {
+
+    // TODO
     /*
         `type T1 T2`
         Adds the mapping T1 -> def(T2) to the symbol table. Error is raised
@@ -166,11 +194,14 @@ void checkdecl_type()
         of the scope but exists, the previous one gets _shadowed_
     */
 
-
+    //addsymbol();
 
 }
-void checkdecl_func()
+void checkdecl_func(DECLS * d)
 {
+
+    FUNC_DECL * fd = d->func_decl;
+
     /*
         func f(p1 T1, ..., pn Tn) Tr {...}
 
@@ -185,6 +216,31 @@ void checkdecl_func()
         Functions that return a value need to have a terminating statement
         (weeding pass)
     */
+
+    // check symtab if there exists another fd->name has been declared
+
+    // do_check(fd);
+
+    // check if parameters are OK
+    for(VAR * v = fd->params; v; v = v->next)
+    {
+        for(VAR * p = v; p; p = p->next)
+        {
+            // Compare the pointers to make sure we're not referring to same thing
+            if(strcmp(v->name, p->name) == 0 && v != p)
+            {
+                fprintf(stderr, "Error: (line %d) parameters two \
+                    parameters with same name (%s).\n", d->lineno, p->name);
+            }
+        }
+    }
+
+    // check rest of func
+    checkstmts(fd->body);
+
+    // no error triggered if we got here
+    //addsymbol(st, f);
+
 }
 void checkdecl_specialfunc()
 {
@@ -218,6 +274,11 @@ void checkdecl_specialfunc()
 
 void checkstmt(STMT * s)
 {
+    if(s == NULL){
+        // empty statement, this is OK
+        return;
+    }
+
     switch(s->kind)
     {
         case tree_stmt_kind_exp:
@@ -266,47 +327,17 @@ void checkstmt(STMT * s)
             checkstmt_for(s->forstmt);
             break;
         case tree_stmt_kind_break:
-            checkstmt_breakcontinue(s->expstmt);
+            // ignore, trivially true;
             break;
         case tree_stmt_kind_continue:
-            checkstmt_breakcontinue(s->expstmt);
+            // ignore, trivially true;
             break;
         case tree_stmt_kind_fallthrough:
-            // GoLite supports fallthrough?
-            checkstmt_breakcontinue(s->expstmt);
+            // ignore, trivially true;
             break;
     }
 }
 
-void checkstmt_empty(EXP * e)
-{
-    /*
-        Trivially well typed, e.g.
-        ;
-    */
-
-    if(e->kind != empty_stmt)
-    {
-        fprintf(stderr, "Error: (line %d) bad empty statement.\n", e->lineno);
-        exit(1);
-    }
-
-}
-
-// TODO: Needs work...not sure this is good.
-void checkstmt_breakcontinue(EXP * e)
-{
-    /*
-        See document for type rule, but it's pretty trivial.
-    */
-    if(e->kind != tree_stmt_kind_break && e->kind != tree_stmt_kind_continue)
-    {
-        fprintf(stderr, "Error: (line %d) expected statement \
-                    `break` or `continue`.\n", e->lineno);
-        exit(1);
-    }
-
-}
 void checkstmt_expstmt()
 {
     /*
@@ -361,7 +392,7 @@ void checkstmt_opassign()
 }
 void checkstmt_block(symboltable st, STMTS * block)
 {
-    // Typechecks if the statements typechecks, a block opens a NEW scope
+    // Typechecks if the statements typecheck, a block opens a NEW scope
 
     // create a new scope
     st = scope(st);
@@ -428,7 +459,7 @@ TYPE checkexp_literal(EXP * e)
 
     if(e->kind != some_kind_of_literal)
     {
-        //error
+        fprintf(stderr, "Error: (line %d) is this an internal error?\n", e->lineno);
         exit(1);
     }
 
@@ -464,7 +495,7 @@ bool checkexp_ident(EXP * e)
     return true;
 
 }
-void checkexp_unary(unaryop uop, EXP * e)
+void checkexp_unary(EXP * e)
 {
     /*
         Type of the child (`expr`) indicates type of `op expr`
@@ -475,150 +506,158 @@ void checkexp_unary(unaryop uop, EXP * e)
         `!expr` MRTE: bool
         `^expr` MRTE: int, rune
     */
+
     // Check if expr is well typed
-    checkexp(e);
+    checkexp(e->right);
 
     // resolve if we passed
-    TYPE t = resolve(e);
+    TYPE t = resolve(e->right);
 
-    if((uop == tUNARY || uop == tNEG) && isnumeric(t))
+    if(e->kind == tree_unaryexp_kind_plus && isnumeric(t))
     {
-        // logical negation
+        // numeric plus
     }
-    else if(uop == tLNEG && t == bool)
+    else if(e->kind == tree_unaryexp_kind_minus && isnumeric(t))
+    {
+        // numeric negation
+    }
+    // TODO: what is bool for us again?
+    else if(e->kind == tree_unaryexp_kind_not && t == bool)
     {
          // logical negation
     }
-    else if(uop == tBNEG && (isinteger(t)))
+    else if(e->kind == tree_unaryexp_kind_comp && isinteger(t))
     {
         // bitwise negation
     }
     else
     {
-        fprintf(stderr, "Error: (line %d).\n", lineno);
+        fprintf(stderr, "Error: (line %d) invalid unary expression.\n", e->lineno);
         exit(1);
     }
 
     return t;
 
 }
-TYPE checkexp_binary(binaryop bop, EXP * e1, EXP * e2)
+
+void checkexp_binary(EXP * e)
 {
     /*
         Many different things going on here, refer to spec for this.
     */
 
+    EXP * left = e->left;
+    EXP * right = e->right;
+
     // type check both expressions
-    checkexp(e1);
-    checkexp(e2);
+    checkexp(left);
+    checkexp(right);
 
     // resolve both
-    TYPE t1 = resolve(e1);
-    TYPE t2 = resolve(e2);
+    TYPE tl = resolve(left);
+    TYPE tr = resolve(right);
 
-    switch(bop)
+    switch(e->kind)
     {
         // bool
-        case TOK_OR:
-            if(t1 == bool && t2 == bool) return bool;
+        case tree_binaryexp_kind_or:
+            if(tl == bool && tr == bool) return;
             break;
 
-        case TOK_AND:
-            if(t1 == bool && t2 == bool) return bool;
+        case tree_binaryexp_kind_and:
+            if(tl == bool && tr == bool) return;
             break;
 
         // comparable
-        case TOK_EQ:
-            if(t1 == t2) return bool;
+        case tree_binaryexp_kind_eq:
+            if(tl == tr) return;
             break;
 
-        case TOK_NEQ:
-            if(t1 == t2) return bool;
+        case tree_binaryexp_kind_neq:
+            if(tl == tr) return;
             break;
 
         // ordered
-        case '<':
-            if(t1 == t2) return bool;
+        case tree_binaryexp_kind_lt:
+            if(tl == tr) return;
             break;
 
-        case TOK_LEQ:
-            if(t1 == t2) return bool;
+        case tree_binaryexp_kind_leq:
+            if(tl == tr) return;
             break;
 
-        case '>':
-            if(t1 == t2) return bool;
+        case tree_binaryexp_kind_gt:
+            if(tl == tr) return;
             break;
 
-        case TOK_LEQ:
-            if(t1 == t2) return bool;
+        case tree_binaryexp_kind_geq:
+            if(tl == tr) return;
             break;
 
         // numeric or string
-        case '+':
-
-            if(isnumeric(t1) && isnumeric(t2))
+        case tree_binaryexp_kind_plus:
+            if(isnumeric(tl) && isnumeric(tr))
                 // helper function to decide "widest" type
                 // rune < int < float <--- widest
-                return widest(t1, t2);
-                // although the result should be the "widest" type
+                return widest(tl, tr);
 
-            else if(t1 == tree_exp_kind_str && t2 == tree_exp_kind_str)
+            else if(tl == tree_exp_kind_str && tr == tree_exp_kind_str)
                 return tree_exp_kind_str;
 
             break;
 
         // numeric
-        case '-':
-            if(isnumeric(t1) && isnumeric(t2))
-                return widest(t1, t2);
+        case tree_binaryexp_kind_minus:
+            if(isnumeric(tl) && isnumeric(tr))
+                return widest(tl, tr);
             break;
 
-        case '*':
-            if(isnumeric(t1) && isnumeric(t2))
-                return widest(t1, t2);
+        case tree_binaryexp_kind_times:
+            if(isnumeric(tl) && isnumeric(tr))
+                return widest(tl, tr);
             break;
 
-        case '/':
-            if(isnumeric(t1) && isnumeric(t2))
-                return widest(t1, t2);
+        case tree_binaryexp_kind_div:
+            if(isnumeric(tl) && isnumeric(tr))
+                return widest(tl, tr);
             break;
 
         // integer
-        case '%':
-            if(isinteger(t1) && isinteger(t2))
-                return widest(t1, t2);
+        case tree_binaryexp_kind_rem:
+            if(isinteger(tl) && isinteger(tr))
+                return widest(tl, tr);
             break;
-        case '|':
-            if(isinteger(t1) && isinteger(t2))
-                return widest(t1, t2);
+        case tree_binaryexp_kind_bitor:
+            if(isinteger(tl) && isinteger(tr))
+                return widest(tl, tr);
             break;
-        case '&':
-            if(isinteger(t1) && isinteger(t2))
-                return widest(t1, t2);
+        case tree_binaryexp_kind_bitand:
+            if(isinteger(tl) && isinteger(tr))
+                return widest(tl, tr);
             break;
-        case TOK_LSHIFT:
-            if(isinteger(t1) && isinteger(t2))
-                return widest(t1, t2);
+        case tree_binaryexp_kind_lshift:
+            if(isinteger(tl) && isinteger(tr))
+                return widest(tl, tr);
             break;
-        case TOK_RSHIFT:
-            if(isinteger(t1) && isinteger(t2))
-                return widest(t1, t2);
+        case tree_binaryexp_kind_rshift:
+            if(isinteger(tl) && isinteger(tr))
+                return widest(tl, tr);
             break;
-        case TOK_ANDNOT:
-            if(isinteger(t1) && isinteger(t2))
-                return widest(t1, t2);
+        case tree_binaryexp_kind_andnot:
+            if(isinteger(tl) && isinteger(tr))
+                return widest(tl, tr);
             break;
-        case '^':
-            if(isinteger(t1) && isinteger(t2))
-                return widest(t1, t2);
+        case tree_binaryexp_kind_xor:
+            if(isinteger(tl) && isinteger(tr))
+                return widest(tl, tr);
             break;
     }
 
-    fprintf(stderr, "Error: (line %d) invalid binary operation.\n", lineno);
+    fprintf(stderr, "Error: (line %d) invalid binary expression.\n", lineno);
     exit(1);
 
 }
-void checkexp_funccall(EXP * e, EXPS * args)
+void checkexp_funccall(EXP * e)
 {
     /*
         expr(arg1, ... , argk) is well typed if argi are all well typed
@@ -627,35 +666,40 @@ void checkexp_funccall(EXP * e, EXPS * args)
         NOTE: init cannot be called, this should be weeded, or checked here.
     */
 
-    // find function definition and get its prototype
+    EXP * f = e->func;
+    EXPS * es = e->exps;
 
-    typelist protolist = prototype(e);
+    // find function definition and get its prototype
+    typelist protolist = prototype(f);
 
     TYPE a; // arg type
     TYPE p; // prototype type
 
-    while(args != NULL && protolist != NULL){
+    while(args != NULL && protolist != NULL)
+    {
         a = checkexp(args);
         p = checkexp(protolist);
 
         if(a != p)
         {
-            fprintf(stderr, "Error: (line %d).\n", lineno);
+            fprintf(stderr, "Error: (line %d) argument (%s) \
+                    has incorrect parameter type.\n", e->lineno, a->name);
             exit(1);
         }
     }
 
     // Check if there's a mismatch of number of args vs required args
-    if(!(args == NULL && protolist == NULL))
+    if(args != NULL || protolist != NULL)
     {
-        fprintf(stderr, "Error: (line %d).\n", lineno);
+        fprintf(stderr, "Error: (line %d) mismatch on number of \
+                    required arguments.\n", e->lineno);
         exit(1);
     }
 
-    return rtype(e);
+    return rtype(f); // TODO: some function that i haven't written yet
 
 }
-TYPE checkexp_index(EXP * e, TYPE index)
+TYPE checkexp_index(EXP * e)
 {
     /*
         expr[index] is well typed if `expr` resolves to []T or [N]T, and
@@ -664,10 +708,17 @@ TYPE checkexp_index(EXP * e, TYPE index)
         We can check if the index makes sense at runtime
     */
 
-    TYPE t = resolve(e);
-    TYPE i = resolve(index);
+    TYPE t = resolve(e->arr);
+    TYPE i = resolve(e->index);
 
-    if((t != tree_type_kind_slice && t != tree_type_kind_array) && i != tree_exp_kind_int)
+    // this looks beyond ugly but the enum vals are so long!!
+    if
+    (
+        (
+            t != tree_type_kind_slice && t != tree_type_kind_array
+        ) &&
+            i != tree_exp_kind_int
+    )
     {
         fprintf(stderr, "Error: (line %d).\n", lineno);
         exit(1);
