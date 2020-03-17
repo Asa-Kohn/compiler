@@ -2,7 +2,7 @@ CFLAGS = -Wall -Wextra -pedantic -g
 OBJECTS = main.o utils.o lex.yy.o golite.tab.o pretty.o weed.o
 
 winnipeg: $(OBJECTS)
-	gcc $(OBJECTS) -o winnipeg -lfl
+	gcc $(OBJECTS) -o winnipeg -ll
 
 main.o: golite.tab.h
 

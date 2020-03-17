@@ -8,6 +8,7 @@ void pretty_type_spec(TYPE_SPEC ts);
 void pretty_func_decl(FUNC_DECL *fd);
 void traverse_vars_spec(VAR_SPEC vs);
 void traverse_vars(VARS * v);
+void traverse_fields(VARS * f);
 void pretty_type(TYPE * t);
 void pretty_slice(TYPE_SLICE tsl);
 void pretty_array(TYPE_ARRAY ta);
@@ -84,6 +85,17 @@ void traverse_vars_spec(VAR_SPEC vs) {
     }
 }
 
+void traverse_fields(VARS * f) {
+    indentation();
+    if(f == NULL) return;
+    printf("%s ", f->name);
+    pretty_type(f->type);
+    if(f->next != NULL) {
+        printf("\n");
+        traverse_fields(f->next);
+    }
+}
+
 void traverse_vars(VARS * v) {
     if(v == NULL) return;
     printf("%s ", v->name);
@@ -127,8 +139,7 @@ void pretty_array(TYPE_ARRAY ta) {
 }
 
 void pretty_struct(TYPE_STRUCT tstr) {
-    indentation();
-    traverse_vars(tstr.fields);
+    traverse_fields(tstr.fields);
     printf("\n");
 }
 
