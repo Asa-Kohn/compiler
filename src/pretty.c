@@ -634,14 +634,14 @@ void pretty_for(FOR_STMT fs) {
     // initialization
     if(fs.init != NULL) {
         pretty_stmt(fs.init);
-        printf("; ");
     }
+    printf("; ");
 
     // condition
     if(fs.condition != NULL) {
         pretty_exp(fs.condition);
-        printf("; ");
     }
+    printf("; ");
 
     // iter statement
     if(fs.iter != NULL) {
@@ -650,7 +650,7 @@ void pretty_for(FOR_STMT fs) {
     }
 
     // body
-    printf(" {\n");
+    printf("{\n");
     tab++;
     traverse_stmts(fs.body);
     tab--;
