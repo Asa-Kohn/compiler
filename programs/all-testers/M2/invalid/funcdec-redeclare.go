@@ -9,7 +9,7 @@ var b string;
 var avar int;
 
 func function(function int) {
-	var f float64;	// Redeclares function (the formal parameter)
+	var function float64;	// Redeclares function (the formal parameter)
 }
 
 

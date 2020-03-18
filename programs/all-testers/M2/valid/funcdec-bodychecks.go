@@ -1,4 +1,4 @@
-// Error: (line 12) function already declared on line 11
+// A function declaration type checks if the statements of its body type check.
 package main
 
 var x int;
@@ -9,7 +9,7 @@ var b string;
 var avar int;
 
 func function(function int) {
-	var f float64;	// Redeclares function (the formal parameter)
+	var f float64;
 }
 
 
