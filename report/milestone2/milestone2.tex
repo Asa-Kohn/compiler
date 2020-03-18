@@ -70,6 +70,8 @@ add or remove a scope.
 For scoping, we used a linked list to be able to implement scoping in our compiler.
 For example, ... % TODO add more here
 
+% TODO talk about scoping rules used in the milestone
+
 There were a few difficulties encountered while writing the typechecker. Firstly,
 there are a lot of rules to keep track of. This is why we decided on separating
 the checking of smaller parts of the program to type check, unless if it type
@@ -96,9 +98,9 @@ define a \verb$bool$ to be considered in our compiler (as opposed to in GoLite).
 
 \subsection{Dividing the work}
 
- We'd like to note again that everyone in the group contributed equal amounts of
- respective work. We also all did testing together, this time it was done
- remotely via audio (and video) calling as we are all self-isolating at home.
+ %We'd like to note again that everyone in the group contributed equal amounts of
+ %respective work. We also all did testing together, this time it was done
+ %remotely via audio (and video) calling as we are all self-isolating at home.
 
  Asa had decided that he wanted to work on the symbol table and modeled it after
  what he did in his assignment\footnote{This will be explained in Asa's section.}.
@@ -127,23 +129,54 @@ define a \verb$bool$ to be considered in our compiler (as opposed to in GoLite).
 % TODO? report
 % TODO typechecking
 % TODO testing
-% TODO fixing pretty printing invariance?
 % TODO repo organization
-% TODO @alex: write about how you implemented your symbol table and typechecker in the second assignment
+
+In Alex's implementation of the symbol table, he used a bit of weaving, but
+mainly decided to have every symbol be looked up and perform a linked list-like
+search, which in hindsight is very wasteful in resources. For example,
+given some symbol \verb$a$, his code would look through the current scope and
+search in outer scopes until it found what it was looking for. This differs
+in this milestone's implementation as here when we look at a symbol in say, some
+expression, we have a pointer that points immediately to its declaration in
+the code. This allows for much faster lookup, at the cost of an extra pointer
+per identifier. Alex's typechecker was similar to that of this one, given
+that he has written both his own and this group's with the eventual help of
+Asa.
 
 % TODO WRITE MORE ABOUT THIS, IT'S STILL WISHY WASHY
 Alex spent most of his time working on the typechecking from boilerplate code
 to the testing (hopefully fixing of bugs). As mentioned above, the report was
 mainly written by him, except for the parts that involved the work of others.
-Those parts were written by the members involved. Another portion of the
-assignment that he decided to work on was fixing the pretty printing invariance.
-He had been informed that most of the pretty printing that was done did not
-satisfy the following invariance:
+Those parts were written by the members involved.
+
+Another portion of this milestone that he decided to work on was fixing the pretty printing invariance from the first milestone.
+He had been informed that a decent amount of the pretty printing that was tested during grading did not satisfy the following invariance:
 \[
-    \text{pretty(pretty(code)) = pretty(code)}
+    \texttt{pretty(pretty(code)) = pretty(code)}
 \]
 
-% TODO talk about the bug once you find it!
+After some time writing a script to do some basic invariance testing in a shell
+file, Alex decided to find why some of the files did not respect the
+invariance defined above. As it turns out, the majority of the issue was the
+most basic bug that one finds in writing C code: not checking for a null pointer.
+While traversing parts of the AST, Alex had forgotten to check for a null
+pointer, causing the pretty printer to either cause a segmentation fault or to
+(somehow) fail silently and stop printing. We're not sure if this is what
+triggers the invariance test to yield a ``no''. If it's done by computer and
+not by a human-TA, then this would make sense, as it would not print out everything that it needed to print. Another reason that caused the pretty
+printing invariance was actually using the wrong function to print out fields
+of a struct: it would print any set of fields as:
+\[
+    \texttt{f1 t1, f2 t2, ..., fk tk}
+\]
+Despite that not working for fields of arbitrary type. This yielded a syntax error as
+soon as it went through to be pretty printed again, yielding the error. This was easily fixed by just putting them on new lines.
+
+The last problem was due to how for-loops were printed. This yielded another
+syntax error as it thought that an expression was somehow a function call in the
+form of \verb$f(expr)$ where \verb$f := for$. This was due
+to not correctly putting semicolons (which was only put if a certain part of a
+for-loop was not null), and this was an easy fix as well.
 
 \subsection{Organization}
 
