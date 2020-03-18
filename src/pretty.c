@@ -8,6 +8,7 @@ void pretty_type_spec(TYPE_SPEC ts);
 void pretty_func_decl(FUNC_DECL *fd);
 void traverse_vars_spec(VAR_SPEC vs);
 void traverse_vars(VARS * v);
+void traverse_fields(VARS * f);
 void pretty_type(TYPE * t);
 void pretty_slice(TYPE_SLICE tsl);
 void pretty_array(TYPE_ARRAY ta);
@@ -41,7 +42,7 @@ void pretty_program(DECLS *ds) {
             printf("package %s", ds->package);
             break;
         case tree_decls_kind_var_decl:
-            pretty_var_spec(*ds->var_spec);
+            if(ds->var_spec != NULL) pretty_var_spec(*ds->var_spec);
             break;
         case tree_decls_kind_type_spec:
             pretty_type_spec(ds->type_spec);
@@ -60,6 +61,7 @@ void pretty_type_spec(TYPE_SPEC ts) {
 }
 
 void pretty_func_decl(FUNC_DECL *fd) {
+    if(fd == NULL) return;
     printf("func %s(", fd->name);
     if (fd->params != NULL) traverse_vars(fd->params);
     printf(") ");
@@ -76,15 +78,26 @@ void pretty_func_decl(FUNC_DECL *fd) {
 
 void traverse_vars_spec(VAR_SPEC vs) {
     printf("%s ", vs.name);
-
     if(vs.type != NULL) pretty_type(vs.type);
     if(vs.next != NULL) {
         printf(", ");
-        traverse_vars_spec(*vs.next);
+        if(vs.next != NULL) traverse_vars_spec(*vs.next);
+    }
+}
+
+void traverse_fields(VARS * f) {
+    indentation();
+    if(f == NULL) return;
+    printf("%s ", f->name);
+    pretty_type(f->type);
+    if(f->next != NULL) {
+        printf("\n");
+        traverse_fields(f->next);
     }
 }
 
 void traverse_vars(VARS * v) {
+    if(v == NULL) return;
     printf("%s ", v->name);
     pretty_type(v->type);
     if(v->next != NULL) {
@@ -94,6 +107,7 @@ void traverse_vars(VARS * v) {
 }
 
 void pretty_type(TYPE * t) {
+    if(t == NULL) return;
     switch(t->kind) {
         case tree_type_kind_name:
             printf("%s", t->name);
@@ -125,12 +139,13 @@ void pretty_array(TYPE_ARRAY ta) {
 }
 
 void pretty_struct(TYPE_STRUCT tstr) {
-    indentation();
-    traverse_vars(tstr.fields);
+    traverse_fields(tstr.fields);
     printf("\n");
 }
 
 void traverse_exps(EXPS *es) {
+    if(es == NULL) return;
+
     // Go through an expression list
     pretty_exp(es->exp);
 
@@ -153,6 +168,7 @@ void traverse_stmts(STMTS *ss) {
 }
 
 void pretty_exp(EXP *e) {
+    if(e == NULL) return;
     switch(e->kind) {
         case tree_exp_kind_ident:
             printf("%s", e->ident);
@@ -288,6 +304,7 @@ void pretty_unaryexp(UNARYEXP *e) {
 }
 
 void pretty_binaryexp(BINARYEXP *e) {
+    if(e == NULL) return;
     switch(e->kind) {
         case tree_binaryexp_kind_or:
             printf("(");
@@ -498,12 +515,12 @@ void traverse_idents(IDENTS ids) {
 
     if(ids.next != NULL) {
         printf(", ");
-        traverse_idents(*ids.next);
+        if(ids.next != NULL) traverse_idents(*ids.next);
     }
 }
 
 void pretty_shortdecl(SHORTDECL sd) {
-    traverse_idents(*sd.idents);
+    if(sd.idents != NULL) traverse_idents(*sd.idents);
     printf(" := ");
     traverse_exps(sd.exps);
 }
@@ -529,7 +546,7 @@ void traverse_names(VAR_SPEC vs) {
     printf("%s", vs.name);
     if(vs.next != NULL) {
         printf(", ");
-        traverse_names(*vs.next);
+        if(vs.next != NULL) traverse_names(*vs.next);
     }
 }
 
@@ -537,7 +554,7 @@ void traverse_vals(VAR_SPEC vs) {
     pretty_exp(vs.val);
     if(vs.next != NULL) {
         printf(", ");
-        traverse_vals(*vs.next);
+        if(vs.next != NULL) traverse_vals(*vs.next);
     }
 }
 
@@ -585,7 +602,7 @@ void pretty_switch(SWITCH_STMT ss) {
     // cases
     printf(" {\n");
     tab++;
-    pretty_cases(*ss.cases);
+    if(ss.cases != NULL) pretty_cases(*ss.cases);
     tab--;
     indentation(); printf("}");
 
@@ -607,7 +624,7 @@ void pretty_cases(CASES cs) {
     tab--;
 
     if(cs.next != NULL) {
-        pretty_cases(*cs.next);
+        if(cs.next != NULL) pretty_cases(*cs.next);
     }
 }
 
@@ -617,14 +634,14 @@ void pretty_for(FOR_STMT fs) {
     // initialization
     if(fs.init != NULL) {
         pretty_stmt(fs.init);
-        printf("; ");
     }
+    printf("; ");
 
     // condition
     if(fs.condition != NULL) {
         pretty_exp(fs.condition);
-        printf("; ");
     }
+    printf("; ");
 
     // iter statement
     if(fs.iter != NULL) {
@@ -633,7 +650,7 @@ void pretty_for(FOR_STMT fs) {
     }
 
     // body
-    printf(" {\n");
+    printf("{\n");
     tab++;
     traverse_stmts(fs.body);
     tab--;
@@ -641,6 +658,7 @@ void pretty_for(FOR_STMT fs) {
 }
 
 void pretty_block(STMTS *b) {
+    if(b == NULL) return;
     indentation(); printf("{\n");
     tab++;
     traverse_stmts(b);
@@ -649,6 +667,7 @@ void pretty_block(STMTS *b) {
 }
 
 void pretty_stmt(STMT *s) {
+    if(s == NULL) return;
     switch(s->kind) {
 
         case tree_stmt_kind_exp:
@@ -682,7 +701,7 @@ void pretty_stmt(STMT *s) {
             break;
 
         case tree_stmt_kind_var_decl:
-            pretty_var_spec(*s->var_spec);
+            if(s->var_spec != NULL) pretty_var_spec(*s->var_spec);
             break;
 
         case tree_stmt_kind_type_spec:
