@@ -1,4 +1,3 @@
-// for loop as terminating statement
 package main
 
 var x int
@@ -13,7 +12,10 @@ func f() int {
 }
 
 func function(x int) int {
-	for {}
+	for i := 0 ; i < 10 ; i++ {
+		return 0;
+	}
+	return 0;
 }
 
 func main() {

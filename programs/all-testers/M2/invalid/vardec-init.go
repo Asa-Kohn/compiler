@@ -1,4 +1,4 @@
-// Error: (line 15) invalid return [function has void return type]
+// Error: (line 12) init must be a function
 package main
 
 var x int
@@ -9,7 +9,7 @@ var b string
 var avar int
 
 
-var main int = 0;
+var init int = 0;
 
 func main(){
 }

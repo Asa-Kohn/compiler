@@ -1,4 +1,4 @@
-// Error: (line 15) function function does not have a terminating statement [not returned on all paths]
+// Error: (line 12) function function does not have a terminating statement [loop condition not empty]
 package main
 
 var x int
@@ -8,12 +8,10 @@ var a rune
 var b string
 var avar int
 
-func f() int {
-	return 0
-}
-
 func function(x int) int {
-	// return f();
+	for i := 0 ; i < 10 ; i++ {
+		return 0;
+	}
 }
 
 func main() {

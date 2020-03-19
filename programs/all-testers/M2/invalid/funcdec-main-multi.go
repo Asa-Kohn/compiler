@@ -1,4 +1,4 @@
-// Error: (line 15) invalid return [function has void return type]
+// Error: (line 16) main already declared on line 14
 package main
 
 var x int
@@ -8,8 +8,10 @@ var a rune
 var b string
 var avar int
 
+func init(){}
 
-var main int = 0;
 
+func main(){
+}
 func main(){
 }

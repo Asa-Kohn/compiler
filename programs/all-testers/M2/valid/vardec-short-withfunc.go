@@ -1,4 +1,4 @@
-// Error: (line 15) invalid return [function has void return type]
+// short declaration by return value
 package main
 
 var x int
@@ -8,8 +8,13 @@ var a rune
 var b string
 var avar int
 
+func afunc() int{
+	return 0;
+}
+func bfunc(){
+	c := afunc();
+}
 
-var main int = 0;
 
 func main(){
 }

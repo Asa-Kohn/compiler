@@ -1,4 +1,4 @@
-// for loop as terminating statement
+// Error: (line 16) function function does not have a terminating statement [final statement not terminating]
 package main
 
 var x int
@@ -13,7 +13,7 @@ func f() int {
 }
 
 func function(x int) int {
-	for {}
+	f();
 }
 
 func main() {

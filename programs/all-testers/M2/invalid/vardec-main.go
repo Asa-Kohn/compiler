@@ -1,4 +1,4 @@
-// Error: (line 15) invalid return [function has void return type]
+// Error: (line 12) main must be a function
 package main
 
 var x int
