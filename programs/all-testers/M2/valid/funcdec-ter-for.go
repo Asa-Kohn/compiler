@@ -1,4 +1,4 @@
-// Error: (line 15) function function does not have a terminating statement [loop condition not empty]
+// return function as terminating statement
 package main
 
 var x int
@@ -13,10 +13,7 @@ func f() int {
 }
 
 func function(x int) int {
-	goto End
-	return 0;
-End:
-	return 1;
+	return f();
 }
 
 func main() {
