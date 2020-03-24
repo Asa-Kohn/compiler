@@ -7,8 +7,8 @@ var a rune
 var b string
 var avar int
 
-func function() string {
-	return "wow"
+func function() float64 {
+	return 0.0
 }
 
 func main() {

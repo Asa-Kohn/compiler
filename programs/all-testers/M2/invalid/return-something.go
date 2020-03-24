@@ -1,3 +1,4 @@
+// Error: (line 12) invalid return [function has void return type]
 package main
 
 var x int
@@ -7,8 +8,8 @@ var a rune
 var b string
 var avar int
 
-func function() string {
-	return "wow"
+func function() {
+	return 0
 }
 
 func main() {

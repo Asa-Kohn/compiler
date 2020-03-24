@@ -1,3 +1,4 @@
+// Error: (line 12) string is not assignment compatible with float64 in return statement
 package main
 
 var x int
@@ -8,7 +9,7 @@ var b string
 var avar int
 
 func function() string {
-	return "wow"
+	return 0.0
 }
 
 func main() {

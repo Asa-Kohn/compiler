@@ -1,3 +1,4 @@
+// Error: (line 12) rune is not assignment compatible with int in return statement
 package main
 
 var x int
@@ -7,8 +8,8 @@ var a rune
 var b string
 var avar int
 
-func function() string {
-	return "wow"
+func function() rune {
+	return 0
 }
 
 func main() {
