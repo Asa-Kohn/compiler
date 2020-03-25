@@ -1,4 +1,4 @@
-// Error: (line 25) unexpected escape sequence '''
+//
 package main
 
 type num int
@@ -22,5 +22,5 @@ func main() {
 	op1 += 0.0;
 	// op2 += true;
 	op3 += '\n';
-	op4 += "";
+	op4 += "\n";
 }

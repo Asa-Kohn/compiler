@@ -1,4 +1,4 @@
-// Error: (line 25) unexpected escape sequence '''
+// Error: (line 21) float64 is not assignment compatible with int in assign statement
 package main
 
 type num int
@@ -18,9 +18,9 @@ var op3 rune = '\n';
 var op4 string = "wow"
 
 func main() {
-	op += 0;
+	op += 0.0;
 	op1 += 0.0;
 	// op2 += true;
 	op3 += '\n';
-	op4 += "";
+	op4 += "wow";
 }

@@ -1,4 +1,4 @@
-// Error: (line 25) unexpected escape sequence '''
+// Error: (line 24) int is not assignment compatible with rune in assign statement
 package main
 
 type num int
@@ -21,6 +21,6 @@ func main() {
 	op += 0;
 	op1 += 0.0;
 	// op2 += true;
-	op3 += '\n';
-	op4 += "";
+	op3 += 0;
+	op4 += "wow";
 }

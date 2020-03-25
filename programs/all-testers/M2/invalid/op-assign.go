@@ -1,4 +1,4 @@
-// Error: (line 25) unexpected escape sequence '''
+// Error: (line 23) incomatible type in assign op += [received bool, expected numeric (int, rune, float64) or string]
 package main
 
 type num int
@@ -20,7 +20,7 @@ var op4 string = "wow"
 func main() {
 	op += 0;
 	op1 += 0.0;
-	// op2 += true;
+	op2 += true;
 	op3 += '\n';
-	op4 += "";
+	op4 += "wow";
 }
