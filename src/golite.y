@@ -228,8 +228,8 @@ var_decl:       TOK_VAR var_spec
                 }
         |       TOK_VAR '(' var_specs ')'
                 {
-                    $$->lineno = yylineno;
                     $$ = $3;
+                    $$->lineno = yylineno;
                 }
         ;
 
