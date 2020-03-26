@@ -37,12 +37,14 @@ void yyerror(char const *s)
     double floatval;
     char *strval;
     char runeval;
+    struct tree_ident *ident;
     struct tree_idents *idents;
     struct tree_exps *exps;
     struct tree_decls *decls;
     struct tree_var_spec *var_decl;
     struct tree_stmts *stmts;
-    struct tree_vars *vars;
+    struct tree_params *params;
+    struct tree_fields *fields;
     struct tree_type *type;
     struct tree_stmt *stmt;
     struct tree_exp *exp;
@@ -110,15 +112,16 @@ void yyerror(char const *s)
 %type   <decls>         program top_level_decls var_decl var_specs type_decl
                         type_specs func_decl;
 %type   <var_decl>      var_spec;
+%type   <ident>         ident;
 %type   <idents>        idents;
 %type   <exps>          exps;
 %type   <stmts>         stmt stmts block var_decl_stmt var_specs_stmt
                         type_decl_stmt type_specs_stmt;
-%type   <vars>          params;
+%type   <params>          params;
 %type   <type>          type;
 %type   <stmt>          simplestmt;
 %type   <exp>           exp;
-%type   <vars>          field_decls;
+%type   <fields>          field_decls;
 %type   <ifstmt>        ifstmt;
 %type   <assign>        assignment;
 %type   <assignop>      op_assignment;
@@ -220,10 +223,12 @@ var_decl:       TOK_VAR var_spec
                     $$ = emalloc(sizeof(struct tree_decls));
                     $$->kind = tree_decls_kind_var_decl;
                     $$->var_spec = $2;
+                    $$->lineno = yylineno;
                     $$->next = NULL;
                 }
         |       TOK_VAR '(' var_specs ')'
                 {
+                    $$->lineno = yylineno;
                     $$ = $3;
                 }
         ;
@@ -274,13 +279,13 @@ var_spec:       idents type
                     struct tree_idents *i = $1;
                     while(i->next)
                     {
-                        c->name = i->ident;
+                        c->ident = i->ident;
                         c->type = $2;
                         c->val = NULL;
                         c = c->next = emalloc(sizeof(struct tree_var_spec));
                         i = i->next;
                     }
-                    c->name = i->ident;
+                    c->ident = i->ident;
                     c->type = $2;
                     c->val = NULL;
                     c->next = NULL;
@@ -297,7 +302,7 @@ var_spec:       idents type
                     struct tree_exps *j = $3;
                     while(i->next && j->next)
                     {
-                        c->name = i->ident;
+                        c->ident = i->ident;
                         c->type = NULL;
                         c->val = j->exp;
                         c = c->next = emalloc(sizeof(struct tree_var_spec));
@@ -310,7 +315,7 @@ var_spec:       idents type
 match on line %d\n", j->exp->lineno);
                         exit(1);
                     }
-                    c->name = i->ident;
+                    c->ident = i->ident;
                     c->type = NULL;
                     c->val = j->exp;
                     c->next = NULL;
@@ -331,7 +336,7 @@ match on line %d\n", j->exp->lineno);
                     struct tree_exps *j = $4;
                     while(i->next && j->next)
                     {
-                        c->name = i->ident;
+                        c->ident = i->ident;
                         c->type = $2;
                         c->val = j->exp;
                         c = c->next = emalloc(sizeof(struct tree_var_spec));
@@ -344,7 +349,7 @@ match on line %d\n", j->exp->lineno);
 match on line %d\n", j->exp->lineno);
                         exit(1);
                     }
-                    c->name = i->ident;
+                    c->ident = i->ident;
                     c->type = $2;
                     c->val = j->exp;
                     c->next = NULL;
@@ -359,13 +364,20 @@ match on line %d\n", j->exp->lineno);
                 }
         ;
 
-idents:         TOK_IDENT
+ident:          TOK_IDENT
+                {
+                    $$ = emalloc(sizeof(struct tree_ident));
+                    $$->name = $1;
+                }
+        ;
+
+idents:         ident
                 {
                     $$ = emalloc(sizeof(struct tree_idents));
                     $$->ident = $1;
                     $$->next = NULL;
                 }
-        |       TOK_IDENT ',' idents
+        |       ident ',' idents
                 {
                     $$ = emalloc(sizeof(struct tree_idents));
                     $$->ident = $1;
@@ -387,16 +399,18 @@ exps:           exp
                 }
         ;
 
-type_decl:      TOK_TYPE TOK_IDENT type
+type_decl:      TOK_TYPE ident type
                 {
                     $$ = emalloc(sizeof(struct tree_decls));
                     $$->kind = tree_decls_kind_type_spec;
-                    $$->type_spec.name = $2;
+                    $$->type_spec.ident = $2;
                     $$->type_spec.type = $3;
+                    $$->lineno = yylineno;
                 }
         |       TOK_TYPE '(' type_specs ')'
                 {
-                    $$ = $3;
+                    if(($$ = $3))
+                        $$->lineno = yylineno;
                 }
         ;
 
@@ -404,21 +418,21 @@ type_specs:
                 {
                     $$ = NULL;
                 }
-        |       TOK_IDENT type ';' type_specs
+        |       ident type ';' type_specs
                 {
                     $$ = emalloc(sizeof(struct tree_decls));
                     $$->kind = tree_decls_kind_type_spec;
-                    $$->type_spec.name = $1;
+                    $$->type_spec.ident = $1;
                     $$->type_spec.type = $2;
                     $$->next = $4;
                 }
         ;
 
-type_decl_stmt: TOK_TYPE TOK_IDENT type
+type_decl_stmt: TOK_TYPE ident type
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_type_spec;
-                    $$->stmt.type_spec.name = $2;
+                    $$->stmt.type_spec.ident = $2;
                     $$->stmt.type_spec.type = $3;
                 }
         |       TOK_TYPE '(' type_specs_stmt ')'
@@ -431,51 +445,55 @@ type_specs_stmt:
                 {
                     $$ = NULL;
                 }
-        |       TOK_IDENT type ';' type_specs_stmt
+        |       ident type ';' type_specs_stmt
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_type_spec;
-                    $$->stmt.type_spec.name = $1;
+                    $$->stmt.type_spec.ident = $1;
                     $$->stmt.type_spec.type = $2;
                     $$->next = $4;
                 }
         ;
 
-func_decl:      TOK_FUNC TOK_IDENT '(' params ')' type block
+func_decl:      TOK_FUNC ident '(' params ')' type block
                 {
                     $$ = emalloc(sizeof(struct tree_decls));
                     $$->kind = tree_decls_kind_func_decl;
-                    $$->func_decl.name = $2;
+                    $$->func_decl.ident = $2;
                     $$->func_decl.params = $4;
                     $$->func_decl.type = $6;
                     $$->func_decl.body = $7;
+                    $$->lineno = yylineno;
                 }
-        |       TOK_FUNC TOK_IDENT '(' params ')' block
+        |       TOK_FUNC ident '(' params ')' block
                 {
                     $$ = emalloc(sizeof(struct tree_decls));
                     $$->kind = tree_decls_kind_func_decl;
-                    $$->func_decl.name = $2;
+                    $$->func_decl.ident = $2;
                     $$->func_decl.params = $4;
                     $$->func_decl.type = NULL;
                     $$->func_decl.body = $6;
+                    $$->lineno = yylineno;
                 }
-        |       TOK_FUNC TOK_IDENT '(' ')' type block
+        |       TOK_FUNC ident '(' ')' type block
                 {
                     $$ = emalloc(sizeof(struct tree_decls));
                     $$->kind = tree_decls_kind_func_decl;
-                    $$->func_decl.name = $2;
+                    $$->func_decl.ident = $2;
                     $$->func_decl.params = NULL;
                     $$->func_decl.type = $5;
                     $$->func_decl.body = $6;
+                    $$->lineno = yylineno;
                 }
-        |       TOK_FUNC TOK_IDENT '(' ')' block
+        |       TOK_FUNC ident '(' ')' block
                 {
                     $$ = emalloc(sizeof(struct tree_decls));
                     $$->kind = tree_decls_kind_func_decl;
-                    $$->func_decl.name = $2;
+                    $$->func_decl.ident = $2;
                     $$->func_decl.params = NULL;
                     $$->func_decl.type = NULL;
                     $$->func_decl.body = $5;
+                    $$->lineno = yylineno;
                 }
         ;
 
@@ -487,18 +505,18 @@ block:           '{' stmts '}'
 
 params:         idents type
                 {
-                    $$ = emalloc(sizeof(struct tree_vars));
-                    struct tree_vars *c = $$;
+                    $$ = emalloc(sizeof(struct tree_params));
+                    struct tree_params *c = $$;
                     struct tree_idents *i = $1;
                     while(i->next)
                     {
                         c->type = $2;
-                        c->name = i->ident;
-                        c = c->next = emalloc(sizeof(struct tree_vars));
+                        c->ident = i->ident;
+                        c = c->next = emalloc(sizeof(struct tree_params));
                         i = i->next;
                     }
                     c->type = $2;
-                    c->name = i->ident;
+                    c->ident = i->ident;
                     c->next = NULL;
                     for(struct tree_idents *j = (i = $1)->next; j;
                         i = j, j = j->next)
@@ -507,18 +525,18 @@ params:         idents type
                 }
         |       idents type ',' params
                 {
-                    $$ = emalloc(sizeof(struct tree_vars));
-                    struct tree_vars *c = $$;
+                    $$ = emalloc(sizeof(struct tree_params));
+                    struct tree_params *c = $$;
                     struct tree_idents *i = $1;
                     while(i->next)
                     {
                         c->type = $2;
-                        c->name = i->ident;
-                        c = c->next = emalloc(sizeof(struct tree_vars));
+                        c->ident = i->ident;
+                        c = c->next = emalloc(sizeof(struct tree_params));
                         i = i->next;
                     }
                     c->type = $2;
-                    c->name = i->ident;
+                    c->ident = i->ident;
                     c->next = $4;
                     for(struct tree_idents *j = (i = $1)->next; j;
                         i = j, j = j->next)
@@ -527,11 +545,11 @@ params:         idents type
                 }
         ;
 
-type:           TOK_IDENT
+type:           ident
                 {
                     $$ = emalloc(sizeof(struct tree_type));
                     $$->kind = tree_type_kind_name;
-                    $$->name = $1;
+                    $$->ident = $1;
                 }
         |       '[' ']' type
                 {
@@ -564,18 +582,18 @@ field_decls:
                 }
         |       idents type ';' field_decls
                 {
-                    $$ = emalloc(sizeof(struct tree_vars));
-                    struct tree_vars *c = $$;
+                    $$ = emalloc(sizeof(struct tree_fields));
+                    struct tree_fields *c = $$;
                     struct tree_idents *i = $1;
                     while(i->next)
                     {
                         c->type = $2;
-                        c->name = i->ident;
-                        c = c->next = emalloc(sizeof(struct tree_vars));
+                        c->ident = i->ident;
+                        c = c->next = emalloc(sizeof(struct tree_fields));
                         i = i->next;
                     }
                     c->type = $2;
-                    c->name = i->ident;
+                    c->ident = i->ident;
                     c->next = $4;
                     for(struct tree_idents *j = (i = $1)->next; j;
                         i = j, j = j->next)
@@ -997,7 +1015,7 @@ exp:            '(' exp ')'
                     $$ = $2;
                     $$->lineno = yylineno;
                 }
-        |       TOK_IDENT
+        |       ident
                 {
                     $$ = emalloc(sizeof(struct tree_exp));
                     $$->kind = tree_exp_kind_ident;

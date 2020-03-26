@@ -11,7 +11,8 @@ typedef struct tree_type_array TYPE_ARRAY;
 typedef struct tree_type_slice TYPE_SLICE;
 typedef struct tree_type_struct TYPE_STRUCT;
 typedef struct tree_type TYPE;
-typedef struct tree_vars VARS;
+typedef struct tree_params PARAMS;
+typedef struct tree_fields FIELDS;
 typedef struct tree_unaryexp UNARYEXP;
 typedef struct tree_binaryexp BINARYEXP;
 typedef struct tree_call CALL;
@@ -42,6 +43,7 @@ enum tree_decls_kind
 
 enum tree_type_kind
 {
+    tree_type_kind_base,
     tree_type_kind_name,
     tree_type_kind_array,
     tree_type_kind_slice,
@@ -133,27 +135,35 @@ enum tree_assignop_kind
     tree_assignop_kind_andnot
 };
 
+enum tree_base_type
+{
+    tree_base_type_int,
+    tree_base_type_float64,
+    tree_base_type_rune,
+    tree_base_type_bool,
+    tree_base_type_str
+};
+
 // construct types
 struct tree_var_spec
 {
-    char *name;
+    struct tree_ident *ident;
     struct tree_type *type;
     struct tree_exp *val;
 
     struct tree_var_spec *next;
-
 };
 
 struct tree_type_spec
 {
-    char *name;
+    struct tree_ident *ident;
     struct tree_type *type;
 };
 
 struct tree_func_decl
 {
-    char *name;
-    struct tree_vars *params;
+    struct tree_ident *ident;
+    struct tree_params *params;
     struct tree_type *type;
     struct tree_stmts *body;
 };
@@ -161,8 +171,8 @@ struct tree_func_decl
 struct tree_decls
 {
     enum tree_decls_kind kind;
-
-    union {
+    union
+    {
         struct tree_var_spec *var_spec;
         struct tree_type_spec type_spec;
         struct tree_func_decl func_decl;
@@ -186,27 +196,37 @@ struct tree_type_slice
 
 struct tree_type_struct
 {
-    struct tree_vars *fields;
+    struct tree_fields *fields;
 };
 
 struct tree_type
 {
     enum tree_type_kind kind;
 
-    union {
+    union
+    {
+        enum tree_base_type base;
         struct tree_type_array array;
         struct tree_type_slice slice;
         struct tree_type_struct structtype;
-        char *name;
+        struct tree_ident *ident;
     };
 };
 
-struct tree_vars
+struct tree_fields
 {
     struct tree_type *type;
-    char *name;
+    struct tree_ident *ident;
 
-    struct tree_vars *next;
+    struct tree_fields *next;
+};
+
+struct tree_params
+{
+    struct tree_type *type;
+    struct tree_ident *ident;
+
+    struct tree_params *next;
 };
 
 struct tree_unaryexp
@@ -250,12 +270,13 @@ struct tree_exp
 {
     enum tree_exp_kind kind;
 
-    union {
-        char *ident;
+    union
+    {
         int intval;
         double floatval;
         char runeval;
         char *strval;
+        struct tree_ident *ident;
         struct tree_unaryexp unary;
         struct tree_binaryexp binary;
         struct tree_call call;
@@ -314,13 +335,13 @@ struct tree_stmt
 {
     enum tree_stmt_kind kind;
 
-    union {
+    union
+    {
         struct tree_exp expstmt;
         struct tree_assign assign;
         struct tree_assignop assignop;
         struct tree_shortdecl shortdecl;
         struct tree_stmts *block;
-        char *var;
         struct tree_var_spec *var_spec;
         struct tree_type_spec type_spec;
         struct tree_exps *exps;
@@ -348,9 +369,15 @@ struct tree_cases
     struct tree_cases *next;
 };
 
+struct tree_ident
+{
+    char *name;
+    struct symbol_rec *symbol;
+};
+
 struct tree_idents
 {
-    char *ident;
+    struct tree_ident *ident;
     struct tree_idents *next;
 };
 
