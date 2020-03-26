@@ -2,7 +2,7 @@
 package main
 
 type num int
-type struc struct{ a, b int;Z }
+type struc struct{ a, b int; }
 
 var x []int
 var y = num(0)
@@ -20,9 +20,9 @@ var g string
 func function() int {
 	{
 		var a int
-		return a
+		return a;
 	}
-	return x
+	return x;
 }
 
 func main() {
