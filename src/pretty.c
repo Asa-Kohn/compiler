@@ -8,6 +8,7 @@ void pretty_type_spec(TYPE_SPEC ts);
 void pretty_func_decl(FUNC_DECL *fd);
 void traverse_vars_spec(VAR_SPEC vs);
 void traverse_vars(PARAMS * v);
+void traverse_fields(FIELDS * v);
 void pretty_type(TYPE * t);
 void pretty_slice(TYPE_SLICE tsl);
 void pretty_array(TYPE_ARRAY ta);
