@@ -1,4 +1,4 @@
-// a return statement with no expression is well-typed if the enclosing function has no return type
+// Error: (line 12) int is not assignment compatible with string in return statement
 package main
 
 var x int
@@ -9,7 +9,7 @@ var b string
 var avar int
 
 func function() int {
-	return
+	return "wow"
 }
 
 func main() {
