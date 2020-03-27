@@ -5,6 +5,7 @@
 #include "tree.h"
 #include "weed.h"
 #include "pretty.h"
+#include "symbol.h"
 #include "golite.tab.h"
 
 int yylex();
@@ -38,6 +39,12 @@ int main(int argc, char **argv)
     else if(strcmp(argv[1], "pretty") == 0)
     {
         yyparse();
+        pretty_program(root);
+    }
+    else if(strcmp(argv[1], "symbol") == 0)
+    {
+        yyparse();
+        struct symbol_rec *symbols = symbol_weave(root);
         pretty_program(root);
     }
 
