@@ -1,4 +1,4 @@
-// a declared and not used
+// a declared and not used, OK
 package main
 
 func main() {

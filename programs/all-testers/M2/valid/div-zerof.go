@@ -1,4 +1,5 @@
 // division by zero with floats
+// division by zero is okay in GoLite
 package main
 
 var initfloat = 0.0;
