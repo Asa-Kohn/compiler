@@ -452,17 +452,57 @@ void checkstmt_incdec()
 
 */
 
+void checkexp(EXP * e)
+{
+    switch(e->kind)
+    {
+        case tree_exp_kind_ident:
+            checkexp_ident(e);
+            break;
+        case tree_exp_kind_int:
+            checkexp_literal(e);
+            break;
+        case tree_exp_kind_float:
+            checkexp_literal(e);
+            break;
+        case tree_exp_kind_rune:
+            checkexp_literal(e);
+            break;
+        case tree_exp_kind_str:
+            checkexp_literal(e);
+            break;
+        case tree_exp_kind_unary:
+            checkexp_unary(e);
+            break;
+        case tree_exp_kind_binary:
+            checkexp_binary(e);
+            break;
+        case tree_exp_kind_call:
+            checkexp_funccall(e);
+            break;
+        case tree_exp_kind_index:
+            checkexp_index(e);
+            break;
+        case tree_exp_kind_field:
+            checkexp_field(e);
+            break;
+        case tree_exp_kind_append:
+            checkexp_builtin_append(e);
+            break;
+        case tree_exp_kind_len:
+            checkexp_builtin_len(e);
+            break;
+        case tree_exp_kind_cap:
+            checkexp_builtin_cap(e);
+            break;
+    }
+}
+
 TYPE checkexp_literal(EXP * e)
 {
     /*
         Check if int, float, rune or string literal by checking struct
     */
-
-    if(e->kind != some_kind_of_literal)
-    {
-        fprintf(stderr, "Error: (line %d) is this an internal error?\n", e->lineno);
-        exit(1);
-    }
 
     switch(e->kind)
     {
@@ -478,24 +518,14 @@ TYPE checkexp_literal(EXP * e)
         case float:
             t = float;
             break;
+        default:
+            fprintf(stderr, "Error: (line %d) literal value not recognized.\n", e->lineno);
+            exit(1);
     }
 
-    return t;
+    return e->kind;
 }
-bool checkexp_ident(EXP * e)
-{
-    /*
-        Query symbol table to check if it is indeed an identifier
-    */
 
-    // TODO: blank identifier support
-
-    symbol s = getsymbol(e); // triggers error if not found
-    if(typeof(s) != ident) return false;
-
-    return true;
-
-}
 void checkexp_unary(EXP * e)
 {
     /*
@@ -809,34 +839,4 @@ TYPE checkexp_builtin_len(EXP * e)
 
     return tree_exp_kind_str;
 
-}
-TYPE checkexp_typecast(TYPE cast, expr e)
-{
-    /*
-        `type(expr)` is well typed if type resolves to one of the base types
-        `expr` is well typed and if of a type that can be casted to type `type`
-        `type` and `expr` have a common ancestral type or are numeric or
-        `type` resolves to a string and `expr` resolves to an integer type
-        (int or rune).
-    */
-
-    TYPE tc = resolve(cast);
-    TYPE te = resolve(e);
-
-    if(tc == te)
-    {
-        // resolve to same type
-    }
-    else if(isnumeric(tc) && isnumeric(te))
-    {
-        // both resolve to numeric types
-    }
-    else if(tc == tree_exp_kind_str && isinteger(te))
-    {
-        // cast is string and expr is int or rune
-    }
-    else
-    {
-        // not well typed
-    }
 }

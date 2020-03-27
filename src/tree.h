@@ -32,6 +32,8 @@ typedef struct tree_cases CASES;
 typedef struct tree_exps EXPS;
 typedef struct tree_idents IDENTS;
 typedef struct tree_assignop ASSIGNOP;
+typedef struct tree_ident IDENT;
+typedef struct symbol_rec SYMBOL;
 
 enum tree_decls_kind
 {
