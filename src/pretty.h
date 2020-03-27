@@ -3,6 +3,6 @@
 
 #include "tree.h"
 
-void pretty_program(PROGRAM* p);
+void pretty_program(DECLS* p);
 
 #endif

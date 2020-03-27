@@ -3,12 +3,14 @@
 #include <string.h>
 
 #include "tree.h"
+#include "weed.h"
 #include "pretty.h"
+#include "symbol.h"
 #include "golite.tab.h"
 
 int yylex();
 int print_tokens = 0;
-PROGRAM* root;
+extern struct tree_decls *root;
 
 int main(int argc, char **argv)
 {
@@ -31,11 +33,18 @@ int main(int argc, char **argv)
     else if(strcmp(argv[1], "parse") == 0)
     {
         yyparse();
+        weed(root);
         printf("OK\n");
     }
     else if(strcmp(argv[1], "pretty") == 0)
     {
         yyparse();
+        pretty_program(root);
+    }
+    else if(strcmp(argv[1], "symbol") == 0)
+    {
+        yyparse();
+        struct symbol_rec *symbols = symbol_weave(root);
         pretty_program(root);
     }
 

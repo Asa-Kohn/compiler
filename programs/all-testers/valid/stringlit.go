@@ -12,4 +12,6 @@ func main() {
 	println("backslash: \\");
 	println("double quote(legal only in string literals): \"");
 	println("single quote: ' ");
+
+	println("stringlit executed")
 }

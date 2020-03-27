@@ -1,4 +1,4 @@
-//division by zero with floats
+// division by zero with floats
 package main
 
 var initfloat = 0.0;

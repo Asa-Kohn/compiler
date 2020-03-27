@@ -5,17 +5,62 @@
 
 #include "golite.tab.h"
 #include "utils.h"
+#include "tree.h"
 
 //print/return functions for string token & char tokens
-#define OUTPUT_TOKEN(TOK) { \
-    last_token = TOK; \
-    if(print_tokens) puts( #TOK ); else return TOK; \
-}
+#define OUTPUT_TOKEN(TOK)                       \
+    {                                           \
+        last_token = TOK;                       \
+        if(print_tokens)                        \
+            puts( #TOK );                       \
+        else return TOK;                        \
+    }
 
-#define OUTPUT_TOKEN_CHAR(TOK) { \
-    last_token = TOK; \
-    if(print_tokens) printf("%c\n", TOK); else return TOK; \
-}
+#define OUTPUT_TOK_INT                              \
+    {                                               \
+        last_token = TOK_INT;                       \
+        if(print_tokens)                            \
+            printf("TOK_INT(%d)\n", yylval.intval); \
+        else return TOK_INT;                        \
+    }
+
+#define OUTPUT_TOK_FLOAT                                \
+    {                                                   \
+        last_token = TOK_FLOAT;                         \
+        if(print_tokens)                                \
+            printf("TOK_FLOAT(%f)\n", yylval.floatval); \
+        else return TOK_FLOAT;                          \
+    }
+
+#define OUTPUT_TOK_RUNE                                 \
+    {                                                   \
+        last_token = TOK_RUNE;                          \
+        if(print_tokens)                                \
+            printf("TOK_RUNE(%c)\n", yylval.runeval);   \
+        else return TOK_RUNE;                           \
+    }
+
+#define OUTPUT_TOK_STR                              \
+    {                                               \
+        last_token = TOK_STR;                       \
+        if(print_tokens)                            \
+            printf("TOK_STR(%s)\n", yylval.strval); \
+        else return TOK_STR;                        \
+    }
+
+#define OUTPUT_TOK_IDENT                                \
+    {                                                   \
+        last_token = TOK_IDENT;                         \
+        if(print_tokens)                                \
+            printf("TOK_IDENT(%s)\n", yylval.strval);   \
+        else return TOK_IDENT;                          \
+    }
+
+#define OUTPUT_TOKEN_CHAR(TOK)                                  \
+    {                                                           \
+        last_token = TOK;                                       \
+        if(print_tokens) printf("%c\n", TOK); else return TOK;  \
+    }
 
 extern int print_tokens;
 static int last_token = 0;
@@ -51,28 +96,28 @@ static int last_token = 0;
 "break" OUTPUT_TOKEN(TOK_BREAK)
 "cap" OUTPUT_TOKEN(TOK_CAP)
 "case" OUTPUT_TOKEN(TOK_CASE)
-"chan" OUTPUT_TOKEN(TOK_CHAN)
-"const" OUTPUT_TOKEN(TOK_CONST)
+"chan" { fprintf(stderr, "Error: channels not supported\n"); exit(1); }
+"const" { fprintf(stderr, "Error: constants not supported\n"); exit(1); }
 "continue" OUTPUT_TOKEN(TOK_CONTINUE)
 "default" OUTPUT_TOKEN(TOK_DEFAULT)
-"defer" OUTPUT_TOKEN(TOK_DEFER)
+"defer" { fprintf(stderr, "Error: defer not supported\n"); exit(1); }
 "else" OUTPUT_TOKEN(TOK_ELSE)
 "fallthrough" OUTPUT_TOKEN(TOK_FALLTHROUGH)
 "for" OUTPUT_TOKEN(TOK_FOR)
 "func" OUTPUT_TOKEN(TOK_FUNC)
-"go" OUTPUT_TOKEN(TOK_GO)
-"goto" OUTPUT_TOKEN(TOK_GOTO)
+"go" { fprintf(stderr, "Error: go not supported\n"); exit(1); }
+"goto" { fprintf(stderr, "Error: goto not supported\n"); exit(1); }
 "if" OUTPUT_TOKEN(TOK_IF)
 "import" { fprintf(stderr, "Error: import not supported\n"); exit(1); }
-"interface" OUTPUT_TOKEN(TOK_INTERFACE)
+"interface" { fprintf(stderr, "Error: interfaces not supported\n"); exit(1); }
 "len" OUTPUT_TOKEN(TOK_LEN)
-"map" OUTPUT_TOKEN(TOK_MAP)
+"map" { fprintf(stderr, "Error: map not supported\n"); exit(1); }
 "package" OUTPUT_TOKEN(TOK_PACKAGE)
 "print" OUTPUT_TOKEN(TOK_PRINT)
 "println" OUTPUT_TOKEN(TOK_PRINTLN)
-"range" OUTPUT_TOKEN(TOK_RANGE)
+"range" { fprintf(stderr, "Error: range not supported\n"); exit(1); }
 "return" OUTPUT_TOKEN(TOK_RETURN)
-"select" OUTPUT_TOKEN(TOK_SELECT)
+"select" { fprintf(stderr, "Error: select not supported\n"); exit(1); }
 "struct" OUTPUT_TOKEN(TOK_STRUCT)
 "switch" OUTPUT_TOKEN(TOK_SWITCH)
 "type" OUTPUT_TOKEN(TOK_TYPE)
@@ -140,29 +185,29 @@ static int last_token = 0;
 ":" OUTPUT_TOKEN_CHAR(':')
 ";" OUTPUT_TOKEN_CHAR(';')
 
-'.' { yylval.runeval = yytext[1]; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\a'" { yylval.runeval = '\a'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\b'" { yylval.runeval = '\b'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\f'" { yylval.runeval = '\f'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\n'" { yylval.runeval = '\n'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\r'" { yylval.runeval = '\r'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\t'" { yylval.runeval = '\t'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\v'" { yylval.runeval = '\v'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\\\'" { yylval.runeval = '\\'; OUTPUT_TOKEN(TOK_RUNE) }
-"'\\''" { yylval.runeval = '\''; OUTPUT_TOKEN(TOK_RUNE) }
+'[^\\']' { yylval.runeval = yytext[1]; OUTPUT_TOK_RUNE }
+"'\\a'" { yylval.runeval = '\a'; OUTPUT_TOK_RUNE }
+"'\\b'" { yylval.runeval = '\b'; OUTPUT_TOK_RUNE }
+"'\\f'" { yylval.runeval = '\f'; OUTPUT_TOK_RUNE }
+"'\\n'" { yylval.runeval = '\n'; OUTPUT_TOK_RUNE }
+"'\\r'" { yylval.runeval = '\r'; OUTPUT_TOK_RUNE }
+"'\\t'" { yylval.runeval = '\t'; OUTPUT_TOK_RUNE }
+"'\\v'" { yylval.runeval = '\v'; OUTPUT_TOK_RUNE }
+"'\\\\'" { yylval.runeval = '\\'; OUTPUT_TOK_RUNE }
+"'\\''" { yylval.runeval = '\''; OUTPUT_TOK_RUNE }
 
-0x[a-fA-F]+|[0-9]+ {
+0x[0-9a-fA-F]+|[1-9][0-9]*|0[0-7]* {
     yylval.intval = strtol(yytext, NULL, 0);
-    OUTPUT_TOKEN(TOK_INT)
+    OUTPUT_TOK_INT
 }
 
-\"([^\\\"]|\\a|\\b|\\f|\\n|\\r|\\t|\\v|\\\\|\\\")*\" {
+\"([^\\\"\n]|\\a|\\b|\\f|\\n|\\r|\\t|\\v|\\\\|\\\")*\" {
     size_t i = 0;
     char *c;
-    for(c = yytext; *c; c++, c += (*c == '\\'))
+    for(c = &yytext[1]; *c; c++, c += (*c == '\\'))
         i++;
     yylval.strval = emalloc(i);
-    for(i = 0, c = yytext; *c; i++, c++)
+    for(i = 0, c = &yytext[1]; *c != '"'; i++, c++)
     {
         if(*c == '\\')
             switch(*++c)
@@ -197,17 +242,26 @@ static int last_token = 0;
             }
         else yylval.strval[i] = *c;
     }
-    OUTPUT_TOKEN(TOK_STR)
+    yylval.strval[i] = '\0';
+    OUTPUT_TOK_STR
+}
+
+`[^`]*` {
+    size_t len = strlen(yytext - 1);
+    yylval.strval = emalloc(len - 1);
+    strncpy(yylval.strval, &yytext[1], len - 2);
+    yylval.strval[len - 2] = '\0';
+    OUTPUT_TOK_STR
 }
 
 [0-9]*\.[0-9]+|[0-9]+\.[0-9]* {
     yylval.floatval = strtod(yytext, NULL);
-    OUTPUT_TOKEN(TOK_FLOAT)
+    OUTPUT_TOK_FLOAT
 }
 
 [a-zA-Z_][a-zA-Z0-9_]* {
     yylval.strval = estrdup(yytext);
-    OUTPUT_TOKEN(TOK_IDENT)
+    OUTPUT_TOK_IDENT
 }
 
 . {

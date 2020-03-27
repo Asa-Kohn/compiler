@@ -1,5 +1,5 @@
 CFLAGS = -Wall -Wextra -pedantic -g
-OBJECTS = main.o utils.o lex.yy.o golite.tab.o tree.o pretty.o
+OBJECTS = main.o utils.o lex.yy.o golite.tab.o pretty.o weed.o symbol.o
 
 winnipeg: $(OBJECTS)
 	gcc $(OBJECTS) -o winnipeg -lfl
