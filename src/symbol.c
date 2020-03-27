@@ -187,9 +187,6 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                 if(!(ident->ident->symbol =
                      scopetable_getleaf(table->table, ident->ident->name)))
                 {
-                }
-                else
-                {
                     newdecl = 1;
                     symbols[*index].num = *index;
                     symbols[*index].name = ident->ident->name;
