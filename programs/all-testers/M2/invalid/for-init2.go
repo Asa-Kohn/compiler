@@ -1,4 +1,4 @@
-//
+// Error: (line 27) incompatible type in loop condition [received float64, expected bool]
 package main
 
 type num int
@@ -27,7 +27,7 @@ func function() int {
 	for i := d ; i == 0.0 ;  {
 
 	}
-	for i := e ; true ;  {
+	for i := e ; aa.a ;  {
 
 	}
 	for i := f ; i == '\n' ;  {

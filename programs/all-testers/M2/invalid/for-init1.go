@@ -1,8 +1,8 @@
-//
+// Error: (line 24) incompatible type in loop condition [received int, expected bool]
 package main
 
 type num int
-type struc struct{ a, b bool; }
+type struc struct{ a, b int; }
 type confusion struc;
 
 var x []int
@@ -21,13 +21,13 @@ var f rune
 var g string
 
 func function() int {
-	for i := c ; i == 0 ;  {
+	for i := c ; 2+2 ;  {
 
 	}
 	for i := d ; i == 0.0 ;  {
 
 	}
-	for i := e ; true ;  {
+	for i := e ; i == true ;  {
 
 	}
 	for i := f ; i == '\n' ;  {
