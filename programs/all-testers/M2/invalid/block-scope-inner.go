@@ -24,7 +24,6 @@ func function(x int) int {
 		var b float64 = 0.0
 		return a + b;
 	}
-	// print(a)
 }
 
 func main() {

@@ -22,7 +22,6 @@ func function(x int) int {
 		var a []int
 		return a;
 	}
-	// print(a)
 }
 
 func main() {

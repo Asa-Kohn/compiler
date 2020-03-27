@@ -1,4 +1,4 @@
-// Error: (line 26) print expects base types [received []struc]
+// Error: (line 26) int is not assignment compatible with []struc in return statement
 // print statement on line 26 refers to the int array in the outer scope
 package main
 
@@ -23,7 +23,7 @@ func function(x int) int {
 		var a int = 0
 		return a;
 	}
-	print(a)
+	return a;
 }
 
 func main() {

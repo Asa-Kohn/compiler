@@ -1,4 +1,4 @@
-// Error: (line 25) int is not assignment compatible with []struc in return statement
+// Error: (line 22) print expects base types [received struct { a int; b int; }]
 package main
 
 type num int
@@ -17,14 +17,7 @@ var e bool
 var f rune
 var g string
 
-func function() int {
-	{
-		var a int
-		return a;
-	}
-	return a;
-}
 
 func main() {
-	function()
+	print(aa)
 }

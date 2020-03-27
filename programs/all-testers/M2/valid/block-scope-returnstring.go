@@ -1,4 +1,3 @@
-// Error: (line 25) int is not assignment compatible with []struc in return statement
 package main
 
 type num int
@@ -17,12 +16,14 @@ var e bool
 var f rune
 var g string
 
-func function() int {
+func function() string {
 	{
-		var a int
+		var a string = ""
+		var b string = ""
+		return a + b;
 		return a;
 	}
-	return a;
+	// print(a)
 }
 
 func main() {
