@@ -21,22 +21,21 @@ var f rune
 var g string
 
 func function() int {
-	for i := c ; i == 0 ;  {
+	for i := c ; ;  {
 
 	}
-	for i := d ; i == 0.0 ;  {
+	for i := d ; ;  {
 
 	}
-	for i := e ; i == true ;  {
+	for i := e ; ;  {
 
 	}
-	for i := f ; i == '\n' ;  {
+	for i := f ; ;  {
 
 	}
-	for i := g ; i == "wow" ;  {
+	for i := g ; ;  {
 
 	}
-	return 0;
 }
 
 

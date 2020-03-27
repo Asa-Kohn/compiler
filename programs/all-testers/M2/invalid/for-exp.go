@@ -1,4 +1,4 @@
-//
+// Error: (line 24) function function does not have a terminating statement [loop condition not empty]
 package main
 
 type num int
@@ -21,22 +21,12 @@ var f rune
 var g string
 
 func function() int {
-	for i := c ; i == 0 ;  {
-
+	for c == 0 {
+		var a int;
+		var b bool;
+		return 0;
 	}
-	for i := d ; i == 0.0 ;  {
-
-	}
-	for i := e ; i == true ;  {
-
-	}
-	for i := f ; i == '\n' ;  {
-
-	}
-	for i := g ; i == "wow" ;  {
-
-	}
-	return 0;
+	// return 0;
 }
 
 

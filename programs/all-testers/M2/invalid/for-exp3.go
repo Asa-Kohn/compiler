@@ -1,4 +1,4 @@
-//
+// Error: (line 27) int is not assignment compatible with float64 in variable declaration
 package main
 
 type num int
@@ -21,20 +21,10 @@ var f rune
 var g string
 
 func function() int {
-	for i := c ; i == 0 ;  {
-
-	}
-	for i := d ; i == 0.0 ;  {
-
-	}
-	for i := e ; i == true ;  {
-
-	}
-	for i := f ; i == '\n' ;  {
-
-	}
-	for i := g ; i == "wow" ;  {
-
+	for true {
+		var a int;
+		var b bool;
+		var c float64 = a;
 	}
 	return 0;
 }

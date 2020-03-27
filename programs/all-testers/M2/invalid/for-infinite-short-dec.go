@@ -1,4 +1,4 @@
-//
+// Error: (line 27) assigment lhs type is incompatible with rhs type [int != bool]
 package main
 
 type num int
@@ -21,22 +21,11 @@ var f rune
 var g string
 
 func function() int {
-	for i := c ; i == 0 ;  {
-
+	for {
+		var a int;
+		var b bool;
+		c := a + b;
 	}
-	for i := d ; i == 0.0 ;  {
-
-	}
-	for i := e ; i == true ;  {
-
-	}
-	for i := f ; i == '\n' ;  {
-
-	}
-	for i := g ; i == "wow" ;  {
-
-	}
-	return 0;
 }
 
 

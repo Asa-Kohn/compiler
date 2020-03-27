@@ -1,4 +1,4 @@
-//
+// Error: (line 36) function function does not have a terminating statement [loop condition not empty]
 package main
 
 type num int
@@ -36,7 +36,7 @@ func function() int {
 	for i := g ; i == "wow" ;  {
 
 	}
-	return 0;
+	// return 0;
 }
 
 
