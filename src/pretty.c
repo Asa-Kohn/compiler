@@ -7,8 +7,7 @@ void pretty_program(DECLS *ds);
 void pretty_type_spec(TYPE_SPEC ts);
 void pretty_func_decl(FUNC_DECL *fd);
 void traverse_vars_spec(VAR_SPEC vs);
-void traverse_vars(VARS * v);
-void traverse_fields(VARS * f);
+void traverse_vars(PARAMS * v);
 void pretty_type(TYPE * t);
 void pretty_slice(TYPE_SLICE tsl);
 void pretty_array(TYPE_ARRAY ta);
@@ -56,13 +55,12 @@ void pretty_program(DECLS *ds) {
 }
 
 void pretty_type_spec(TYPE_SPEC ts) {
-    printf("type %s ", ts.name);
+    printf("type %s ", ts.ident->name);
     pretty_type(ts.type);
 }
 
 void pretty_func_decl(FUNC_DECL *fd) {
-    if(fd == NULL) return;
-    printf("func %s(", fd->name);
+    printf("func %s(", fd->ident->name);
     if (fd->params != NULL) traverse_vars(fd->params);
     printf(") ");
     if(fd->type != NULL) {
@@ -77,7 +75,8 @@ void pretty_func_decl(FUNC_DECL *fd) {
 }
 
 void traverse_vars_spec(VAR_SPEC vs) {
-    printf("%s ", vs.name);
+    printf("%s ", vs.ident->name);
+
     if(vs.type != NULL) pretty_type(vs.type);
     if(vs.next != NULL) {
         printf(", ");
@@ -99,6 +98,8 @@ void traverse_fields(VARS * f) {
 void traverse_vars(VARS * v) {
     if(v == NULL) return;
     printf("%s ", v->name);
+void traverse_vars(PARAMS * v) {
+    printf("%s ", v->ident->name);
     pretty_type(v->type);
     if(v->next != NULL) {
         printf(", ");
@@ -106,11 +107,22 @@ void traverse_vars(VARS * v) {
     }
 }
 
+void traverse_fields(FIELDS * v) {
+    printf("%s ", v->ident->name);
+    pretty_type(v->type);
+    printf(";");
+    if(v->next != NULL) {
+        printf("\n");
+        indentation();
+        traverse_fields(v->next);
+    }
+}
+
 void pretty_type(TYPE * t) {
     if(t == NULL) return;
     switch(t->kind) {
         case tree_type_kind_name:
-            printf("%s", t->name);
+            printf("%s", t->ident->name);
             break;
         case tree_type_kind_array:
             pretty_array(t->array);
@@ -125,6 +137,25 @@ void pretty_type(TYPE * t) {
             tab--;
             indentation(); printf("}");
             break;
+        case tree_type_kind_base:
+            switch(t->base)
+            {
+                case tree_base_type_int:
+                    printf("int");
+                    break;
+                case tree_base_type_float64:
+                    printf("float");
+                    break;
+                case tree_base_type_rune:
+                    printf("rune");
+                    break;
+                case tree_base_type_bool:
+                    printf("bool");
+                    break;
+                case tree_base_type_str:
+                    printf("string");
+                    break;
+            }
     }
 }
 
@@ -139,6 +170,7 @@ void pretty_array(TYPE_ARRAY ta) {
 }
 
 void pretty_struct(TYPE_STRUCT tstr) {
+    indentation();
     traverse_fields(tstr.fields);
     printf("\n");
 }
@@ -171,7 +203,7 @@ void pretty_exp(EXP *e) {
     if(e == NULL) return;
     switch(e->kind) {
         case tree_exp_kind_ident:
-            printf("%s", e->ident);
+            printf("%s", e->ident->name);
             break;
 
         case tree_exp_kind_int:
@@ -511,7 +543,7 @@ void pretty_assign(ASSIGN a) {
 
 void traverse_idents(IDENTS ids) {
     // Go through an idents list
-    printf("%s", ids.ident);
+    printf("%s", ids.ident->name);
 
     if(ids.next != NULL) {
         printf(", ");
@@ -543,7 +575,7 @@ void pretty_var_spec(VAR_SPEC vs) {
 }
 
 void traverse_names(VAR_SPEC vs) {
-    printf("%s", vs.name);
+    printf("%s", vs.ident->name);
     if(vs.next != NULL) {
         printf(", ");
         if(vs.next != NULL) traverse_names(*vs.next);
