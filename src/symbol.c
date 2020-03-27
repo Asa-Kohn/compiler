@@ -35,7 +35,7 @@ static void scopetable_add(struct symbols **table, struct symbol_rec *rec)
     if(table[hash])
     {
         struct symbols *bin = table[hash];
-        while(bin)
+        while(bin->next)
             bin = bin->next;
         bin->next = new;
     }
@@ -309,7 +309,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
     {
         if(i->kind == tree_decls_kind_var_decl)
         {
-            for(struct tree_var_spec *j = node->var_spec; j; j = j->next)
+            for(struct tree_var_spec *j = i->var_spec; j; j = j->next)
                 gather_exp(symbols, j->val, &table, index);
             for(struct tree_var_spec *j = i->var_spec; j; j = j->next)
             {
@@ -383,6 +383,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
             gather_stmts(symbols, i->func_decl.body, &table, index);
         }
     }
+    scopetable_free(table);
 }
 
 static size_t count_stmts_syms(struct tree_stmts *stmts);
@@ -396,14 +397,15 @@ static size_t count_stmt_syms(struct tree_stmt *stmt)
     if(stmt->kind == tree_stmt_kind_shortdecl)
     {
         size_t n = 0;
-        for(struct tree_idents *c = stmt->shortdecl.idents;
-            c; c = c->next, n++);
+        for(struct tree_idents *c = stmt->shortdecl.idents; c; c = c->next)
+            n++;
         return n;
     }
     if(stmt->kind == tree_stmt_kind_var_decl)
     {
         size_t n = 0;
-        for(struct tree_var_spec *c = stmt->var_spec; c; c = c->next, n++);
+        for(struct tree_var_spec *c = stmt->var_spec; c; c = c->next)
+            n++;
         return n;
     }
     if(stmt->kind == tree_stmt_kind_type_spec)
@@ -416,7 +418,7 @@ static size_t count_stmt_syms(struct tree_stmt *stmt)
     {
         size_t n = 0;
         for(struct tree_cases *c = stmt->switchstmt.cases; c;
-            c = c->next, n += count_stmts_syms(c->body));
+            c = c->next) n += count_stmts_syms(c->body);
         return count_stmt_syms(stmt->switchstmt.init) + n;
     }
     if(stmt->kind == tree_stmt_kind_for)
@@ -439,7 +441,8 @@ static size_t count_syms(struct tree_decls *decls)
     if(decls->kind == tree_decls_kind_var_decl)
     {
         size_t n = 0;
-        for(struct tree_var_spec *c = decls->var_spec; c; c = c->next, n++);
+        for(struct tree_var_spec *c = decls->var_spec; c; c = c->next)
+            n++;
         return count_syms(decls->next) + n;
     }
     if(decls->kind == tree_decls_kind_type_spec)
@@ -447,79 +450,78 @@ static size_t count_syms(struct tree_decls *decls)
     if(decls->kind == tree_decls_kind_func_decl)
     {
         size_t n = 1;
-        for(struct tree_params *c = decls->func_decl.params; c; c = c->next, n++);
+        for(struct tree_params *c = decls->func_decl.params; c; c = c->next)
+            n++;
         return count_syms(decls->next)
             + count_stmts_syms(decls->func_decl.body) + n;
     }
-    return 0;
+    return count_syms(decls->next);
 }
 
 struct symbol_rec *symbol_weave(struct tree_decls *root)
 {
     size_t nsyms = count_syms(root);
-    struct symbol_rec *symbols = emalloc((nsyms + 1) * sizeof(*symbols));
-    symbols[nsyms].name = NULL;
+    struct symbol_rec *symbols = emalloc((nsyms + 7) * sizeof(*symbols));
 
     struct scopetable base = {NULL};
     base.parent = NULL;
-    struct symbol_rec baserecs[7] = {
-        {
-            .num = 0,
-            .name = "true",
-            .kind = symbol_kind_const,
-            .constval = 1
-        },
-        {
-            .num = 1,
-            .name = "false",
-            .kind = symbol_kind_const,
-            .constval = 0
-        },
-        {
-            .num = 2,
-            .name = "int",
-            .kind = symbol_kind_type,
-            .type = emalloc(sizeof(struct tree_type))
-        },
-        {
-            .num = 3,
-            .name = "float64",
-            .kind = symbol_kind_type,
-            .type = emalloc(sizeof(struct tree_type))
-        },
-        {
-            .num = 4,
-            .name = "rune",
-            .kind = symbol_kind_type,
-            .type = emalloc(sizeof(struct tree_type))
-        },
-        {
-            .num = 5,
-            .name = "bool",
-            .kind = symbol_kind_type,
-            .type = emalloc(sizeof(struct tree_type))
-        },
-        {
-            .num = 6,
-            .name = "string",
-            .kind = symbol_kind_type,
-            .type = emalloc(sizeof(struct tree_type))
-        },
+    symbols[0] = (struct symbol_rec) {
+        .num = 0,
+        .name = "true",
+        .kind = symbol_kind_const,
+        .constval = 1
     };
-    baserecs[2].type->kind = tree_type_kind_base;
-    baserecs[2].type->base = tree_base_type_int;
-    baserecs[3].type->kind = tree_type_kind_base;
-    baserecs[3].type->base = tree_base_type_float64;
-    baserecs[4].type->kind = tree_type_kind_base;
-    baserecs[4].type->base = tree_base_type_rune;
-    baserecs[5].type->kind = tree_type_kind_base;
-    baserecs[5].type->base = tree_base_type_bool;
-    baserecs[6].type->kind = tree_type_kind_base;
-    baserecs[6].type->base = tree_base_type_str;
+    symbols[1] = (struct symbol_rec) {
+        .num = 1,
+        .name = "false",
+        .kind = symbol_kind_const,
+        .constval = 0
+    };
+    symbols[2] = (struct symbol_rec) {
+        .num = 2,
+        .name = "int",
+        .kind = symbol_kind_type,
+        .type = emalloc(sizeof(struct tree_type))
+    };
+    symbols[3] = (struct symbol_rec) {
+        .num = 3,
+        .name = "float64",
+        .kind = symbol_kind_type,
+        .type = emalloc(sizeof(struct tree_type))
+    };
+    symbols[4] = (struct symbol_rec) {
+        .num = 4,
+        .name = "rune",
+        .kind = symbol_kind_type,
+        .type = emalloc(sizeof(struct tree_type))
+    };
+    symbols[5] = (struct symbol_rec) {
+        .num = 5,
+        .name = "bool",
+        .kind = symbol_kind_type,
+        .type = emalloc(sizeof(struct tree_type))
+    };
+    symbols[6] = (struct symbol_rec) {
+        .num = 6,
+        .name = "string",
+        .kind = symbol_kind_type,
+        .type = emalloc(sizeof(struct tree_type))
+    };
+    symbols[2].type->kind = tree_type_kind_base;
+    symbols[2].type->base = tree_base_type_int;
+    symbols[3].type->kind = tree_type_kind_base;
+    symbols[3].type->base = tree_base_type_float64;
+    symbols[4].type->kind = tree_type_kind_base;
+    symbols[4].type->base = tree_base_type_rune;
+    symbols[5].type->kind = tree_type_kind_base;
+    symbols[5].type->base = tree_base_type_bool;
+    symbols[6].type->kind = tree_type_kind_base;
+    symbols[6].type->base = tree_base_type_str;
     for(int i = 0; i < 7; i++)
-        scopetable_add(base.table, &baserecs[i]);
+        scopetable_add(base.table, &symbols[i]);
 
     size_t i = 7;
     gather_program(symbols, root, &base, &i);
+    scopetable_free(base);
     return symbols;
 }
