@@ -1,4 +1,4 @@
-// Error: (line 33) switch statement expresion type is incompatible with case type [int != bool]
+// Error: (line 32) float64 is not assignment compatible with int in assign statement
 package main
 
 type num int
@@ -20,36 +20,29 @@ var e bool
 var f rune
 var g string
 
-var cc int
-var dd float64
-var ee bool
-var ff rune
-var gg string
-
 
 func function() {
 
-	switch i := 0; {
-		case e:
+	var i int;
+
+	switch i := 0 ; true {
 
 	}
 
-	switch i := 0.0; {
-	case e:
+	switch i = 0.0 ; true {
 
 	}
 
-	switch i := true; {
-		case true:
+	switch i := true ; true {
 
 	}
 
-	switch i := '\n'; {
+	switch i := '\n' ; true {
 
 	}
 
-	switch i := "string"; {
-		default:
+	switch i := "string" ; true {
+
 	}
 
 }

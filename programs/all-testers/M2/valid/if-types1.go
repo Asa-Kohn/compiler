@@ -1,4 +1,4 @@
-// Error: (line 33) switch statement expresion type is incompatible with case type [int != bool]
+//
 package main
 
 type num int
@@ -20,36 +20,26 @@ var e bool
 var f rune
 var g string
 
-var cc int
-var dd float64
-var ee bool
-var ff rune
-var gg string
-
 
 func function() {
-
-	switch i := 0; {
-		case e:
+	switch i := 0 ; {
 
 	}
 
-	switch i := 0.0; {
-	case e:
+	switch i := 0.0 ; {
 
 	}
 
-	switch i := true; {
-		case true:
+	switch i := true ; {
 
 	}
 
-	switch i := '\n'; {
+	switch i := '\n' ; {
 
 	}
 
-	switch i := "string"; {
-		default:
+	switch i := "string" ; {
+
 	}
 
 }

@@ -1,4 +1,4 @@
-// Error: (line 33) switch statement expresion type is incompatible with case type [int != bool]
+// Error: (line 38) float64 is not assignment compatible with int in assign statement
 package main
 
 type num int
@@ -29,13 +29,13 @@ var gg string
 
 func function() {
 
+	var i int;
+
 	switch i := 0; {
-		case e:
 
 	}
 
-	switch i := 0.0; {
-	case e:
+	switch i = 0.0; {
 
 	}
 

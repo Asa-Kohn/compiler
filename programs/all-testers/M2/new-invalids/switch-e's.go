@@ -30,12 +30,11 @@ var gg string
 func function() {
 
 	switch i := 0; {
-		case e:
+		case c, e:
 
 	}
 
 	switch i := 0.0; {
-	case e:
 
 	}
 

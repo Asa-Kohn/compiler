@@ -1,4 +1,4 @@
-// Error: (line 33) switch statement expresion type is incompatible with case type [int != bool]
+// Error: (line 32) assigment lhs type is incompatible with rhs type [float64 != int]
 package main
 
 type num int
@@ -20,36 +20,29 @@ var e bool
 var f rune
 var g string
 
-var cc int
-var dd float64
-var ee bool
-var ff rune
-var gg string
-
 
 func function() {
 
-	switch i := 0; {
-		case e:
+	var i int;
+
+	switch i := 0 ; 0+0 == 6{
 
 	}
 
-	switch i := 0.0; {
-	case e:
+	switch i := 0.0 ; 0.0 < 9 {
 
 	}
 
-	switch i := true; {
-		case true:
+	switch i := true ; false == true {
 
 	}
 
-	switch i := '\n'; {
+	switch i := '\n' ; '\n' {
 
 	}
 
-	switch i := "string"; {
-		default:
+	switch i := "string" ; "string" {
+
 	}
 
 }

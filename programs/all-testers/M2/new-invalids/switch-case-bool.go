@@ -30,27 +30,28 @@ var gg string
 func function() {
 
 	switch i := 0; {
-		case e:
+		case 0:
 
 	}
 
-	switch i := 0.0; {
-	case e:
+	// switch i := 0.0; {
+	// 	case 0.0:
 
-	}
+	// }
 
-	switch i := true; {
-		case true:
+	// switch i := true; {
+	// 	case true;
+	// }
 
-	}
+	// switch i := '\n'; {
+	// 	case '\n': 
 
-	switch i := '\n'; {
+	// }
 
-	}
-
-	switch i := "string"; {
-		default:
-	}
+	// switch i := "string"; {
+	// 	case "string":
+	// 	default:
+	// }
 
 }
 

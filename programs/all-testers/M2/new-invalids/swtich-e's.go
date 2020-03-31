@@ -29,27 +29,25 @@ var gg string
 
 func function() {
 
-	switch i := 0; {
-		case e:
+	switch i := 0 ; 0+0 == 6 {
+	case c, cc:
+		
+	}
+
+	switch i := 0.0 ; 0.0 < 9.0 {
 
 	}
 
-	switch i := 0.0; {
-	case e:
+	switch i := true ; false == true {
 
 	}
 
-	switch i := true; {
-		case true:
+	switch i := '\n' ; '\n' {
 
 	}
 
-	switch i := '\n'; {
+	switch i := "string" ; "string" {
 
-	}
-
-	switch i := "string"; {
-		default:
 	}
 
 }
