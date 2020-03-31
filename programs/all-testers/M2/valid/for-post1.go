@@ -21,23 +21,13 @@ var f rune
 var g string
 
 func function() int {
-
-	i := 0;
-
-
-	for i := 0 ; i == 0 ; i++ {
-		
-		i := 0;
+	for i := c ; i == 0 ; i++ {
 
 	}
 	for i := d ; i == 0.0 ;  i ++ {
 
-		i := 0
-
 	}
 	for i := e ; true ; i = false {
-
-		i := "redeclared in new scope"
 
 	}
 	for i := f ; i == '\n' ; i++ {

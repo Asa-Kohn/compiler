@@ -1,4 +1,4 @@
-//
+// Error: (line 30) incompatible type in increment [received bool, expected numeric (int, rune, float64)]
 package main
 
 type num int
@@ -21,29 +21,19 @@ var f rune
 var g string
 
 func function() int {
-
-	i := 0;
-
-
-	for i := 0 ; i == 0 ; i++ {
-		
-		i := 0;
+	for i := c ; i == 0 ; i++ {
 
 	}
 	for i := d ; i == 0.0 ;  i ++ {
 
-		i := 0
+	}
+	for i := e ; true ; i++ {
 
 	}
-	for i := e ; true ; i = false {
-
-		i := "redeclared in new scope"
+	for i := f ; i == '\n' ;  {
 
 	}
-	for i := f ; i == '\n' ; i++ {
-
-	}
-	for i := g ; i == "wow" ; i = "new" {
+	for i := g ; i == "wow" ;  {
 
 	}
 	return 0;
