@@ -1,4 +1,4 @@
-// Error: (line 41) int is not assignment compatible with bool in assign statement
+//
 package main
 
 type num int

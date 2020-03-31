@@ -1,4 +1,4 @@
-// Error: (line 41) int is not assignment compatible with bool in assign statement
+// Error: (line 35) int is not assignment compatible with bool in assign statement
 package main
 
 type num int
@@ -30,19 +30,15 @@ func function() int {
 		
 	}
 
-	if i := 0 ; i == 0 {
+	var i bool;
 
-		i := true;
+	if i = 0 ; i == 0 {
 
 	}
 
 	if j := 0 ; j == 0 {
-
-		j := true;
 		
 	} else {
-
-		j := "j redeclared"
 
 	}
 

@@ -32,18 +32,13 @@ func function() int {
 
 	if i := 0 ; i == 0 {
 
-		i := true;
-
 	}
 
 	if j := 0 ; j == 0 {
-
-		j := true;
 		
 	} else {
-
-		j := "j redeclared"
-
+		var j bool = false;
+		j = 0;
 	}
 
 	return 0;

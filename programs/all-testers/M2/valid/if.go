@@ -1,4 +1,4 @@
-// Error: (line 41) int is not assignment compatible with bool in assign statement
+//
 package main
 
 type num int
@@ -20,32 +20,16 @@ var e bool
 var f rune
 var g string
 
-func nonBool() string {
-	return "string"
-}
-
 func function() int {
 
 	if true {
-		
-	}
-
-	if i := 0 ; i == 0 {
-
-		i := true;
 
 	}
 
-	if j := 0 ; j == 0 {
-
-		j := true;
-		
-	} else {
-
-		j := "j redeclared"
+	if i := 0 ; i < 10 {
 
 	}
-
+	
 	return 0;
 }
 
