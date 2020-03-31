@@ -1,4 +1,4 @@
-// Error: (line 33) switch statement expresion type is incompatible with case type [int != bool]
+//
 package main
 
 type num int
@@ -28,7 +28,11 @@ var gg string
 
 
 func inc() {
-	x++;
+	y++;
+
+	// a++
+	// aa+
+	// x++;
 }
 
 

@@ -1,4 +1,4 @@
-// Error: (line 33) switch statement expresion type is incompatible with case type [int != bool]
+// Error: (line 31) incompatible type in increment [received struc, expected numeric (int, rune, float64)]
 package main
 
 type num int
@@ -28,7 +28,8 @@ var gg string
 
 
 func inc() {
-	x++;
+	aa++;
+	// x++;
 }
 
 
