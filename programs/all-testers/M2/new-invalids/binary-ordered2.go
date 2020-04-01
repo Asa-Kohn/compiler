@@ -1,4 +1,4 @@
-//
+// Error: (line 37) incompatible type in relational op > [received bool, expected ordered (int, rune, float64, string)]
 package main
 
 type num int
@@ -28,26 +28,13 @@ var gg string
 
 
 func function() {
-	// integer % integer
-	f = f % f;
+	// ordered => bool
+	h := c < c;
+	i := d <= d;
+	j := f > f;
+	k := g >= g;
 
-	// integer | integer
-	f = f | f;
-
-	// integer & integer
-	f = f & f;
-
-	// integer << integer
-	f = f << f;
-
-	// integer >> integer
-	f = f >> f;
-	
-	// integer &^ integer
-	f = f &^ f;
-	
-	// integer ^ integer
-	f = f ^ f;
+	l := e > e;
 }
 
 

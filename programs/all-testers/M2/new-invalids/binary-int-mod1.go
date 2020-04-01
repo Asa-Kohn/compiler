@@ -1,4 +1,4 @@
-//
+// Error: (line 32) rune is not assignment compatible with int in assign statement
 package main
 
 type num int
@@ -29,25 +29,25 @@ var gg string
 
 func function() {
 	// integer % integer
-	f = f % f;
+	c = f % f;
 
 	// integer | integer
-	f = f | f;
+	c = c | c;
 
 	// integer & integer
-	f = f & f;
+	c = c & c;
 
 	// integer << integer
-	f = f << f;
+	c = c << c;
 
 	// integer >> integer
-	f = f >> f;
+	c = c >> c;
 	
 	// integer &^ integer
-	f = f &^ f;
+	c = c &^ c;
 	
 	// integer ^ integer
-	f = f ^ f;
+	c = c ^ c;
 }
 
 

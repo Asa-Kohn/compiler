@@ -1,4 +1,4 @@
-//
+// Error: (line 34) incomatible type in arithmetic op + [received bool, expected numeric (int, rune, float64) or string]
 package main
 
 type num int
@@ -28,26 +28,12 @@ var gg string
 
 
 func function() {
-	// integer % integer
-	f = f % f;
-
-	// integer | integer
-	f = f | f;
-
-	// integer & integer
-	f = f & f;
-
-	// integer << integer
-	f = f << f;
-
-	// integer >> integer
-	f = f >> f;
-	
-	// integer &^ integer
-	f = f &^ f;
-	
-	// integer ^ integer
-	f = f ^ f;
+	// numeric or string + numeric or string
+	c = c + c;
+	d = d + d;
+	e = e + e;
+	f = f + f;
+	g = g + g;
 }
 
 

@@ -28,26 +28,11 @@ var gg string
 
 
 func function() {
-	// integer % integer
-	f = f % f;
-
-	// integer | integer
-	f = f | f;
-
-	// integer & integer
-	f = f & f;
-
-	// integer << integer
-	f = f << f;
-
-	// integer >> integer
-	f = f >> f;
-	
-	// integer &^ integer
-	f = f &^ f;
-	
-	// integer ^ integer
-	f = f ^ f;
+	// ordered => bool
+	h := c < c;
+	i := d <= d;
+	j := f > f;
+	k := g >= g;
 }
 
 

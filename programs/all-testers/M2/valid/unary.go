@@ -1,4 +1,4 @@
-//
+// Error: (line 33) switch statement expresion type is incompatible with case type [int != bool]
 package main
 
 type num int
@@ -27,30 +27,26 @@ var ff rune
 var gg string
 
 
-func function() {
-	// integer % integer
-	f = f % f;
+func unar() {
+	// int float rune plus
+	c = +c;
+	d = +d;
+	f = +f;
 
-	// integer | integer
-	f = f | f;
+	// int float rune plus
+	c = -c;
+	d = -d;
+	f = -f;
 
-	// integer & integer
-	f = f & f;
+	// bool negation
+	e = !e;
 
-	// integer << integer
-	f = f << f;
-
-	// integer >> integer
-	f = f >> f;
-	
-	// integer &^ integer
-	f = f &^ f;
-	
-	// integer ^ integer
-	f = f ^ f;
+	// int rune bitwise negation
+	cc = ^cc;
+	ff = ^ff;
 }
 
 
 func main() {
-	function();
+	unar();
 }

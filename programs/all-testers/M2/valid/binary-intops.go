@@ -29,25 +29,25 @@ var gg string
 
 func function() {
 	// integer % integer
-	f = f % f;
+	c = c % c;
 
 	// integer | integer
-	f = f | f;
+	c = c | c;
 
 	// integer & integer
-	f = f & f;
+	c = c & c;
 
 	// integer << integer
-	f = f << f;
+	c = c << c;
 
 	// integer >> integer
-	f = f >> f;
+	c = c >> c;
 	
 	// integer &^ integer
-	f = f &^ f;
+	c = c &^ c;
 	
 	// integer ^ integer
-	f = f ^ f;
+	c = c ^ c;
 }
 
 

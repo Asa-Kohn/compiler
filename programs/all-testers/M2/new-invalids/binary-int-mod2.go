@@ -1,4 +1,4 @@
-//
+// Error: (line 32) incompatible type in arithmetic op % [received string, expected integer (int, rune)]
 package main
 
 type num int
@@ -29,25 +29,25 @@ var gg string
 
 func function() {
 	// integer % integer
-	f = f % f;
+	c = g % g;
 
 	// integer | integer
-	f = f | f;
+	c = c | c;
 
 	// integer & integer
-	f = f & f;
+	c = c & c;
 
 	// integer << integer
-	f = f << f;
+	c = c << c;
 
 	// integer >> integer
-	f = f >> f;
+	c = c >> c;
 	
 	// integer &^ integer
-	f = f &^ f;
+	c = c &^ c;
 	
 	// integer ^ integer
-	f = f ^ f;
+	c = c ^ c;
 }
 
 
