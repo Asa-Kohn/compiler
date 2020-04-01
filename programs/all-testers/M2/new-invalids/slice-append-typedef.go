@@ -1,4 +1,4 @@
-// Error: (line 53) length builtin expects slice, array or string type as argument [received bool]
+// Error: (line 33) append expression slice type is incompatible with element type [num != int]
 package main
 
 type num int
@@ -29,7 +29,7 @@ var gg string
 
 func function() {
 	//slice type using append
-	var a_slice []int;
+	var a_slice []num;
 	a_slice = append(a_slice, 7);
 	a_slice = append(a_slice, 4);
 	a_slice = append(a_slice, 3);
@@ -40,17 +40,6 @@ func function() {
 	a_slice = append(a_slice, 8);
 	a_slice = append(a_slice, 10);
 	a_slice = append(a_slice, 55);
-	
-	//a_index type using indexing
-	var a_index [6]int;
-	a_index[0] = 7;
-	a_index[1] = 4;
-	a_index[2] = 3;
-	a_index[3] = 1;
-	a_index[4] = 99;
-	a_index[5] = 13;
-
-	print(len(true));
 }
 
 

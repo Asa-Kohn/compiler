@@ -1,4 +1,4 @@
-// Error: (line 53) length builtin expects slice, array or string type as argument [received bool]
+//
 package main
 
 type num int
@@ -40,7 +40,6 @@ func function() {
 	a_slice = append(a_slice, 8);
 	a_slice = append(a_slice, 10);
 	a_slice = append(a_slice, 55);
-	
 	//a_index type using indexing
 	var a_index [6]int;
 	a_index[0] = 7;
@@ -49,8 +48,6 @@ func function() {
 	a_index[3] = 1;
 	a_index[4] = 99;
 	a_index[5] = 13;
-
-	print(len(true));
 }
 
 

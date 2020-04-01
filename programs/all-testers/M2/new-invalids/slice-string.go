@@ -1,4 +1,4 @@
-// Error: (line 53) length builtin expects slice, array or string type as argument [received bool]
+// Error: (line 54) index must be an int [received string]
 package main
 
 type num int
@@ -50,7 +50,8 @@ func function() {
 	a_index[4] = 99;
 	a_index[5] = 13;
 
-	print(len(true));
+	// index typecheck, resolves to integer only
+	print(a_slice["string"])
 }
 
 
