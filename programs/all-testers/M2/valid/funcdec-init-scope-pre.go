@@ -33,6 +33,14 @@ var aSlice []int;
 var aIndex [6]int;
 
 func init() {
+
+	aSlice = append(aSlice, 7);
+	aSlice = append(aSlice, 4);
+	aSlice = append(aSlice, 3);
+
+	aIndex[0] = 7;
+	aIndex[1] = 4;
+	aIndex[2] = 3;
 }
 
 
@@ -42,11 +50,5 @@ func main() {
 }
 
 func init() {
-	aSlice = append(aSlice, 7);
-	aSlice = append(aSlice, 4);
-	aSlice = append(aSlice, 3);
 
-	aIndex[0] = 7;
-	aIndex[1] = 4;
-	aIndex[2] = 3;
 }
