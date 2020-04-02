@@ -1,4 +1,4 @@
-//
+// Error: (line 33) switch statement expresion type is incompatible with case type [int != bool]
 package main
 
 type num int
@@ -27,26 +27,39 @@ var ff rune
 var gg string
 
 
-//slice type using append
-var aSlice []int;
-//aIndex type using indexing
-var aIndex [6]int;
+func function() {
 
-func init() {
+	switch i := 0; {
+		case true :
+			
+		default:
+
+		case false :
+
+	}
+
+	// switch i := 0.0; {
+	// 	case 0.0:
+
+	// }
+
+	// switch i := true; {
+	// 	case true;
+	// }
+
+	// switch i := '\n'; {
+	// 	case '\n': 
+
+	// }
+
+	// switch i := "string"; {
+	// 	case "string":
+	// 	default:
+	// }
+
 }
 
 
 func main() {
-	println(aSlice[0], aSlice[1], aSlice[2]);
-	println(aIndex[0], aIndex[1], aIndex[2]);
-}
-
-func init() {
-	aSlice = append(aSlice, 7);
-	aSlice = append(aSlice, 4);
-	aSlice = append(aSlice, 3);
-
-	aIndex[0] = 7;
-	aIndex[1] = 4;
-	aIndex[2] = 3;
+	function();
 }
