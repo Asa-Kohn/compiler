@@ -94,6 +94,43 @@ static void scopetable_free(struct scopetable table)
     }
 }
 
+static void gather_type(struct tree_type *type, struct scopetable *table,
+                        int lineno)
+{
+    if(!type)
+        return;
+    if(type->kind == tree_type_kind_name)
+    {
+        if(!(type->ident->symbol = scopetable_get(table, type->ident->name)))
+        {
+            fprintf(stderr, "Error: symbol \"%s\" on line %d undeclared\n",
+                    type->ident->name, lineno);
+            exit(1);
+        }
+        if(type->ident->symbol->kind != symbol_kind_type)
+        {
+            fprintf(stderr, "Error: symbol \"%s\" on line %d is not a type\n",
+                    type->ident->name, lineno);
+            exit(1);
+        }
+        if(type->ident->symbol->type->kind == tree_type_kind_base)
+        {
+            struct tree_type temp = *type;
+            *type = *type->ident->symbol->type;
+            free(temp.ident->name);
+            free(temp.ident);
+        }
+    }
+    else if(type->kind == tree_type_kind_struct)
+        for(struct tree_fields *field = type->structtype.fields; field;
+            field = field->next)
+            gather_type(field->type, table, lineno);
+    else if(type->kind == tree_type_kind_array)
+        gather_type(type->array.type, table, lineno);
+    else if(type->kind == tree_type_kind_slice)
+        gather_type(type->slice.type, table, lineno);
+}
+
 static void gather_exp(struct symbol_rec *symbols, struct tree_exp *node,
                         struct scopetable *table, size_t *index)
 {
@@ -213,7 +250,10 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             break;
         case tree_stmt_kind_var_decl:
             for(struct tree_var_spec *j = node->var_spec; j; j = j->next)
+            {
+                gather_type(j->type, table, j->val->lineno);
                 gather_exp(symbols, j->val, table, index);
+            }
             for(struct tree_var_spec *j = node->var_spec; j; j = j->next)
             {
                 if(scopetable_getleaf(table->table, j->ident->name))
@@ -232,6 +272,7 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             }
             break;
         case tree_stmt_kind_type_spec:
+            gather_type(node->type_spec.type, table, node->lineno);
             if(scopetable_getleaf(table->table, node->type_spec.ident->name))
             {
                 fprintf(stderr,
@@ -307,14 +348,17 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
     {
         if(i->kind == tree_decls_kind_var_decl)
         {
-            if(strcmp(i->type_spec.ident->name, "init") == 0)
+            if(strcmp(i->var_spec->ident->name, "init") == 0)
             {
                 fprintf(stderr, "Error: symbol \"init\" declared as a variable "
                         "at top level on line %d\n", i->lineno);
                 exit(1);
             }
             for(struct tree_var_spec *j = i->var_spec; j; j = j->next)
+            {
+                gather_type(i->var_spec->type, &table, i->lineno);
                 gather_exp(symbols, j->val, &table, index);
+            }
             for(struct tree_var_spec *j = i->var_spec; j; j = j->next)
             {
                 if(scopetable_getleaf(table.table, j->ident->name))
@@ -335,6 +379,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
         }
         if(i->kind == tree_decls_kind_type_spec)
         {
+            gather_type(i->type_spec.type, &table, i->lineno);
             if(strcmp(i->type_spec.ident->name, "init") == 0)
             {
                 fprintf(stderr, "Error: symbol \"init\" declared as a type at "
@@ -358,6 +403,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
         }
         if(i->kind == tree_decls_kind_func_decl)
         {
+            gather_type(i->func_decl.type, &table, i->lineno);
             if(scopetable_getleaf(table.table, i->func_decl.ident->name))
             {
                 fprintf(stderr,
@@ -376,6 +422,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
             struct scopetable functable = {.table = {NULL}, .parent = &table};
             for(struct tree_params *c = i->func_decl.params; c; c = c->next)
             {
+                gather_type(c->type, &table, i->lineno);
                 if(scopetable_getleaf(functable.table, c->ident->name))
                 {
                     fprintf(stderr,
@@ -518,10 +565,10 @@ struct symbol_rec *symbol_weave(struct tree_decls *root)
         .kind = symbol_kind_type,
         .type = emalloc(sizeof(struct tree_type))
     };
-    symbols[0].type->kind = tree_type_kind_base;
-    symbols[0].type->kind = tree_base_type_bool;
-    symbols[1].type->kind = tree_type_kind_base;
-    symbols[1].type->kind = tree_base_type_bool;
+    symbols[0].constrec.type->kind = tree_type_kind_base;
+    symbols[0].constrec.type->base = tree_base_type_bool;
+    symbols[1].constrec.type->kind = tree_type_kind_base;
+    symbols[1].constrec.type->base = tree_base_type_bool;
     symbols[2].type->kind = tree_type_kind_base;
     symbols[2].type->base = tree_base_type_int;
     symbols[3].type->kind = tree_type_kind_base;
