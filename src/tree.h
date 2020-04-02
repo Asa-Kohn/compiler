@@ -32,6 +32,8 @@ typedef struct tree_cases CASES;
 typedef struct tree_exps EXPS;
 typedef struct tree_idents IDENTS;
 typedef struct tree_assignop ASSIGNOP;
+typedef struct tree_ident IDENT;
+typedef struct symbol_rec SYMBOL;
 
 enum tree_decls_kind
 {
@@ -216,7 +218,7 @@ struct tree_type
 struct tree_fields
 {
     struct tree_type *type;
-    struct tree_ident *ident;
+    char *name;
 
     struct tree_fields *next;
 };
@@ -286,6 +288,7 @@ struct tree_exp
         struct tree_exp *exp;
     };
 
+    struct tree_type *type;
     int lineno;
 };
 
