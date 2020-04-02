@@ -406,6 +406,7 @@ type_decl:      TOK_TYPE ident type
                     $$->type_spec.ident = $2;
                     $$->type_spec.type = $3;
                     $$->lineno = yylineno;
+                    $$->next = NULL;
                 }
         |       TOK_TYPE '(' type_specs ')'
                 {
@@ -597,8 +598,12 @@ field_decls:
                     c->next = $4;
                     for(struct tree_idents *j = (i = $1)->next; j;
                         i = j, j = j->next)
+                    {
                         free(i);
+                        free(i->ident);
+                    }
                     free(i);
+                    free(i->ident);
                 }
         ;
 
