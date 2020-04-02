@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "building winnipeg"
+echo "building winnipeg..."
 cd ..
 . build.sh
 cd programs
@@ -22,3 +22,10 @@ do
 
 	echo " "
 done
+
+echo "cleaning up..."
+cd ../src
+make clean
+cd ..
+cd programs
+echo " "
