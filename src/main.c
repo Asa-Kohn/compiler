@@ -3,10 +3,11 @@
 #include <string.h>
 
 #include "tree.h"
+#include "golite.tab.h"
 #include "weed.h"
 #include "pretty.h"
 #include "symbol.h"
-#include "golite.tab.h"
+#include "type.h"
 
 int yylex();
 int print_tokens = 0;
@@ -44,8 +45,14 @@ int main(int argc, char **argv)
     else if(strcmp(argv[1], "symbol") == 0)
     {
         yyparse();
-        struct symbol_rec *symbols = symbol_weave(root);
-        pretty_program(root);
+        symbol_weave(root);
+    }
+    else if(strcmp(argv[1], "typecheck") == 0)
+    {
+        yyparse();
+        symbol_weave(root);
+        typecheck(root);
+        printf("OK\n");
     }
 
     return 0;

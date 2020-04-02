@@ -13,6 +13,12 @@ enum symbol_kind
     symbol_kind_func
 };
 
+struct symbol_const
+{
+    int constval;
+    struct tree_type *type;
+};
+
 struct symbol_rec
 {
     size_t num;
@@ -22,7 +28,7 @@ struct symbol_rec
     {
         struct tree_type *type;
         struct tree_func_decl *func;
-        int constval;
+        struct symbol_const constrec;
     };
 };
 

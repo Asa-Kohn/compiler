@@ -218,7 +218,7 @@ struct tree_type
 struct tree_fields
 {
     struct tree_type *type;
-    struct tree_ident *ident;
+    char *name;
 
     struct tree_fields *next;
 };
@@ -288,6 +288,7 @@ struct tree_exp
         struct tree_exp *exp;
     };
 
+    struct tree_type *type;
     int lineno;
 };
 

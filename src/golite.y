@@ -588,12 +588,12 @@ field_decls:
                     while(i->next)
                     {
                         c->type = $2;
-                        c->ident = i->ident;
+                        c->name = i->ident->name;
                         c = c->next = emalloc(sizeof(struct tree_fields));
                         i = i->next;
                     }
                     c->type = $2;
-                    c->ident = i->ident;
+                    c->name = i->ident->name;
                     c->next = $4;
                     for(struct tree_idents *j = (i = $1)->next; j;
                         i = j, j = j->next)

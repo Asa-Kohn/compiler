@@ -94,7 +94,7 @@ void traverse_vars(PARAMS * v) {
 }
 
 void traverse_fields(FIELDS * v) {
-    printf("%s ", v->ident->name);
+    printf("%s ", v->name);
     pretty_type(v->type);
     printf(";");
     if(v->next != NULL) {
