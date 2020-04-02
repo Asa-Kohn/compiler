@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "building winnipeg"
+. ../build.sh
 
 for folder in `ls all-testers/M2`
 do
