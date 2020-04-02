@@ -217,6 +217,8 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             gather_exp(symbols, node->assignop.right, table, index);
             break;
         case tree_stmt_kind_shortdecl:
+            for(struct tree_exps *c = node->shortdecl.exps; c; c = c->next)
+                gather_exp(symbols, c->exp, table, index);
             ident = node->shortdecl.idents;
             exp = node->shortdecl.exps;
             while(ident)
@@ -419,11 +421,13 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                 scopetable_add(table.table,
                                i->func_decl.ident->symbol = &symbols[*index]);
             (*index)++;
-            struct scopetable functable = {.table = {NULL}, .parent = &table};
+            struct scopetable paramtable = {.table = {NULL}, .parent = &table};
+            struct scopetable bodytable = {.table = {NULL},
+                                           .parent = &paramtable};
             for(struct tree_params *c = i->func_decl.params; c; c = c->next)
             {
-                gather_type(c->type, &table, i->lineno);
-                if(scopetable_getleaf(functable.table, c->ident->name))
+                gather_type(c->type, &paramtable, i->lineno);
+                if(scopetable_getleaf(paramtable.table, c->ident->name))
                 {
                     fprintf(stderr,
                             "Error: symbol \"%s\" redeclared on line %d\n",
@@ -434,11 +438,11 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                 symbols[*index].name = c->ident->name;
                 symbols[*index].kind = symbol_kind_var;
                 symbols[*index].type = c->type;
-                scopetable_add(functable.table,
+                scopetable_add(paramtable.table,
                                c->ident->symbol = &symbols[*index]);
                 (*index)++;
             }
-            gather_stmts(symbols, i->func_decl.body, &table, index);
+            gather_stmts(symbols, i->func_decl.body, &bodytable, index);
         }
     }
     scopetable_free(table);
