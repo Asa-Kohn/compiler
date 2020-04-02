@@ -240,7 +240,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
                     break;
                 case expkind_type:;
                     struct tree_type *rt1 =
-                        rt(exp->call.func->ident->symbol->func->type);
+                        rt(exp->call.func->ident->symbol->type);
                     if(rt1->kind != tree_type_kind_base)
                     {
                         fprintf(stderr, "Error: type on line %d does not "
@@ -631,12 +631,7 @@ static void tc_varspecs(struct tree_var_spec *var_spec)
         return;
     if(var_spec->val)
     {
-        if(tc_exp(var_spec->val) != expkind_val)
-        {
-            fprintf(stderr, "Error: expression on line %d is not a value\n",
-                    var_spec->val->lineno);
-            exit(1);
-        }
+        tc_val(var_spec->val);
         if(var_spec->type)
         {
             if(!typematch(var_spec->val->type, var_spec->type))
