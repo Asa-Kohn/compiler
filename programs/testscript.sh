@@ -1,7 +1,9 @@
 #!/bin/bash
 
 echo "building winnipeg"
-. ../build.sh
+cd ..
+. build.sh
+cd programs
 
 for folder in `ls all-testers/M2`
 do
