@@ -1,4 +1,4 @@
-//
+// Error: (line 29) float64 is not assignment compatible with int in assign statement
 package main
 
 type num int
@@ -20,17 +20,19 @@ var e bool
 var f rune
 var g string
 
-var cc int
-var dd float64
-var ee bool
-var ff rune
-var gg string
+func function() {
 
+	if true {
 
-func init() {
-	aa.a = false;
-	confused.a = false;
+	} else if c == 0 || d == 0.0 && f != f {
+		var invalid int = 0;
+		invalid = 0.0;
+		
+	}
+
 }
 
+
 func main() {
+	function();
 }

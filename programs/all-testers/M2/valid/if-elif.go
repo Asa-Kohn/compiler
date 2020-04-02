@@ -20,17 +20,17 @@ var e bool
 var f rune
 var g string
 
-var cc int
-var dd float64
-var ee bool
-var ff rune
-var gg string
+func function() {
 
+	if true {
 
-func init() {
-	aa.a = false;
-	confused.a = false;
+	} else if c == 0 || d == 0.0 && f != f {
+		
+	}
+
 }
 
+
 func main() {
+	function();
 }

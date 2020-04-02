@@ -1,4 +1,4 @@
-//
+// Error: (line 35) assigment lhs type is incompatible with rhs type [rune != string]
 package main
 
 type num int
@@ -27,10 +27,23 @@ var ff rune
 var gg string
 
 
-func init() {
-	aa.a = false;
-	confused.a = false;
+func function() {
+
+	var i rune;
+
+	switch {
+		case i == '\n', i == '\r', i == "str": 
+
+	}
+
+	switch i := "string"; i {
+		case "string":
+		default:
+	}
+
 }
 
+
 func main() {
+	function();
 }

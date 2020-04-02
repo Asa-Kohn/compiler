@@ -1,4 +1,5 @@
-//
+// Error: (line 35) syntax error, unexpected '{', expecting ';'
+// golite does not allow short declaration for structs 
 package main
 
 type num int
@@ -30,6 +31,9 @@ var gg string
 func init() {
 	aa.a = false;
 	confused.a = false;
+
+	incredible := confusion{};
+	print(incredible.a);
 }
 
 func main() {

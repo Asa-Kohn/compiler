@@ -27,10 +27,23 @@ var ff rune
 var gg string
 
 
-func init() {
-	aa.a = false;
-	confused.a = false;
+func function() {
+
+	var i rune;
+
+	switch {
+		case i == '\n', i == '\r' && i == '\r' : 
+
+	}
+
+	switch i := "string"; i {
+		case "string":
+		default:
+	}
+
 }
 
+
 func main() {
+	function();
 }

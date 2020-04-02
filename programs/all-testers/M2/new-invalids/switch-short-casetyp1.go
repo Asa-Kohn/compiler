@@ -1,4 +1,4 @@
-//
+// Error: (line 33) switch statement expresion type is incompatible with case type [rune != float64]
 package main
 
 type num int
@@ -27,10 +27,30 @@ var ff rune
 var gg string
 
 
-func init() {
-	aa.a = false;
-	confused.a = false;
+func function() {
+
+	switch i := 0.0; i {
+		case '\n':
+
+	}
+
+	switch i := true; i {
+		case true:
+	}
+
+	switch i := '\n'; i {
+		case '\n': 
+
+	}
+
+	switch i := "string"; i {
+		case "string":
+		default:
+	}
+
 }
 
+
 func main() {
+	function();
 }
