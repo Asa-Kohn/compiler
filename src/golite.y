@@ -599,11 +599,11 @@ field_decls:
                     for(struct tree_idents *j = (i = $1)->next; j;
                         i = j, j = j->next)
                     {
-                        free(i);
                         free(i->ident);
+                        free(i);
                     }
-                    free(i);
                     free(i->ident);
+                    free(i);
                 }
         ;
 
