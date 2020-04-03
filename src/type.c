@@ -150,7 +150,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
                 !isinteger(rt(exp->unary.right->type))))
             {
                 fprintf(stderr,
-                        "Error: expression on line %d has bad type",
+                        "Error: expression on line %d has bad type\n",
                         exp->unary.right->lineno);
                 exit(1);
             }
@@ -517,7 +517,7 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
             tc_val(stmt->exp);
             if(!isnumeric(rt(stmt->exp->type)))
             {
-                fprintf(stderr, "Error: expression on line %d is not numeric",
+                fprintf(stderr, "Error: expression on line %d is not numeric\n",
                         stmt->exp->lineno);
                 exit(1);
             }
