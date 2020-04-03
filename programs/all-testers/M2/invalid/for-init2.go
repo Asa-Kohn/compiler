@@ -24,7 +24,7 @@ func function() int {
 	for i := c ; i == 0 ;  {
 
 	}
-	for i := d ; i == 0.0 ;  {
+	for i := d ; 0.0 + 0.0 ;  {
 
 	}
 	for i := e ; aa.a ;  {
