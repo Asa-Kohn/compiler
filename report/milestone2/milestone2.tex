@@ -34,62 +34,35 @@
 
 \subsection{Symbol table}
 
-% @asa, this is for later
+To build the symbol table, we do two passes through the AST. On the first pass,
+we get an upper bound on the number of symbol records we'll need to store. On
+the second pass, we store information about each symbol in one big array while
+also building and freeing a parent-pointer stack. We check blank identifier uses
+in this pass and link each use of a symbol to the record for it in the big
+array.
 
-\subsection{Typechecking}
+One difficult part of this to get right was type declarations. The solution we
+ended up with is label for each type in the AST indicating whether it's a type
+literal, and if so which kind; a defined type; or an unresolved reference to a
+type by name. In the pass where we build the symbol table, we also resolve all
+of these unresolved references and replace them with the type the symbol refers
+to.
 
-Given that we used a lot of weaving in our symbol table, this made the
-typechecking phase easier to design, although there was still a lot of
-code to write. For each symbol in our symbol table, we include a pointer
-that points to the node in the AST where the symbol is first introduced in the
-program, i.e. where it is declared. By declared, we refer to the ``nearest''
-declaration that can be found, as we support shadowing in GoLite.
+Symbol table printing is done separately in another source file and in another
+pass.
 
-In regards to writing the typechecker, we wrote short functions to
-\textit{separate} the different kinds of declarations, statements or expressions.
-This was so that the main function that would check if that given part of a program
-type-checked and resulted in a cleaner and easier function.
-Another example of this would be
-for error printing. Most, if not all, of the errors have the same format of the
-form:
-\[
-        \verb|Error: (line #) Something went wrong with this (part).|
-\]
-We say that it \textit{would be} given that we opted to copy-paste the code every time
-that it was needed. This was due to the fact that some errors needed to output more
-information than others. In terms of a function, we could implement that as
-a linked list, but for something as basic as error reporting, it didn't seem
-worth it to do that.
+\subsection{Type checking}
 
-In terms of code, we wrote a few helper functions to be able to not have to
-re-use code all the time, which is quite the standard practice, but it saved
-us a lot of time. This includes functions that would add to the symbol table, or
-add or remove a scope.
-% TODO add more after you put in stuff about the symbol table and stack implementation
-
-For scoping, we used a linked list to be able to implement scoping in our compiler.
-For example, ... % TODO add more here
-
-% TODO talk about scoping rules used in the milestone
-
-There were a few difficulties encountered while writing the typechecker. Firstly,
-there are a lot of rules to keep track of. This is why we decided on separating
-the checking of smaller parts of the program to type check, unless if it type
-checked trivially, as then one could just refer to the smaller function.
-Secondly, while implementing some of the typechecking rules, Alex realized that
-we did not actually implement a boolean literal for the first milestone. We
-just decided to use \verb$0$ and \verb$1$ in our C code in order to give them
-a value. This became an issue as we needed to be able to do something with
-identifiers, such as: \verb$a || b$. This would not work without some other
-construct to describe the bool identifier, as \verb$2 || 3$ would be considered
-valid, which is not allowed unless we set up some other notion of what we
-define a \verb$bool$ to be considered in our compiler (as opposed to in GoLite).
-
+Type checking was simpler than other parts of this milestone. There were no
+major unexpected issues. Complicated scoping rules are handled by the symbol
+table builder. Special handling of the blank identifier was added on afterwards,
+so it isn't structured as cleanly as it might be. For a blank identifier, the
+symbol table builder inserts null pointers instead of pointers to symbol
+records, and the type checker checks for them where appropriate.
 % @will, talk about programs written in Q1 to test the typechecker
 
 \section{Amending issues from the first milestone}
 
-% TODO include bool literal because we need it here
 % TODO fixing pretty printing invariance
 % TODO to discuss with @asa and @will
 
