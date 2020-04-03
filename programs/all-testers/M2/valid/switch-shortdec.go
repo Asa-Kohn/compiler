@@ -1,4 +1,4 @@
-// Error: (line 27) incompatible type in loop condition [received float64, expected bool]
+//
 package main
 
 type num int
@@ -20,23 +20,38 @@ var e bool
 var f rune
 var g string
 
-func function() int {
-	for i := c ; i == 0 ;  {
+var cc int
+var dd float64
+var ee bool
+var ff rune
+var gg string
+
+
+func function() {
+
+	switch i := 0; i{
+		case 0:
+	}
+
+	switch i := 0.0; i {
+		case 0.0:
 
 	}
-	for i := d ; 0.0 + 0.0 ;  {
+
+	switch i := true; i {
+		case true:
+	}
+
+	switch i := '\n'; i {
+		case '\n': 
 
 	}
-	for i := e ; aa.a ;  {
 
+	switch i := "string"; i {
+		case "string":
+		default:
 	}
-	for i := f ; i == '\n' ;  {
 
-	}
-	for i := g ; i == "wow" ;  {
-
-	}
-	return 0;
 }
 
 

@@ -1,4 +1,4 @@
-// Error: (line 33) switch statement expresion type is incompatible with case type [int != bool]
+// Error: (line 27) incompatible type in loop condition [received float64, expected bool]
 package main
 
 type num int
@@ -20,43 +20,23 @@ var e bool
 var f rune
 var g string
 
-var cc int
-var dd float64
-var ee bool
-var ff rune
-var gg string
-
-
-func function() {
-
-	switch i := 0; {
-		case true :
-			
-		default:
-
-		case false :
+func function() int {
+	for i := c ; i == 0 ;  {
 
 	}
+	for i := d ; 0.0 + 0.0 ;  {
 
-	// switch i := 0.0; {
-	// 	case 0.0:
+	}
+	for i := e ; aa.a ;  {
 
-	// }
+	}
+	for i := f ; i == '\n' ;  {
 
-	// switch i := true; {
-	// 	case true;
-	// }
+	}
+	for i := g ; i == "wow" ;  {
 
-	// switch i := '\n'; {
-	// 	case '\n': 
-
-	// }
-
-	// switch i := "string"; {
-	// 	case "string":
-	// 	default:
-	// }
-
+	}
+	return 0;
 }
 
 
