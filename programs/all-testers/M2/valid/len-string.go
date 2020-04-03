@@ -1,4 +1,4 @@
-// Error: (line 53) length builtin expects slice or array type as argument [received string]
+//
 package main
 
 type num int
