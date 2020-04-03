@@ -9,7 +9,7 @@
     \large Design Decisions + Contributions
 }
 \author{Alexander Iannantuono, Asa Kohn, and William Chien}
-\date{Some date in the future, 2020}
+\date{March 3, 2020}
 
 \usepackage{geometry}
 \geometry{margin=1in}
@@ -32,7 +32,7 @@
 
 \section{Design and Implementation Decisions}
 
-\subsection{Symbol Table}
+\subsection{Symbol table}
 
 % @asa, this is for later
 
@@ -91,8 +91,32 @@ define a \verb$bool$ to be considered in our compiler (as opposed to in GoLite).
 
 % TODO include bool literal because we need it here
 % TODO fixing pretty printing invariance
-
 % TODO to discuss with @asa and @will
+
+\subsection{String literal in lexer}
+On line 204. Previously, our lexer would match string literals with newline characters as long as they are within the two double quotes. The issue is fixed where newline characters within two double quotes will not be matched.
+
+\subsection{Int literal in lexer}
+On line 199. Previously hexadecimal numbers are matched using:
+\[
+        \verb|0x[0-9a-fA-F]+|[0-9]+
+\]
+Now we use:
+\[
+        \verb|0x[0-9a-fA-F]+|[1-9][0-9]*|0[0-7]*
+\]
+
+\subsection{Rune \textbackslash{}' in lexer}
+On line 188. \verb| '[\^\\']' | is added.
+
+\subsection{Line number recording in parser}
+\verb|$$->lineno = yylineno| on line 231 for TOK\_VAR is moved down two lines. Previously, we were recording line number prior to grouping, i.e. \verb| $$ = $3; |
+
+\subsection{Weeding}
+A typo on line 138 is fixed, where exp meant expstmt.
+
+\subsection{Pretty printing}
+traverse\_fields(VARS * f) added in pretty printing. On the other hand, segmentation faults occurred when null pointers are left unchecked, therefore, null checks are added to each pretty printing function.
 
 \section{Division of labour and team organization}
 
@@ -102,27 +126,22 @@ define a \verb$bool$ to be considered in our compiler (as opposed to in GoLite).
  %respective work. We also all did testing together, this time it was done
  %remotely via audio (and video) calling as we are all self-isolating at home.
 
- Asa had decided that he wanted to work on the symbol table and modeled it after
- what he did in his assignment\footnote{This will be explained in Asa's section.}.
- As a result of this, Alex decided that he would work on the
- typechecker and put in a lot of the boilerplate code for this. Alex was also
- going to write some of the programs, but that left Will with virtually nothing
- to work on by himself at first and therefore writing the programs was given to
- Will as a task. As Alex wrote the report last time and wanted to improve on his
- report writing skills, he decided to have another go at writing this
- one\footnote{He hopes that this report is more thorough and less ambiguous
- than the previous one.}.
+ Asa decided to work on the symbol table and modeled it after what he did in his assignment. \\
+ Alex decided to work on the typechecker and wrote primarily a boilerplate code for the typechecker file. \\
+ William wanted to work on the test programs, as he previously wrote a majority of them in M1. \\
+ Alex started to work on writing this report alongside the typechecker. However, due to an unexpected illness, William took over the report, and bravely enough, Asa took over the typechecker.
 
 \subsubsection{Asa}
 
 % TODO @asa: symbol table, fixing problems from first milestone
 % TODO @asa: write about how you implemented your symbol table and typechecker in the second assignment
+Asa has completed the symbol table by himself. He also picked up where Alex has left off in the typechecker. 
 
-\subsubsection{Will}
+\subsubsection{William}
 
 % TODO @will: programs, helping others out
 % TODO @will: write about how you implemented your symbol table and typechecker in the second assignment
-
+Over the fear of M1 for not being able to test our winnipeg compiler adequately robust and to catch a good number of bugs, Will has written roughly 200 invalid test files (non-distinct) and about 100 valid test files; and additionally, a \verb|testscript.sh| that allows us to run through a good number of test files against our compiler quickly. With the consideration of quality over quantity, William tried to go through the goLite and blank identifier specifications slowly and hopefully in greater detail with additional research, then write out all the test files required to test our compiler. Though, whenever a test idea comes to mind, a file may be added to avoid forgetfulness; and since all test files are written over the span of weeks, some test cases may be non-unique or have been considered previously in a different file. In terms of the report, Will kept the majority of what Alex has left off, and filled in additional information when needed.
 
 \subsubsection{Alex}
 
@@ -182,10 +201,10 @@ for-loop was not null), and this was an easy fix as well.
 
 % Organization
 
-Organizing this time was a bit more of a challenge than for the first milestone.
-Given the ongoing and evolving global pandemic, we decided to work remotely at
+Organizing this time was a bit more challenging than for the first milestone. We originally preferred to meet in person, and have done so for a number of times.
+However, given the ongoing/evolving global pandemic and school closure, we decided to work remotely at
 our homes and communicate via various platforms: Matrix via Riot.im,
-GitHub issues, email and text messaging.
+GitHub issues, email, text messaging, and online meetings.
 
 Alex decided to use small to-do lists in the files that he was working on just
 to keep track of the work he still had to do. Putting \verb|TODO: (thing)|
