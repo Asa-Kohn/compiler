@@ -79,7 +79,6 @@ static int last_token = 0;
        last_token == TOK_STR ||
        last_token == TOK_BREAK ||
        last_token == TOK_CONTINUE ||
-       last_token == TOK_FALLTHROUGH ||
        last_token == TOK_RETURN ||
        last_token == TOK_INC ||
        last_token == TOK_DEC ||
@@ -104,7 +103,6 @@ static int last_token = 0;
                                 last_token == TOK_STR ||
                                 last_token == TOK_BREAK ||
                                 last_token == TOK_CONTINUE ||
-                                last_token == TOK_FALLTHROUGH ||
                                 last_token == TOK_RETURN ||
                                 last_token == TOK_INC ||
                                 last_token == TOK_DEC ||
@@ -124,7 +122,9 @@ static int last_token = 0;
 "default" OUTPUT_TOKEN(TOK_DEFAULT)
 "defer" { fprintf(stderr, "Error: defer not supported\n"); exit(1); }
 "else" OUTPUT_TOKEN(TOK_ELSE)
-"fallthrough" OUTPUT_TOKEN(TOK_FALLTHROUGH)
+"fallthrough" {
+    fprintf(stderr, "Error: fallthrough not supported\n"); exit(1);
+}
 "for" OUTPUT_TOKEN(TOK_FOR)
 "func" OUTPUT_TOKEN(TOK_FUNC)
 "go" { fprintf(stderr, "Error: go not supported\n"); exit(1); }

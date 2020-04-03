@@ -40,16 +40,19 @@ int main(int argc, char **argv)
     else if(strcmp(argv[1], "pretty") == 0)
     {
         yyparse();
+        weed(root);
         pretty_program(root);
     }
     else if(strcmp(argv[1], "symbol") == 0)
     {
         yyparse();
+        weed(root);
         symbol_weave(root);
     }
     else if(strcmp(argv[1], "typecheck") == 0)
     {
         yyparse();
+        weed(root);
         symbol_weave(root);
         typecheck(root);
         printf("OK\n");

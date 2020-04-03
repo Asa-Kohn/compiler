@@ -682,6 +682,16 @@ void typecheck(struct tree_decls *root)
         if(node->kind == tree_decls_kind_var_decl)
             tc_varspecs(node->var_spec);
         else if(node->kind == tree_decls_kind_func_decl)
+        {
+            if((strcmp(node->func_decl.ident->name, "init") == 0 ||
+                strcmp(node->func_decl.ident->name, "main") == 0) &&
+               (node->func_decl.params || node->func_decl.type))
+            {
+                fprintf(stderr, "Error: special function on line %d must have "
+                        "no parameters or return type\n", node->lineno);
+                exit(1);
+            }
             tc_stmts(node->func_decl.body, node->func_decl.type);
+        }
     }
 }

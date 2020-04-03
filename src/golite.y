@@ -75,7 +75,6 @@ void yyerror(char const *s)
 %token                  TOK_DIVEQ
 %token                  TOK_ELSE
 %token                  TOK_EQ
-%token                  TOK_FALLTHROUGH
 %token  <floatval>      TOK_FLOAT
 %token                  TOK_FOR
 %token                  TOK_FUNC
@@ -782,13 +781,6 @@ stmt:           block
                 {
                     $$ = emalloc(sizeof(struct tree_stmts));
                     $$->stmt.kind = tree_stmt_kind_continue;
-                    $$->stmt.lineno = yylineno;
-                    $$->next = NULL;
-                }
-        |       TOK_FALLTHROUGH
-                {
-                    $$ = emalloc(sizeof(struct tree_stmts));
-                    $$->stmt.kind = tree_stmt_kind_fallthrough;
                     $$->stmt.lineno = yylineno;
                     $$->next = NULL;
                 }

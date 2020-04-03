@@ -71,8 +71,7 @@ enum tree_stmt_kind
     tree_stmt_kind_switch,
     tree_stmt_kind_for,
     tree_stmt_kind_break,
-    tree_stmt_kind_continue,
-    tree_stmt_kind_fallthrough
+    tree_stmt_kind_continue
 };
 
 enum tree_exp_kind
