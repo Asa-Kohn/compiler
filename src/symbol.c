@@ -215,16 +215,13 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
     if(!node)
         return;
 
-    struct scopetable blocktable = {.table = {NULL}, .parent = table};
-    int newdecl = 0;
-    struct tree_idents *ident;
-    struct tree_exps *exp;
     switch(node->kind)
     {
         case tree_stmt_kind_exp:
             gather_exp(symbols, &node->expstmt, table, index);
             break;
-        case tree_stmt_kind_block:
+        case tree_stmt_kind_block:;
+            struct scopetable blocktable = {.table = {NULL}, .parent = table};
             gather_stmts(symbols, node->block, &blocktable, index);
             scopetable_free(blocktable);
             break;
@@ -241,8 +238,9 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
         case tree_stmt_kind_shortdecl:
             for(struct tree_exps *c = node->shortdecl.exps; c; c = c->next)
                 gather_exp(symbols, c->exp, table, index);
-            ident = node->shortdecl.idents;
-            exp = node->shortdecl.exps;
+            struct tree_idents *ident = node->shortdecl.idents;
+            struct tree_exps *exp = node->shortdecl.exps;
+            int newdecl = 0;
             while(ident)
             {
                 if(!(ident->ident->symbol =
@@ -318,39 +316,50 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             break;
         case tree_stmt_kind_print:
         case tree_stmt_kind_println:
-            for(exp = node->exps; exp; exp = exp->next)
+            for(struct tree_exps *exp = node->exps; exp; exp = exp->next)
                 gather_exp(symbols, exp->exp, table, index);
             break;
-        case tree_stmt_kind_if:
-            gather_stmt(symbols, node->ifstmt.init, table, index);
-            gather_exp(symbols, node->ifstmt.condition, table, index);
-            gather_stmts(symbols, node->ifstmt.body, &blocktable, index);
-            scopetable_free(blocktable);
-            blocktable = (struct scopetable) {.table = {NULL}, .parent = table};
+        case tree_stmt_kind_if:;
+            struct scopetable outertable = {.table = {NULL}, .parent = table};
+            struct scopetable innertable =
+                {.table = {NULL}, .parent = &outertable};
+            gather_stmt(symbols, node->ifstmt.init, &outertable, index);
+            gather_exp(symbols, node->ifstmt.condition, &outertable, index);
+            gather_stmts(symbols, node->ifstmt.body, &innertable, index);
+            scopetable_free(innertable);
+            innertable = (struct scopetable) {.table = {NULL}, .parent = table};
             gather_stmts(symbols, node->ifstmt.elsebody,
-                         &blocktable, index);
-            scopetable_free(blocktable);
+                         &innertable, index);
+            scopetable_free(innertable);
+            scopetable_free(outertable);
             break;
         case tree_stmt_kind_switch:
-            gather_stmt(symbols, node->switchstmt.init, &blocktable, index);
-            gather_exp(symbols, node->switchstmt.exp, &blocktable, index);
+            outertable = (struct scopetable){.table = {NULL}, .parent = table};
+            innertable =
+                (struct scopetable){.table = {NULL}, .parent = &outertable};
+            gather_stmt(symbols, node->switchstmt.init, &outertable, index);
+            gather_exp(symbols, node->switchstmt.exp, &outertable, index);
             for(struct tree_cases *cases = node->switchstmt.cases; cases;
                 cases = cases->next)
             {
                 struct scopetable casetable = {.table = {NULL},
-                                               .parent = &blocktable};
+                                               .parent = &innertable};
                 for(struct tree_exps *exp = cases->val; exp; exp = exp->next)
                     gather_exp(symbols, exp->exp, &casetable, index);
                 gather_stmts(symbols, cases->body, &casetable, index);
                 scopetable_free(casetable);
             }
-            scopetable_free(blocktable);
+            scopetable_free(innertable);
+            scopetable_free(outertable);
             break;
         case tree_stmt_kind_for:
-            gather_stmt(symbols, node->forstmt.init, &blocktable, index);
-            gather_exp(symbols, node->forstmt.condition, &blocktable, index);
-            gather_stmt(symbols, node->forstmt.iter, &blocktable, index);
-            gather_stmts(symbols, node->forstmt.body, &blocktable, index);
+            outertable = (struct scopetable){.table = {NULL}, .parent = table};
+            innertable =
+                (struct scopetable){.table = {NULL}, .parent = &outertable};
+            gather_stmt(symbols, node->forstmt.init, &outertable, index);
+            gather_exp(symbols, node->forstmt.condition, &outertable, index);
+            gather_stmt(symbols, node->forstmt.iter, &outertable, index);
+            gather_stmts(symbols, node->forstmt.body, &innertable, index);
             break;
         default:
             break;

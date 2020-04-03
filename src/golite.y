@@ -642,7 +642,6 @@ stmt:           block
                         $$ = emalloc(sizeof(struct tree_stmts));
                         $$->stmt = *$1;
                         free($1);
-                        $$->stmt.lineno = yylineno;
                         $$->next = NULL;
                     }
                     else
@@ -811,6 +810,7 @@ function call\n", $1->lineno);
                     $$ = emalloc(sizeof(struct tree_stmt));
                     $$->kind = tree_stmt_kind_exp;
                     $$->expstmt = *$1;
+                    $$->lineno = yylineno;
                     free($1);
                 }
         |       assignment
@@ -818,12 +818,14 @@ function call\n", $1->lineno);
                     $$ = emalloc(sizeof(struct tree_stmt));
                     $$->kind = tree_stmt_kind_assign;
                     $$->assign = $1;
+                    $$->lineno = yylineno;
                 }
         |       op_assignment
                 {
                     $$ = emalloc(sizeof(struct tree_stmt));
                     $$->kind = tree_stmt_kind_assignop;
                     $$->assignop = $1;
+                    $$->lineno = yylineno;
                 }
         |       idents TOK_ASSIGN exps
                 {
@@ -831,18 +833,21 @@ function call\n", $1->lineno);
                     $$->kind = tree_stmt_kind_shortdecl;
                     $$->shortdecl.idents = $1;
                     $$->shortdecl.exps = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp TOK_INC
                 {
                     $$ = emalloc(sizeof(struct tree_stmt));
                     $$->kind = tree_stmt_kind_inc;
                     $$->exp = $1;
+                    $$->lineno = yylineno;
                 }
         |       exp TOK_DEC
                 {
                     $$ = emalloc(sizeof(struct tree_stmt));
                     $$->kind = tree_stmt_kind_dec;
                     $$->exp = $1;
+                    $$->lineno = yylineno;
                 }
         ;
 
