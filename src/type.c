@@ -426,8 +426,10 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
                     *right = stmt->assign.right; left;
                 left = left->next, right = right->next)
             {
-                tc_val(left->exp);
                 tc_val(right->exp);
+                if(!left->exp->ident->symbol)
+                    continue;
+                tc_val(left->exp);
                 if(!typematch(left->exp->type, right->exp->type))
                 {
                     fprintf(stderr, "Error: type mismatch on line %d\n",
@@ -497,6 +499,8 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
                 ident; ident = ident->next, exp = exp->next)
             {
                 tc_val(exp->exp);
+                if(!ident->ident->symbol)
+                    continue;
                 if(!ident->ident->symbol->type &&
                    !(ident->ident->symbol->type = exp->exp->type))
                 {
@@ -641,7 +645,6 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
             }
             tc_stmts(stmt->forstmt.body, rtype);
             break;
-        case tree_stmt_kind_fallthrough:
         default:
             break;
     }
@@ -669,7 +672,7 @@ static void tc_varspecs(struct tree_var_spec *var_spec)
                 exit(1);
             }
         }
-        else
+        else if(var_spec->ident->symbol)
             var_spec->ident->symbol->type = var_spec->val->type;
     }
     tc_varspecs(var_spec->next);

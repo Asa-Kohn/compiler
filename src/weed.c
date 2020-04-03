@@ -147,6 +147,9 @@ aration\n", stmts->stmt.lineno);
 
 static int hasbreak(struct tree_stmts *stmts)
 {
+    if(!stmts)
+        return 0;
+
     if(stmts->stmt.kind == tree_stmt_kind_break)
         return 1;
     if(stmts->stmt.kind == tree_stmt_kind_if)
@@ -154,7 +157,8 @@ static int hasbreak(struct tree_stmts *stmts)
             hasbreak(stmts->stmt.ifstmt.elsebody);
     if(stmts->stmt.kind == tree_stmt_kind_block)
         return hasbreak(stmts->stmt.block);
-    return 0;
+
+    return hasbreak(stmts->next);
 }
 
 static int isterminated(struct tree_stmts *stmts)

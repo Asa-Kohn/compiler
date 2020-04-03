@@ -797,10 +797,6 @@ void pretty_stmt(STMT *s) {
         case tree_stmt_kind_continue:
             printf("continue");
             break;
-
-        case tree_stmt_kind_fallthrough:
-            printf("fallthrough");
-            break;
     }
 }
 

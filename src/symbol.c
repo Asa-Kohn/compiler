@@ -101,6 +101,12 @@ static void gather_type(struct tree_type *type, struct scopetable *table,
         return;
     if(type->kind == tree_type_kind_reference)
     {
+        if(strcmp(type->reference.name, "_") == 0)
+        {
+            fprintf(stderr, "Error: invalid blank identifier on line %d\n",
+                    lineno);
+            exit(1);
+        }
         if(!type->reference.symbol)
         {
             if(!(type->reference.symbol =
@@ -119,25 +125,6 @@ static void gather_type(struct tree_type *type, struct scopetable *table,
         }
 
         struct tree_type temp = *type;
-        /* type->defined = temp.reference.symbol->type; */
-        /* switch(type->kind = temp.reference.symbol->type->kind) */
-        /* { */
-        /*     case tree_type_kind_base: */
-        /*         type->base = temp.reference.symbol->type->base; */
-        /*         break; */
-        /*     case tree_type_kind_array: */
-        /*         type->array = temp.reference.symbol->type->array; */
-        /*         break; */
-        /*     case tree_type_kind_slice: */
-        /*         type->slice = temp.reference.symbol->type->slice; */
-        /*         break; */
-        /*     case tree_type_kind_struct: */
-        /*         type->structtype = temp.reference.symbol->type->structtype; */
-        /*         break; */
-        /*     case tree_type_kind_defined: */
-        /*         type->defined = temp.reference.symbol->type; */
-        /*         break; */
-        /* } */
         *type = *temp.reference.symbol->type;
         free(temp.reference.name);
     }
@@ -160,6 +147,12 @@ static void gather_exp(struct symbol_rec *symbols, struct tree_exp *node,
     switch(node->kind)
     {
         case tree_exp_kind_ident:
+            if(strcmp(node->ident->name, "_") == 0)
+            {
+                fprintf(stderr, "Error: invalid blank identifier on line %d\n",
+                        node->lineno);
+                exit(1);
+            }
             if(!(node->ident->symbol =
                  scopetable_get(table, node->ident->name)))
             {
@@ -187,6 +180,12 @@ static void gather_exp(struct symbol_rec *symbols, struct tree_exp *node,
             gather_exp(symbols, node->index.index, table, index);
             break;
         case tree_exp_kind_field:
+            if(strcmp(node->field.field, "_") == 0)
+            {
+                fprintf(stderr, "Error: invalid blank identifier on line %d\n",
+                        node->lineno);
+                exit(1);
+            }
             gather_exp(symbols, node->field.instance, table, index);
             break;
         case tree_exp_kind_append:
@@ -227,7 +226,11 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             break;
         case tree_stmt_kind_assign:
             for(struct tree_exps *c = node->assign.left; c; c = c->next)
-                gather_exp(symbols, c->exp, table, index);
+                if(c->exp->kind == tree_exp_kind_ident &&
+                   strcmp(c->exp->ident->name, "_") == 0)
+                    c->exp->ident->symbol = NULL;
+                else
+                    gather_exp(symbols, c->exp, table, index);
             for(struct tree_exps *c = node->assign.right; c; c = c->next)
                 gather_exp(symbols, c->exp, table, index);
             break;
@@ -243,7 +246,8 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             int newdecl = 0;
             while(ident)
             {
-                if(!(ident->ident->symbol =
+                if(strcmp(ident->ident->name, "_") != 0 &&
+                   !(ident->ident->symbol =
                      scopetable_getleaf(table->table, ident->ident->name)))
                 {
                     newdecl = 1;
@@ -278,19 +282,24 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             }
             for(struct tree_var_spec *j = node->var_spec; j; j = j->next)
             {
-                if(scopetable_getleaf(table->table, j->ident->name))
+                if(strcmp(j->ident->name, "_") == 0)
+                    j->ident->symbol = NULL;
+                else
                 {
-                    fprintf(stderr,
-                            "Error: symbol \"%s\" redeclared on line %d\n",
-                            j->ident->name, node->lineno);
-                    exit(1);
+                    if(scopetable_getleaf(table->table, j->ident->name))
+                    {
+                        fprintf(stderr,
+                                "Error: symbol \"%s\" redeclared on line %d\n",
+                                j->ident->name, node->lineno);
+                        exit(1);
+                    }
+                    symbols[*index].num = *index;
+                    symbols[*index].name = j->ident->name;
+                    symbols[*index].kind = symbol_kind_var;
+                    symbols[*index].type = j->type;
+                    scopetable_add(table->table, j->ident->symbol = &symbols[*index]);
+                    (*index)++;
                 }
-                symbols[*index].num = *index;
-                symbols[*index].name = j->ident->name;
-                symbols[*index].kind = symbol_kind_var;
-                symbols[*index].type = j->type;
-                scopetable_add(table->table, j->ident->symbol = &symbols[*index]);
-                (*index)++;
             }
             break;
         case tree_stmt_kind_type_spec:
@@ -299,20 +308,25 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             temp->kind = tree_type_kind_defined;
             temp->defined = node->type_spec.type;
             node->type_spec.type = temp;
-            if(scopetable_getleaf(table->table, node->type_spec.ident->name))
+            if(strcmp(node->type_spec.ident->name, "_") == 0)
+                node->type_spec.ident->symbol = NULL;
+            else
             {
-                fprintf(stderr,
-                        "Error: symbol \"%s\" redeclared on line %d\n",
-                        node->type_spec.ident->name, node->lineno);
-                exit(1);
+                if(scopetable_getleaf(table->table, node->type_spec.ident->name))
+                {
+                    fprintf(stderr,
+                            "Error: symbol \"%s\" redeclared on line %d\n",
+                            node->type_spec.ident->name, node->lineno);
+                    exit(1);
+                }
+                symbols[*index].num = *index;
+                symbols[*index].name = node->type_spec.ident->name;
+                symbols[*index].kind = symbol_kind_type;
+                symbols[*index].type = node->type_spec.type;
+                scopetable_add(table->table,
+                               node->type_spec.ident->symbol = &symbols[*index]);
+                (*index)++;
             }
-            symbols[*index].num = *index;
-            symbols[*index].name = node->type_spec.ident->name;
-            symbols[*index].kind = symbol_kind_type;
-            symbols[*index].type = node->type_spec.type;
-            scopetable_add(table->table,
-                           node->type_spec.ident->symbol = &symbols[*index]);
-            (*index)++;
             break;
         case tree_stmt_kind_print:
         case tree_stmt_kind_println:
@@ -398,20 +412,25 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
             }
             for(struct tree_var_spec *j = i->var_spec; j; j = j->next)
             {
-                if(scopetable_getleaf(table.table, j->ident->name))
+                if(strcmp(j->ident->name, "_") == 0)
+                    j->ident->symbol = NULL;
+                else
                 {
-                    fprintf(stderr,
-                            "Error: symbol \"%s\" redeclared on line %d\n",
-                            j->ident->name, i->lineno);
-                    exit(1);
+                    if(scopetable_getleaf(table.table, j->ident->name))
+                    {
+                        fprintf(stderr,
+                                "Error: symbol \"%s\" redeclared on line %d\n",
+                                j->ident->name, i->lineno);
+                        exit(1);
+                    }
+                    symbols[*index].num = *index;
+                    symbols[*index].name = j->ident->name;
+                    symbols[*index].kind = symbol_kind_var;
+                    symbols[*index].type = j->type;
+                    scopetable_add(table.table,
+                                   j->ident->symbol = &symbols[*index]);
+                    (*index)++;
                 }
-                symbols[*index].num = *index;
-                symbols[*index].name = j->ident->name;
-                symbols[*index].kind = symbol_kind_var;
-                symbols[*index].type = j->type;
-                scopetable_add(table.table,
-                               j->ident->symbol = &symbols[*index]);
-                (*index)++;
             }
         }
         if(i->kind == tree_decls_kind_type_spec)
@@ -421,49 +440,64 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
             temp->kind = tree_type_kind_defined;
             temp->defined = i->type_spec.type;
             i->type_spec.type = temp;
-            if(strcmp(i->type_spec.ident->name, "init") == 0)
+            if(strcmp(i->type_spec.ident->name, "_") == 0)
+                i->type_spec.ident->symbol = NULL;
+            else
             {
-                fprintf(stderr, "Error: symbol \"init\" declared as a type at "
-                        "top level on line %d\n", i->lineno);
-                exit(1);
+                if(strcmp(i->type_spec.ident->name, "init") == 0)
+                {
+                    fprintf(stderr, "Error: symbol \"init\" declared as a type at "
+                            "top level on line %d\n", i->lineno);
+                    exit(1);
+                }
+                if(scopetable_getleaf(table.table, i->type_spec.ident->name))
+                {
+                    fprintf(stderr,
+                            "Error: symbol \"%s\" redeclared on line %d\n",
+                            i->type_spec.ident->name, i->lineno);
+                    exit(1);
+                }
+                symbols[*index].num = *index;
+                symbols[*index].name = i->type_spec.ident->name;
+                symbols[*index].kind = symbol_kind_type;
+                symbols[*index].type = i->type_spec.type;
+                scopetable_add(table.table,
+                               i->type_spec.ident->symbol = &symbols[*index]);
+                (*index)++;
             }
-            if(scopetable_getleaf(table.table, i->type_spec.ident->name))
-            {
-                fprintf(stderr,
-                        "Error: symbol \"%s\" redeclared on line %d\n",
-                        i->type_spec.ident->name, i->lineno);
-                exit(1);
-            }
-            symbols[*index].num = *index;
-            symbols[*index].name = i->type_spec.ident->name;
-            symbols[*index].kind = symbol_kind_type;
-            symbols[*index].type = i->type_spec.type;
-            scopetable_add(table.table,
-                           i->type_spec.ident->symbol = &symbols[*index]);
-            (*index)++;
         }
         if(i->kind == tree_decls_kind_func_decl)
         {
             gather_type(i->func_decl.type, &table, i->lineno);
-            if(scopetable_getleaf(table.table, i->func_decl.ident->name))
+            if(strcmp(i->func_decl.ident->name, "_") == 0)
+                i->func_decl.ident->symbol = NULL;
+            else
             {
-                fprintf(stderr,
-                        "Error: symbol \"%s\" redeclared on line %d\n",
-                        i->func_decl.ident->name, i->lineno);
-                exit(1);
+                if(scopetable_getleaf(table.table, i->func_decl.ident->name))
+                {
+                    fprintf(stderr,
+                            "Error: symbol \"%s\" redeclared on line %d\n",
+                            i->func_decl.ident->name, i->lineno);
+                    exit(1);
+                }
+                symbols[*index].num = *index;
+                symbols[*index].name = i->func_decl.ident->name;
+                symbols[*index].kind = symbol_kind_func;
+                symbols[*index].func = &i->func_decl;
+                if(strcmp(i->func_decl.ident->name, "init") != 0)
+                    scopetable_add(table.table,
+                                   i->func_decl.ident->symbol = &symbols[*index]);
+                (*index)++;
             }
-            symbols[*index].num = *index;
-            symbols[*index].name = i->func_decl.ident->name;
-            symbols[*index].kind = symbol_kind_func;
-            symbols[*index].func = &i->func_decl;
-            if(strcmp(i->func_decl.ident->name, "init") != 0)
-                scopetable_add(table.table,
-                               i->func_decl.ident->symbol = &symbols[*index]);
-            (*index)++;
             struct scopetable innertable = {.table = {NULL}, .parent = &table};
             for(struct tree_params *c = i->func_decl.params; c; c = c->next)
             {
                 gather_type(c->type, &innertable, i->lineno);
+                if(strcmp(c->ident->name, "_") == 0)
+                {
+                    c->ident->symbol = NULL;
+                    continue;
+                }
                 if(scopetable_getleaf(innertable.table, c->ident->name))
                 {
                     fprintf(stderr,

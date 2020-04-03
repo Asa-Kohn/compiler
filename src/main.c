@@ -7,6 +7,7 @@
 #include "weed.h"
 #include "pretty.h"
 #include "symbol.h"
+#include "symbolprint.h"
 #include "type.h"
 
 int yylex();
@@ -48,6 +49,7 @@ int main(int argc, char **argv)
         yyparse();
         weed(root);
         symbol_weave(root);
+        symbolprint(root);
     }
     else if(strcmp(argv[1], "typecheck") == 0)
     {
