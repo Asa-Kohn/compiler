@@ -108,7 +108,7 @@ void traverse_fields(FIELDS * v) {
 void pretty_type(TYPE * t) {
     if(t == NULL) return;
     switch(t->kind) {
-        case tree_type_kind_defined:
+        case tree_type_kind_reference:
             printf("%s", t->reference.name);
             break;
         case tree_type_kind_array:
@@ -202,7 +202,41 @@ void pretty_exp(EXP *e) {
             break;
 
         case tree_exp_kind_rune:
-            printf("%c", e->runeval);
+            printf("'");
+            switch(e->runeval)
+            {
+                case '\a':
+                    printf("\\a");
+                    break;
+                case '\b':
+                    printf("\\b");
+                    break;
+                case '\f':
+                    printf("\\f");
+                    break;
+                case '\n':
+                    printf("\\n");
+                    break;
+                case '\r':
+                    printf("\\r");
+                    break;
+                case '\t':
+                    printf("\\t");
+                    break;
+                case '\v':
+                    printf("\\v");
+                    break;
+                case '\\':
+                    printf("\\\\");
+                    break;
+                case '\'':
+                    printf("\\'");
+                    break;
+                default:
+                    printf("%c", e->runeval);
+                    break;
+            }
+            printf("'");
             break;
 
         case tree_exp_kind_str:
