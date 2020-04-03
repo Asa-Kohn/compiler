@@ -112,6 +112,9 @@ On line 188. \verb| '[\^\\']' | is added.
 \subsection{Line number recording in parser}
 \verb|$$->lineno = yylineno| on line 231 for TOK\_VAR is moved down two lines. Previously, we were recording line number prior to grouping, i.e. \verb| $$ = $3; |
 
+\subsection{Three-part for loop in parser}
+On lines 738-748, three-part for loop with empty condition is added.
+
 \subsection{Weeding}
 A typo on line 138 is fixed, where exp meant expstmt.
 
@@ -129,7 +132,7 @@ traverse\_fields(VARS * f) added in pretty printing. On the other hand, segmenta
  Asa decided to work on the symbol table and modeled it after what he did in his assignment. \\
  Alex decided to work on the typechecker and wrote primarily a boilerplate code for the typechecker file. \\
  William wanted to work on the test programs, as he previously wrote a majority of them in M1. \\
- Alex started to work on writing this report alongside the typechecker. However, due to an unexpected illness, William took over the report, and bravely enough, Asa took over the typechecker.
+ Alex started to work on writing this report alongside the typechecker. However, due to an unexpected illness, William took over the report; and bravely enough, Asa took over the typechecker.
 
 \subsubsection{Asa}
 
