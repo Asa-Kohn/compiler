@@ -460,13 +460,11 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                 scopetable_add(table.table,
                                i->func_decl.ident->symbol = &symbols[*index]);
             (*index)++;
-            struct scopetable paramtable = {.table = {NULL}, .parent = &table};
-            struct scopetable bodytable = {.table = {NULL},
-                                           .parent = &paramtable};
+            struct scopetable innertable = {.table = {NULL}, .parent = &table};
             for(struct tree_params *c = i->func_decl.params; c; c = c->next)
             {
-                gather_type(c->type, &paramtable, i->lineno);
-                if(scopetable_getleaf(paramtable.table, c->ident->name))
+                gather_type(c->type, &innertable, i->lineno);
+                if(scopetable_getleaf(innertable.table, c->ident->name))
                 {
                     fprintf(stderr,
                             "Error: symbol \"%s\" redeclared on line %d\n",
@@ -477,13 +475,12 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                 symbols[*index].name = c->ident->name;
                 symbols[*index].kind = symbol_kind_var;
                 symbols[*index].type = c->type;
-                scopetable_add(paramtable.table,
+                scopetable_add(innertable.table,
                                c->ident->symbol = &symbols[*index]);
                 (*index)++;
             }
-            gather_stmts(symbols, i->func_decl.body, &bodytable, index);
-            scopetable_free(paramtable);
-            scopetable_free(bodytable);
+            gather_stmts(symbols, i->func_decl.body, &innertable, index);
+            scopetable_free(innertable);
         }
     }
     scopetable_free(table);

@@ -497,8 +497,13 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
                 ident; ident = ident->next, exp = exp->next)
             {
                 tc_val(exp->exp);
-                if(!ident->ident->symbol->type)
-                    ident->ident->symbol->type = exp->exp->type;
+                if(!ident->ident->symbol->type &&
+                   !(ident->ident->symbol->type = exp->exp->type))
+                {
+                    fprintf(stderr, "Error: expression on line %d with no type "
+                            "used in initializer\n", exp->exp->lineno);
+                    exit(1);
+                }
                 else if(!typematch(ident->ident->symbol->type, exp->exp->type))
                 {
                     fprintf(stderr, "Error: type mismatch on line %d\n",
@@ -544,6 +549,12 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
                             stmt->exp->lineno);
                     exit(1);
                 }
+            }
+            if(rtype && !stmt->exp)
+            {
+                fprintf(stderr, "Error: no value returned on line %d\n",
+                        stmt->lineno);
+                exit(1);
             }
             break;
         case tree_stmt_kind_if:
@@ -618,9 +629,7 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
                 if(stmt->forstmt.init)
                     tc_stmt(stmt->forstmt.init, rtype);
                 tc_val(stmt->forstmt.condition);
-                struct tree_type *type = rt(stmt->forstmt.condition->type);
-                if(!(type->kind == tree_type_kind_base &&
-                     type->base == tree_base_type_bool))
+                if(!isbool(rt(stmt->forstmt.condition->type)))
                 {
                     fprintf(stderr,
                             "Error: condition on line %d has bad type\n",
