@@ -1,4 +1,4 @@
-//
+// Error: (line 30) print statement may not contain the blank identifier
 package main
 
 type num int

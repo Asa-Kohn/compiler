@@ -2,15 +2,15 @@
 package main
 
 type num int
-type struc struct{ a, b, _ bool; }
+type struc struct{ a, b bool; }
 type confusion struc
 
-var x []int
-var y = num(0)
+var _ []int
+var _ = num(0)
 
-var a []struc
-var aa struc
-var b = num(2)
+var _ []struc
+var _ struc
+var _ = num(2)
 
 var confused confusion
 
@@ -27,5 +27,4 @@ var ff rune
 var gg string
 
 func main() {
-	print(_);
 }

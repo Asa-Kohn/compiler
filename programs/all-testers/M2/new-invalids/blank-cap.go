@@ -1,4 +1,4 @@
-//
+// Error: (line 32) capacity builtin may not contain the blank identifier
 package main
 
 type num int
@@ -27,5 +27,5 @@ var ff rune
 var gg string
 
 func main() {
-	print(_);
+	cap(_);
 }
