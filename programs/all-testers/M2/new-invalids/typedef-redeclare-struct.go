@@ -1,11 +1,11 @@
-//
+// Error: (line 8) struc already declared on line 5
 package main
 
 type num int
 type struc struct{ a, b, _ bool; }
 type confusion struc
 
-type float64 struc
+type struc float64
 
 var x []int
 var y = num(0)

@@ -5,7 +5,8 @@ type num int
 type struc struct{ a, b, _ bool; }
 type confusion struc
 
-type float64 struc
+type int float64
+type int []int
 
 var x []int
 var y = num(0)

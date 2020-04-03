@@ -1,11 +1,12 @@
-//
+// Error: (line 8) invalid recursive type int
 package main
 
 type num int
 type struc struct{ a, b, _ bool; }
 type confusion struc
 
-type float64 struc
+type int int
+type int []int
 
 var x []int
 var y = num(0)
