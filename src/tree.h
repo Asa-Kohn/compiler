@@ -46,7 +46,8 @@ enum tree_decls_kind
 enum tree_type_kind
 {
     tree_type_kind_base,
-    tree_type_kind_name,
+    tree_type_kind_defined,
+    tree_type_kind_reference,
     tree_type_kind_array,
     tree_type_kind_slice,
     tree_type_kind_struct
@@ -70,8 +71,7 @@ enum tree_stmt_kind
     tree_stmt_kind_switch,
     tree_stmt_kind_for,
     tree_stmt_kind_break,
-    tree_stmt_kind_continue,
-    tree_stmt_kind_fallthrough
+    tree_stmt_kind_continue
 };
 
 enum tree_exp_kind
@@ -201,6 +201,12 @@ struct tree_type_struct
     struct tree_fields *fields;
 };
 
+struct tree_ident
+{
+    char *name;
+    struct symbol_rec *symbol;
+};
+
 struct tree_type
 {
     enum tree_type_kind kind;
@@ -211,7 +217,8 @@ struct tree_type
         struct tree_type_array array;
         struct tree_type_slice slice;
         struct tree_type_struct structtype;
-        struct tree_ident *ident;
+        struct tree_type *defined;
+        struct tree_ident reference;
     };
 };
 
@@ -370,12 +377,6 @@ struct tree_cases
     struct tree_stmts *body;
 
     struct tree_cases *next;
-};
-
-struct tree_ident
-{
-    char *name;
-    struct symbol_rec *symbol;
 };
 
 struct tree_idents

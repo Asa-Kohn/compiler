@@ -75,7 +75,6 @@ void yyerror(char const *s)
 %token                  TOK_DIVEQ
 %token                  TOK_ELSE
 %token                  TOK_EQ
-%token                  TOK_FALLTHROUGH
 %token  <floatval>      TOK_FLOAT
 %token                  TOK_FOR
 %token                  TOK_FUNC
@@ -368,6 +367,7 @@ ident:          TOK_IDENT
                 {
                     $$ = emalloc(sizeof(struct tree_ident));
                     $$->name = $1;
+                    $$->symbol = NULL;
                 }
         ;
 
@@ -549,8 +549,9 @@ params:         idents type
 type:           ident
                 {
                     $$ = emalloc(sizeof(struct tree_type));
-                    $$->kind = tree_type_kind_name;
-                    $$->ident = $1;
+                    $$->kind = tree_type_kind_reference;
+                    $$->reference = *$1;
+                    free($1);
                 }
         |       '[' ']' type
                 {
@@ -640,7 +641,6 @@ stmt:           block
                         $$ = emalloc(sizeof(struct tree_stmts));
                         $$->stmt = *$1;
                         free($1);
-                        $$->stmt.lineno = yylineno;
                         $$->next = NULL;
                     }
                     else
@@ -784,13 +784,6 @@ stmt:           block
                     $$->stmt.lineno = yylineno;
                     $$->next = NULL;
                 }
-        |       TOK_FALLTHROUGH
-                {
-                    $$ = emalloc(sizeof(struct tree_stmts));
-                    $$->stmt.kind = tree_stmt_kind_fallthrough;
-                    $$->stmt.lineno = yylineno;
-                    $$->next = NULL;
-                }
         ;
 
 simplestmt:
@@ -809,6 +802,7 @@ function call\n", $1->lineno);
                     $$ = emalloc(sizeof(struct tree_stmt));
                     $$->kind = tree_stmt_kind_exp;
                     $$->expstmt = *$1;
+                    $$->lineno = yylineno;
                     free($1);
                 }
         |       assignment
@@ -816,12 +810,14 @@ function call\n", $1->lineno);
                     $$ = emalloc(sizeof(struct tree_stmt));
                     $$->kind = tree_stmt_kind_assign;
                     $$->assign = $1;
+                    $$->lineno = yylineno;
                 }
         |       op_assignment
                 {
                     $$ = emalloc(sizeof(struct tree_stmt));
                     $$->kind = tree_stmt_kind_assignop;
                     $$->assignop = $1;
+                    $$->lineno = yylineno;
                 }
         |       idents TOK_ASSIGN exps
                 {
@@ -829,18 +825,21 @@ function call\n", $1->lineno);
                     $$->kind = tree_stmt_kind_shortdecl;
                     $$->shortdecl.idents = $1;
                     $$->shortdecl.exps = $3;
+                    $$->lineno = yylineno;
                 }
         |       exp TOK_INC
                 {
                     $$ = emalloc(sizeof(struct tree_stmt));
                     $$->kind = tree_stmt_kind_inc;
                     $$->exp = $1;
+                    $$->lineno = yylineno;
                 }
         |       exp TOK_DEC
                 {
                     $$ = emalloc(sizeof(struct tree_stmt));
                     $$->kind = tree_stmt_kind_dec;
                     $$->exp = $1;
+                    $$->lineno = yylineno;
                 }
         ;
 

@@ -145,6 +145,55 @@ aration\n", stmts->stmt.lineno);
     weed_stmts(stmts->next);
 }
 
+static int hasbreak(struct tree_stmts *stmts)
+{
+    if(!stmts)
+        return 0;
+
+    if(stmts->stmt.kind == tree_stmt_kind_break)
+        return 1;
+    if(stmts->stmt.kind == tree_stmt_kind_if)
+        return hasbreak(stmts->stmt.ifstmt.body) ||
+            hasbreak(stmts->stmt.ifstmt.elsebody);
+    if(stmts->stmt.kind == tree_stmt_kind_block)
+        return hasbreak(stmts->stmt.block);
+
+    return hasbreak(stmts->next);
+}
+
+static int isterminated(struct tree_stmts *stmts)
+{
+    if(!stmts)
+        return 0;
+    if(stmts->next)
+        return isterminated(stmts->next);
+
+    if(stmts->stmt.kind == tree_stmt_kind_return)
+        return 1;
+    if(stmts->stmt.kind == tree_stmt_kind_block)
+        return isterminated(stmts->stmt.block);
+    if(stmts->stmt.kind == tree_stmt_kind_if)
+        return isterminated(stmts->stmt.ifstmt.body) &&
+            isterminated(stmts->stmt.ifstmt.elsebody);
+    if(stmts->stmt.kind == tree_stmt_kind_for)
+        return !stmts->stmt.forstmt.condition &&
+            !hasbreak(stmts->stmt.forstmt.body);
+    if(stmts->stmt.kind == tree_stmt_kind_switch)
+    {
+        int hasdefault = 0;
+        for(struct tree_cases *cases = stmts->stmt.switchstmt.cases; cases;
+            cases = cases->next)
+        {
+            if(!isterminated(cases->body) || hasbreak(cases->body))
+                return 0;
+            if(!cases->val)
+                hasdefault = 1;
+        }
+        return hasdefault;
+    }
+    return 0;
+}
+
 void weed(DECLS *decls)
 {
     if(decls == NULL)
@@ -154,6 +203,12 @@ void weed(DECLS *decls)
     {
         weed_bc_stmts(decls->func_decl.body);
         weed_stmts(decls->func_decl.body);
+        if(decls->func_decl.type && !isterminated(decls->func_decl.body))
+        {
+            fprintf(stderr, "Error: function on line %d does not end in "
+                    "terminating statement\n", decls->lineno);
+            exit(1);
+        }
     }
 
     weed(decls->next);

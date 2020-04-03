@@ -21,8 +21,8 @@ static int typematch(struct tree_type *i, struct tree_type *j)
     {
         case tree_type_kind_base:
             return i->base == j->base;
-        case tree_type_kind_name:
-            return i->ident->symbol == j->ident->symbol;
+        case tree_type_kind_defined:
+            return i->defined == j->defined;
         case tree_type_kind_array:
             return i->array.len == j->array.len &&
                 typematch(i->array.type, j->array.type);
@@ -48,8 +48,8 @@ static int typematch(struct tree_type *i, struct tree_type *j)
 
 static struct tree_type *rt(struct tree_type *type)
 {
-    if(type->kind == tree_type_kind_name)
-        return rt(type->ident->symbol->type);
+    if(type->kind == tree_type_kind_defined)
+        return rt(type->defined);
     return type;
 }
 
@@ -150,7 +150,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
                 !isinteger(rt(exp->unary.right->type))))
             {
                 fprintf(stderr,
-                        "Error: expression on line %d has bad type",
+                        "Error: expression on line %d has bad type\n",
                         exp->unary.right->lineno);
                 exit(1);
             }
@@ -226,7 +226,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
                     struct tree_params *param =
                         exp->call.func->ident->symbol->func->params;
                     struct tree_exps *arg = exp->call.exps;
-                    for(; param; param = param->next)
+                    for(; param && arg; param = param->next, arg = arg->next)
                     {
                         tc_val(arg->exp);
                         if(!typematch(arg->exp->type, param->type))
@@ -236,11 +236,25 @@ static enum expkind tc_exp(struct tree_exp *exp)
                             exit(1);
                         }
                     }
+                    if(arg && !param)
+                    {
+                        fprintf(stderr,
+                                "Error: too many arguments on line %d\n",
+                                arg->exp->lineno);
+                        exit(1);
+                    }
+                    if(param && !arg)
+                    {
+                        fprintf(stderr,
+                                "Error: too few arguments on line %d\n",
+                                arg->exp->lineno);
+                        exit(1);
+                    }
                     exp->type = exp->call.func->ident->symbol->func->type;
                     break;
                 case expkind_type:;
                     struct tree_type *rt1 =
-                        rt(exp->call.func->ident->symbol->func->type);
+                        rt(exp->call.func->ident->symbol->type);
                     if(rt1->kind != tree_type_kind_base)
                     {
                         fprintf(stderr, "Error: type on line %d does not "
@@ -264,7 +278,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
                                 exp->lineno);
                         exit(1);
                     }
-                    exp->type = exp->call.func->ident->symbol->func->type;
+                    exp->type = exp->call.func->ident->symbol->type;
                     break;
                 default:
                     fprintf(stderr, "Error: expression on line %d is neither a "
@@ -331,7 +345,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
                         exp->lineno);
                 exit(1);
             }
-            exp->type = rtslice->slice.type;
+            exp->type = exp->append.exp1->type;
             break;
         case tree_exp_kind_len:
             tc_val(exp->exp);
@@ -394,12 +408,15 @@ static void tc_stmts(struct tree_stmts *stmts, struct tree_type *rtype);
 
 static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
 {
+    if(!stmt)
+        return;
+
     struct tree_idents *ident;
     struct tree_exps *exp;
     switch(stmt->kind)
     {
         case tree_stmt_kind_exp:
-            tc_exp(&stmt->expstmt);
+            tc_val(&stmt->expstmt);
             break;
         case tree_stmt_kind_block:
             tc_stmts(stmt->block, rtype);
@@ -409,8 +426,10 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
                     *right = stmt->assign.right; left;
                 left = left->next, right = right->next)
             {
-                tc_val(left->exp);
                 tc_val(right->exp);
+                if(!left->exp->ident->symbol)
+                    continue;
+                tc_val(left->exp);
                 if(!typematch(left->exp->type, right->exp->type))
                 {
                     fprintf(stderr, "Error: type mismatch on line %d\n",
@@ -480,8 +499,15 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
                 ident; ident = ident->next, exp = exp->next)
             {
                 tc_val(exp->exp);
-                if(!ident->ident->symbol->type)
-                    ident->ident->symbol->type = exp->exp->type;
+                if(!ident->ident->symbol)
+                    continue;
+                if(!ident->ident->symbol->type &&
+                   !(ident->ident->symbol->type = exp->exp->type))
+                {
+                    fprintf(stderr, "Error: expression on line %d with no type "
+                            "used in initializer\n", exp->exp->lineno);
+                    exit(1);
+                }
                 else if(!typematch(ident->ident->symbol->type, exp->exp->type))
                 {
                     fprintf(stderr, "Error: type mismatch on line %d\n",
@@ -495,7 +521,7 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
             tc_val(stmt->exp);
             if(!isnumeric(rt(stmt->exp->type)))
             {
-                fprintf(stderr, "Error: expression on line %d is not numeric",
+                fprintf(stderr, "Error: expression on line %d is not numeric\n",
                         stmt->exp->lineno);
                 exit(1);
             }
@@ -518,22 +544,31 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
             }
             break;
         case tree_stmt_kind_return:
-            tc_val(stmt->exp);
-            if(!typematch(stmt->exp->type, rtype))
+            if(stmt->exp)
             {
-                fprintf(stderr, "Error: return type mismatch on line %d\n",
-                        stmt->exp->lineno);
+                tc_val(stmt->exp);
+                if(!typematch(stmt->exp->type, rtype))
+                {
+                    fprintf(stderr, "Error: return type mismatch on line %d\n",
+                            stmt->exp->lineno);
+                    exit(1);
+                }
+            }
+            if(rtype && !stmt->exp)
+            {
+                fprintf(stderr, "Error: no value returned on line %d\n",
+                        stmt->lineno);
                 exit(1);
             }
             break;
         case tree_stmt_kind_if:
             tc_stmt(stmt->ifstmt.init, rtype);
             tc_val(stmt->ifstmt.condition);
-            if(!isbool(rt(stmt->forstmt.condition->type)))
+            if(!isbool(rt(stmt->ifstmt.condition->type)))
             {
                 fprintf(stderr,
                         "Error: condition on line %d has bad type\n",
-                        stmt->forstmt.condition->lineno);
+                        stmt->ifstmt.condition->lineno);
                 exit(1);
             }
             tc_stmts(stmt->ifstmt.body, rtype);
@@ -595,10 +630,10 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
         case tree_stmt_kind_for:
             if(stmt->forstmt.condition)
             {
+                if(stmt->forstmt.init)
+                    tc_stmt(stmt->forstmt.init, rtype);
                 tc_val(stmt->forstmt.condition);
-                struct tree_type *type = rt(stmt->forstmt.condition->type);
-                if(!(type->kind == tree_type_kind_base &&
-                     type->base == tree_base_type_bool))
+                if(!isbool(rt(stmt->forstmt.condition->type)))
                 {
                     fprintf(stderr,
                             "Error: condition on line %d has bad type\n",
@@ -606,14 +641,10 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
                     exit(1);
                 }
                 if(stmt->forstmt.init)
-                {
-                    tc_stmt(stmt->forstmt.init, rtype);
                     tc_stmt(stmt->forstmt.iter, rtype);
-                }
             }
             tc_stmts(stmt->forstmt.body, rtype);
             break;
-        case tree_stmt_kind_fallthrough:
         default:
             break;
     }
@@ -631,12 +662,7 @@ static void tc_varspecs(struct tree_var_spec *var_spec)
         return;
     if(var_spec->val)
     {
-        if(tc_exp(var_spec->val) != expkind_val)
-        {
-            fprintf(stderr, "Error: expression on line %d is not a value\n",
-                    var_spec->val->lineno);
-            exit(1);
-        }
+        tc_val(var_spec->val);
         if(var_spec->type)
         {
             if(!typematch(var_spec->val->type, var_spec->type))
@@ -646,8 +672,8 @@ static void tc_varspecs(struct tree_var_spec *var_spec)
                 exit(1);
             }
         }
-        else
-            var_spec->type = var_spec->val->type;
+        else if(var_spec->ident->symbol)
+            var_spec->ident->symbol->type = var_spec->val->type;
     }
     tc_varspecs(var_spec->next);
 }
@@ -659,6 +685,16 @@ void typecheck(struct tree_decls *root)
         if(node->kind == tree_decls_kind_var_decl)
             tc_varspecs(node->var_spec);
         else if(node->kind == tree_decls_kind_func_decl)
+        {
+            if((strcmp(node->func_decl.ident->name, "init") == 0 ||
+                strcmp(node->func_decl.ident->name, "main") == 0) &&
+               (node->func_decl.params || node->func_decl.type))
+            {
+                fprintf(stderr, "Error: special function on line %d must have "
+                        "no parameters or return type\n", node->lineno);
+                exit(1);
+            }
             tc_stmts(node->func_decl.body, node->func_decl.type);
+        }
     }
 }
