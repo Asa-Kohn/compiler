@@ -108,8 +108,8 @@ void traverse_fields(FIELDS * v) {
 void pretty_type(TYPE * t) {
     if(t == NULL) return;
     switch(t->kind) {
-        case tree_type_kind_name:
-            printf("%s", t->ident->name);
+        case tree_type_kind_defined:
+            printf("%s", t->reference.name);
             break;
         case tree_type_kind_array:
             pretty_array(t->array);

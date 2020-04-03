@@ -99,27 +99,47 @@ static void gather_type(struct tree_type *type, struct scopetable *table,
 {
     if(!type)
         return;
-    if(type->kind == tree_type_kind_name)
+    if(type->kind == tree_type_kind_reference)
     {
-        if(!(type->ident->symbol = scopetable_get(table, type->ident->name)))
+        if(!type->reference.symbol)
         {
-            fprintf(stderr, "Error: symbol \"%s\" on line %d undeclared\n",
-                    type->ident->name, lineno);
-            exit(1);
+            if(!(type->reference.symbol =
+                 scopetable_get(table, type->reference.name)))
+            {
+                fprintf(stderr, "Error: symbol \"%s\" on line %d undeclared\n",
+                        type->reference.name, lineno);
+                exit(1);
+            }
+            if(type->reference.symbol->kind != symbol_kind_type)
+            {
+                fprintf(stderr, "Error: symbol \"%s\" on line %d is not a type\n",
+                        type->reference.name, lineno);
+                exit(1);
+            }
         }
-        if(type->ident->symbol->kind != symbol_kind_type)
-        {
-            fprintf(stderr, "Error: symbol \"%s\" on line %d is not a type\n",
-                    type->ident->name, lineno);
-            exit(1);
-        }
-        if(type->ident->symbol->type->kind == tree_type_kind_base)
-        {
-            struct tree_type temp = *type;
-            *type = *type->ident->symbol->type;
-            free(temp.ident->name);
-            free(temp.ident);
-        }
+
+        struct tree_type temp = *type;
+        /* type->defined = temp.reference.symbol->type; */
+        /* switch(type->kind = temp.reference.symbol->type->kind) */
+        /* { */
+        /*     case tree_type_kind_base: */
+        /*         type->base = temp.reference.symbol->type->base; */
+        /*         break; */
+        /*     case tree_type_kind_array: */
+        /*         type->array = temp.reference.symbol->type->array; */
+        /*         break; */
+        /*     case tree_type_kind_slice: */
+        /*         type->slice = temp.reference.symbol->type->slice; */
+        /*         break; */
+        /*     case tree_type_kind_struct: */
+        /*         type->structtype = temp.reference.symbol->type->structtype; */
+        /*         break; */
+        /*     case tree_type_kind_defined: */
+        /*         type->defined = temp.reference.symbol->type; */
+        /*         break; */
+        /* } */
+        *type = *temp.reference.symbol->type;
+        free(temp.reference.name);
     }
     else if(type->kind == tree_type_kind_struct)
         for(struct tree_fields *field = type->structtype.fields; field;
@@ -147,6 +167,8 @@ static void gather_exp(struct symbol_rec *symbols, struct tree_exp *node,
                         node->ident->name, node->lineno);
                 exit(1);
             }
+            if(node->ident->symbol->kind == symbol_kind_type)
+                gather_type(node->ident->symbol->type, table, node->lineno);
             break;
         case tree_exp_kind_unary:
             gather_exp(symbols, node->unary.right, table, index);
@@ -253,7 +275,7 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
         case tree_stmt_kind_var_decl:
             for(struct tree_var_spec *j = node->var_spec; j; j = j->next)
             {
-                gather_type(j->type, table, j->val->lineno);
+                gather_type(j->type, table, node->lineno);
                 gather_exp(symbols, j->val, table, index);
             }
             for(struct tree_var_spec *j = node->var_spec; j; j = j->next)
@@ -275,6 +297,10 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             break;
         case tree_stmt_kind_type_spec:
             gather_type(node->type_spec.type, table, node->lineno);
+            struct tree_type *temp = emalloc(sizeof(struct tree_type));
+            temp->kind = tree_type_kind_defined;
+            temp->defined = node->type_spec.type;
+            node->type_spec.type = temp;
             if(scopetable_getleaf(table->table, node->type_spec.ident->name))
             {
                 fprintf(stderr,
@@ -350,15 +376,15 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
     {
         if(i->kind == tree_decls_kind_var_decl)
         {
-            if(strcmp(i->var_spec->ident->name, "init") == 0)
-            {
-                fprintf(stderr, "Error: symbol \"init\" declared as a variable "
-                        "at top level on line %d\n", i->lineno);
-                exit(1);
-            }
             for(struct tree_var_spec *j = i->var_spec; j; j = j->next)
             {
-                gather_type(i->var_spec->type, &table, i->lineno);
+                if(strcmp(j->ident->name, "init") == 0)
+                {
+                    fprintf(stderr, "Error: symbol \"init\" declared as a variable "
+                            "at top level on line %d\n", i->lineno);
+                    exit(1);
+                }
+                gather_type(j->type, &table, i->lineno);
                 gather_exp(symbols, j->val, &table, index);
             }
             for(struct tree_var_spec *j = i->var_spec; j; j = j->next)
@@ -382,6 +408,10 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
         if(i->kind == tree_decls_kind_type_spec)
         {
             gather_type(i->type_spec.type, &table, i->lineno);
+            struct tree_type *temp = emalloc(sizeof(struct tree_type));
+            temp->kind = tree_type_kind_defined;
+            temp->defined = i->type_spec.type;
+            i->type_spec.type = temp;
             if(strcmp(i->type_spec.ident->name, "init") == 0)
             {
                 fprintf(stderr, "Error: symbol \"init\" declared as a type at "
@@ -443,6 +473,8 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                 (*index)++;
             }
             gather_stmts(symbols, i->func_decl.body, &bodytable, index);
+            scopetable_free(paramtable);
+            scopetable_free(bodytable);
         }
     }
     scopetable_free(table);

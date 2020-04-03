@@ -21,8 +21,8 @@ static int typematch(struct tree_type *i, struct tree_type *j)
     {
         case tree_type_kind_base:
             return i->base == j->base;
-        case tree_type_kind_name:
-            return i->ident->symbol == j->ident->symbol;
+        case tree_type_kind_defined:
+            return i->defined == j->defined;
         case tree_type_kind_array:
             return i->array.len == j->array.len &&
                 typematch(i->array.type, j->array.type);
@@ -48,8 +48,8 @@ static int typematch(struct tree_type *i, struct tree_type *j)
 
 static struct tree_type *rt(struct tree_type *type)
 {
-    if(type->kind == tree_type_kind_name)
-        return rt(type->ident->symbol->type);
+    if(type->kind == tree_type_kind_defined)
+        return rt(type->defined);
     return type;
 }
 
@@ -226,7 +226,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
                     struct tree_params *param =
                         exp->call.func->ident->symbol->func->params;
                     struct tree_exps *arg = exp->call.exps;
-                    for(; param; param = param->next)
+                    for(; param && arg; param = param->next, arg = arg->next)
                     {
                         tc_val(arg->exp);
                         if(!typematch(arg->exp->type, param->type))
@@ -235,6 +235,20 @@ static enum expkind tc_exp(struct tree_exp *exp)
                                     "wrong type\n", arg->exp->lineno);
                             exit(1);
                         }
+                    }
+                    if(arg && !param)
+                    {
+                        fprintf(stderr,
+                                "Error: too many arguments on line %d\n",
+                                arg->exp->lineno);
+                        exit(1);
+                    }
+                    if(param && !arg)
+                    {
+                        fprintf(stderr,
+                                "Error: too few arguments on line %d\n",
+                                arg->exp->lineno);
+                        exit(1);
                     }
                     exp->type = exp->call.func->ident->symbol->func->type;
                     break;
@@ -264,7 +278,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
                                 exp->lineno);
                         exit(1);
                     }
-                    exp->type = exp->call.func->ident->symbol->func->type;
+                    exp->type = exp->call.func->ident->symbol->type;
                     break;
                 default:
                     fprintf(stderr, "Error: expression on line %d is neither a "
@@ -331,7 +345,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
                         exp->lineno);
                 exit(1);
             }
-            exp->type = rtslice->slice.type;
+            exp->type = exp->append.exp1->type;
             break;
         case tree_exp_kind_len:
             tc_val(exp->exp);
@@ -399,7 +413,7 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
     switch(stmt->kind)
     {
         case tree_stmt_kind_exp:
-            tc_exp(&stmt->expstmt);
+            tc_val(&stmt->expstmt);
             break;
         case tree_stmt_kind_block:
             tc_stmts(stmt->block, rtype);
@@ -518,12 +532,15 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
             }
             break;
         case tree_stmt_kind_return:
-            tc_val(stmt->exp);
-            if(!typematch(stmt->exp->type, rtype))
+            if(stmt->exp)
             {
-                fprintf(stderr, "Error: return type mismatch on line %d\n",
-                        stmt->exp->lineno);
-                exit(1);
+                tc_val(stmt->exp);
+                if(!typematch(stmt->exp->type, rtype))
+                {
+                    fprintf(stderr, "Error: return type mismatch on line %d\n",
+                            stmt->exp->lineno);
+                    exit(1);
+                }
             }
             break;
         case tree_stmt_kind_if:
@@ -595,7 +612,8 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
         case tree_stmt_kind_for:
             if(stmt->forstmt.condition)
             {
-                tc_val(stmt->forstmt.condition);
+                if(stmt->forstmt.condition)
+                    tc_val(stmt->forstmt.condition);
                 struct tree_type *type = rt(stmt->forstmt.condition->type);
                 if(!(type->kind == tree_type_kind_base &&
                      type->base == tree_base_type_bool))
@@ -642,7 +660,7 @@ static void tc_varspecs(struct tree_var_spec *var_spec)
             }
         }
         else
-            var_spec->type = var_spec->val->type;
+            var_spec->ident->symbol->type = var_spec->val->type;
     }
     tc_varspecs(var_spec->next);
 }

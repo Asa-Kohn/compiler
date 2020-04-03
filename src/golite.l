@@ -71,6 +71,28 @@ static int last_token = 0;
 
 %%
 
+<<EOF>> {
+    if(last_token == TOK_IDENT ||
+       last_token == TOK_INT ||
+       last_token == TOK_FLOAT ||
+       last_token == TOK_RUNE ||
+       last_token == TOK_STR ||
+       last_token == TOK_BREAK ||
+       last_token == TOK_CONTINUE ||
+       last_token == TOK_FALLTHROUGH ||
+       last_token == TOK_RETURN ||
+       last_token == TOK_INC ||
+       last_token == TOK_DEC ||
+       last_token == ')' ||
+       last_token == ']' ||
+       last_token == '}')
+    {
+        OUTPUT_TOKEN_CHAR(';');
+    }
+    else
+        yyterminate();
+}
+
 \/\/.*                                              //single line comment
 
 \/\*[^\*]*\*+([^\*\/][^\*]*\*+)*\/|[ \n\t\r] {      //multi line comment

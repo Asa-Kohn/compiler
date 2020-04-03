@@ -368,6 +368,7 @@ ident:          TOK_IDENT
                 {
                     $$ = emalloc(sizeof(struct tree_ident));
                     $$->name = $1;
+                    $$->symbol = NULL;
                 }
         ;
 
@@ -549,8 +550,9 @@ params:         idents type
 type:           ident
                 {
                     $$ = emalloc(sizeof(struct tree_type));
-                    $$->kind = tree_type_kind_name;
-                    $$->ident = $1;
+                    $$->kind = tree_type_kind_reference;
+                    $$->reference = *$1;
+                    free($1);
                 }
         |       '[' ']' type
                 {
