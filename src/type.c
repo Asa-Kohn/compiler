@@ -408,6 +408,9 @@ static void tc_stmts(struct tree_stmts *stmts, struct tree_type *rtype);
 
 static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
 {
+    if(!stmt)
+        return;
+
     struct tree_idents *ident;
     struct tree_exps *exp;
     switch(stmt->kind)
@@ -546,11 +549,11 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
         case tree_stmt_kind_if:
             tc_stmt(stmt->ifstmt.init, rtype);
             tc_val(stmt->ifstmt.condition);
-            if(!isbool(rt(stmt->forstmt.condition->type)))
+            if(!isbool(rt(stmt->ifstmt.condition->type)))
             {
                 fprintf(stderr,
                         "Error: condition on line %d has bad type\n",
-                        stmt->forstmt.condition->lineno);
+                        stmt->ifstmt.condition->lineno);
                 exit(1);
             }
             tc_stmts(stmt->ifstmt.body, rtype);
@@ -612,8 +615,9 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
         case tree_stmt_kind_for:
             if(stmt->forstmt.condition)
             {
-                if(stmt->forstmt.condition)
-                    tc_val(stmt->forstmt.condition);
+                if(stmt->forstmt.init)
+                    tc_stmt(stmt->forstmt.init, rtype);
+                tc_val(stmt->forstmt.condition);
                 struct tree_type *type = rt(stmt->forstmt.condition->type);
                 if(!(type->kind == tree_type_kind_base &&
                      type->base == tree_base_type_bool))
@@ -624,10 +628,7 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
                     exit(1);
                 }
                 if(stmt->forstmt.init)
-                {
-                    tc_stmt(stmt->forstmt.init, rtype);
                     tc_stmt(stmt->forstmt.iter, rtype);
-                }
             }
             tc_stmts(stmt->forstmt.body, rtype);
             break;
