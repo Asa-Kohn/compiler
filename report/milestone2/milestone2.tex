@@ -72,7 +72,7 @@ return values as a third weeding pass.
 % TODO to discuss with @asa and @will
 
 \subsection{String literal in lexer}
-On line 204. Previously, our lexer would match string literals with newline characters as long as they are within the two double quotes. The issue is fixed where newline characters within two double quotes will not be matched.
+On line 204. Previously, our lexer would match string literals with newline characters as long as they are between the two double quotes. The issue is fixed where newline characters between two double quotes will not be matched.
 
 \subsection{Int literal in lexer}
 On line 199. Previously hexadecimal numbers are matched using:
@@ -92,6 +92,12 @@ On line 188. \verb| '[\^\\']' | is added.
 
 \subsection{Three-part for loop in parser}
 On lines 738-748, three-part for loop with empty condition is added.
+
+\subsection{exp in parser}
+On lines 779-785, added error message when expression statement does not result in a function call. This type of error message is moved from the weeder (lines 137-144) in our previous implementation, to the parser for catching the error directly.
+
+\subsection{variable declaration and type declaration in parser}
+On lines 187-196, 200-209, 627-631, and 635-639, added checks for the cases where the semantic values \$1 could be null.
 
 \subsection{Weeding}
 A typo on line 138 is fixed, where exp meant expstmt.
