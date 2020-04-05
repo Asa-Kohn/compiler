@@ -690,7 +690,8 @@ static void tc_varspecs(struct tree_var_spec *var_spec)
         if(var_spec->ident->symbol)
         {
             if(!var_spec->ident->symbol->type &&
-               !(var_spec->ident->symbol->type = var_spec->val->type))
+               !(var_spec->type = var_spec->ident->symbol->type =
+                 var_spec->val->type))
             {
                 fprintf(stderr, "Error: expression on line %d with no type "
                         "used in initializer\n", var_spec->val->lineno);
