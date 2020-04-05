@@ -255,7 +255,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
                     {
                         fprintf(stderr,
                                 "Error: too few arguments on line %d\n",
-                                param->exp->lineno);
+                                exp->lineno);
                         exit(1);
                     }
                     exp->type = exp->call.func->ident->symbol->func->type;
