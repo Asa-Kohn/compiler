@@ -255,7 +255,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
                     {
                         fprintf(stderr,
                                 "Error: too few arguments on line %d\n",
-                                arg->exp->lineno);
+                                param->exp->lineno);
                         exit(1);
                     }
                     exp->type = exp->call.func->ident->symbol->func->type;
@@ -391,7 +391,8 @@ static enum expkind tc_exp(struct tree_exp *exp)
 
 static int isaddressable(struct tree_exp *exp)
 {
-    if(exp->kind == tree_exp_kind_ident)
+    if(exp->kind == tree_exp_kind_ident &&
+       exp->ident->symbol->kind == symbol_kind_var)
         return 1;
     if(exp->kind == tree_exp_kind_index)
         return exp->index.arr->type->kind == tree_type_kind_slice ||

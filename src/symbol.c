@@ -258,6 +258,14 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             int newdecl = 0;
             while(ident)
             {
+                for(struct tree_idents *i = node->shortdecl.idents; i;
+                    i = i->next)
+                    if(strcmp(ident->ident->name, i->ident->name) == 0)
+                    {
+                        fprintf(stderr, "Error: repeated symbol in short "
+                                "declaration on line %d\n", node->lineno);
+                        exit(1);
+                    }
                 if(strcmp(ident->ident->name, "_") != 0 &&
                    !(ident->ident->symbol =
                      scopetable_getleaf(table->table, ident->ident->name)))
@@ -270,6 +278,13 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                     scopetable_add(table->table,
                                    ident->ident->symbol = &symbols[*index]);
                     (*index)++;
+                }
+                if(ident->ident->symbol->kind != symbol_kind_var)
+                {
+                    fprintf(stderr,
+                            "Error: symbol on line %d is not a variable\n",
+                            node->lineno);
+                    exit(1);
                 }
                 ident = ident->next;
                 exp = exp->next;
