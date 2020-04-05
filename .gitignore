@@ -8,4 +8,7 @@ report/*/*
 doc/*
 !doc/*.pdf
 
+report/*/*/*/*
+!programs/all-testers/M2/new-invalids/draft.go
+
 *.o
