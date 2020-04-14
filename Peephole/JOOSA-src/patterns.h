@@ -151,7 +151,7 @@ int simplify_multiplication_left(CODE **c)
 }
 
 /* iload 0        iload x   
- * ldc k          ldc k   
+ * ldc k          iload k   
  * idiv           imul       
  * ------>        ------>   
  * ldc 0          if x == k  
@@ -175,7 +175,7 @@ int simplify_division_left(CODE **c)
 }
 
 /* iload x        iload x
- * ldc 1          ldc k
+ * ldc 1          iload k
  * idiv           idiv
  * ------>        ------>
  * iload x        if x == k
