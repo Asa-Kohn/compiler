@@ -123,6 +123,82 @@ int simplify_istore(CODE **c)
   return 0;
 }
 
+/* iload 0        iload 1        iload 2
+ * ldc k          ldc k          ldc k
+ * imul           imul           imul
+ * ------>        ------>        ------>
+ * ldc 0          iload k        iload k
+ *                               dup
+ *                               iadd
+ */
+
+int simplify_multiplication_left(CODE **c)
+{
+  int x, k;
+  if (is_iload(*c, &x) &&
+      is_ldc_int(next(*c), &k) &&
+      is_imul(next(next(*c))))
+  {
+    if (x == 0)
+      return replace(c, 3, makeCODEldc_int(0, NULL));
+    else if (x == 1)
+      return replace(c, 3, makeCODEiload(k, NULL));
+    else if (x == 2)
+      return replace(c, 3, makeCODEiload(k, makeCODEdup(makeCODEiadd(NULL))));
+    return 0;
+  }
+  return 0;
+}
+
+/* iload 0        iload x   
+ * ldc k          ldc k   
+ * idiv           imul       
+ * ------>        ------>   
+ * ldc 0          if x == k  
+ *                 ldc 1     
+ */
+
+int simplify_division_left(CODE **c)
+{
+  int x, k;
+  if (is_iload(*c, &x) &&
+      is_ldc_int(next(*c), &k) &&
+      is_idiv(next(next(*c))))
+  {
+    if (x == 0)
+      return replace(c, 3, makeCODEldc_int(0, NULL));
+    else if (x == k)
+      return replace(c, 3, makeCODEldc_int(1, NULL));
+    return 0;
+  }
+  return 0;
+}
+
+/* iload x        iload x
+ * ldc 1          ldc k
+ * idiv           idiv
+ * ------>        ------>
+ * iload x        if x == k
+ *                 ldc 1
+ */
+
+int simplify_division_right(CODE **c)
+{
+  int x, k;
+  if (is_iload(*c, &x) &&
+      is_ldc_int(next(*c), &k) &&
+      is_idiv(next(next(*c))))
+  {
+    if (k == 1)
+      return replace(c, 3, makeCODEiload(x, NULL));
+    else if (x == k)
+      return replace(c, 3, makeCODEldc_int(1, NULL));
+    return 0;
+  }
+  return 0;
+}
+
+
 void init_patterns(void)
 {
   ADD_PATTERN(simplify_multiplication_right);
@@ -133,4 +209,7 @@ void init_patterns(void)
   /* ========================================================= */
   /* add new patterns */
   ADD_PATTERN(simplify_istore);
+  ADD_PATTERN(simplify_multiplication_left);
+  ADD_PATTERN(simplify_division_left);
+  ADD_PATTERN(simplify_division_right);
 }
