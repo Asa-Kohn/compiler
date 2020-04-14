@@ -198,6 +198,33 @@ int simplify_division_right(CODE **c)
   return 0;
 }
 
+/* iload x                iload x
+ * ldc k   (0<=k<=127)    ldc k
+ * isub                   isub
+ * istore x               istore x
+ * --------->             --------->
+ * if x == 0              if k == 0
+ *  iload k                 iload x
+ *  ineg 
+ */
+int simplify_subtraction(CODE **c)
+{
+  int x, y, k;
+  if (is_iload(*c, &x) &&
+      is_ldc_int(next(*c), &k) &&
+      is_isub(next(next(*c))) &&
+      is_istore(next(next(next(*c))), &y) &&
+      x == y && 0 <= k && k <= 127)
+  {
+    if (x == 0)
+      return replace(c, 4, makeCODEiload(k, makeCODEineg(NULL)));
+    else if (k == 0)
+      return replace(c, 4, makeCODEiload(x, NULL));
+    return 0;
+  }
+  return 0;
+}
+
 
 void init_patterns(void)
 {
@@ -212,4 +239,5 @@ void init_patterns(void)
   ADD_PATTERN(simplify_multiplication_left);
   ADD_PATTERN(simplify_division_left);
   ADD_PATTERN(simplify_division_right);
+  ADD_PATTERN(simplify_subtraction);
 }
