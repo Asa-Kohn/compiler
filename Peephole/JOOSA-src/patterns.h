@@ -377,10 +377,13 @@ int simplify_constfold_sub(CODE **c)
 int simplify_load_store(CODE **c)
 {
     int x, y;
+    char *s, *t;
   if (is_iload(*c, &x) && is_istore(next(*c), &y) && x == y)
     return replace(c, 2, NULL);
   else if (is_aload(*c, &x) && is_astore(next(*c), &y) && x == y)
     return replace(c, 2, NULL);
+  else if(is_getfield(*c, &s) && is_putfield(next(*c), &t) && strcmp(s, t) == 0)
+      return replace(c, 2, NULL);
 
   return 0;
 }
@@ -627,7 +630,6 @@ int remove_dead_label(CODE **c)
 
 int remove_unused_values(CODE **c)
 {
-    int a;
     char *s;
     if((is_iadd(*c) ||
         is_isub(*c) ||
@@ -637,10 +639,10 @@ int remove_unused_values(CODE **c)
        is_pop(next(*c)))
         return replace(c, 2, makeCODEpop(makeCODEpop(NULL)));
 
-    if((is_ldc_int(*c, &a) ||
-        is_ldc_string(*c, &s) ||
-        is_iload(*c, &a) ||
-        is_aload(*c, &a) ||
+    if(is_getfield(*c, &s) && is_pop(next(*c)))
+        return replace(c, 2, makeCODEpop(NULL));
+
+    if((is_simplepush(*c) ||
         is_dup(*c)) &&
        is_pop(next(*c)))
         return replace(c, 2, NULL);
@@ -648,6 +650,14 @@ int remove_unused_values(CODE **c)
     if(is_dup(*c) && is_swap(next(*c)))
         return replace(c, 2, makeCODEswap(NULL));
 
+    return 0;
+}
+
+int simplify_putfield(CODE **c)
+{
+    char *s;
+    if(is_dup(*c) && is_putfield(next(*c), &s) && is_pop(next(next(*c))))
+        return replace(c, 3, makeCODEputfield(s, NULL));
     return 0;
 }
 
@@ -684,4 +694,5 @@ void init_patterns(void)
   ADD_PATTERN(remove_unreachable);
   ADD_PATTERN(remove_dead_label);
   ADD_PATTERN(remove_unused_values);
+  ADD_PATTERN(simplify_putfield);
 }
