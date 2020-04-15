@@ -588,6 +588,12 @@ int simplify_if(CODE **c)
     return 0;
 }
 
+/* return   areturn   ireturn   goto
+ * (           non-label op           )
+ * ----->   ----->    ----->    ----->
+ * return   areturn   ireturn   goto
+ */
+
 int remove_unreachable(CODE **c)
 {
     int l1, l2;
