@@ -131,7 +131,19 @@ static void gather_type(struct tree_type *type, struct scopetable *table,
     else if(type->kind == tree_type_kind_struct)
         for(struct tree_fields *field = type->structtype.fields; field;
             field = field->next)
+        {
             gather_type(field->type, table, lineno);
+            for(struct tree_fields *i = type->structtype.fields; i != field;
+                i = i->next)
+                if(strcmp(i->name, field->name) == 0 &&
+                   strcmp(i->name, "_") != 0)
+                {
+                    fprintf(stderr,
+                            "Error: duplicate struct field on nline %d\n",
+                            lineno);
+                    exit(1);
+                }
+        }
     else if(type->kind == tree_type_kind_array)
         gather_type(type->array.type, table, lineno);
     else if(type->kind == tree_type_kind_slice)
@@ -246,6 +258,14 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             int newdecl = 0;
             while(ident)
             {
+                for(struct tree_idents *i = node->shortdecl.idents; i;
+                    i = i->next)
+                    if(strcmp(ident->ident->name, i->ident->name) == 0)
+                    {
+                        fprintf(stderr, "Error: repeated symbol in short "
+                                "declaration on line %d\n", node->lineno);
+                        exit(1);
+                    }
                 if(strcmp(ident->ident->name, "_") != 0 &&
                    !(ident->ident->symbol =
                      scopetable_getleaf(table->table, ident->ident->name)))
@@ -258,6 +278,13 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                     scopetable_add(table->table,
                                    ident->ident->symbol = &symbols[*index]);
                     (*index)++;
+                }
+                if(ident->ident->symbol->kind != symbol_kind_var)
+                {
+                    fprintf(stderr,
+                            "Error: symbol on line %d is not a variable\n",
+                            node->lineno);
+                    exit(1);
                 }
                 ident = ident->next;
                 exp = exp->next;
@@ -468,7 +495,6 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
         }
         if(i->kind == tree_decls_kind_func_decl)
         {
-            gather_type(i->func_decl.type, &table, i->lineno);
             if(strcmp(i->func_decl.ident->name, "_") == 0)
                 i->func_decl.ident->symbol = NULL;
             else
@@ -489,6 +515,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                                    i->func_decl.ident->symbol = &symbols[*index]);
                 (*index)++;
             }
+            gather_type(i->func_decl.type, &table, i->lineno);
             struct scopetable innertable = {.table = {NULL}, .parent = &table};
             for(struct tree_params *c = i->func_decl.params; c; c = c->next)
             {
