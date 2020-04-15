@@ -260,7 +260,7 @@ int simplify_subtraction(CODE **c)
     else if (k == 0)
       return replace(c, 4, makeCODEiload(x, NULL));
     else if (k > 0)
-        return replace(c, 4, makeCODEiinc(x, -k, NULL))
+      return replace(c, 4, makeCODEiinc(x, -k, NULL));
     return 0;
   }
   return 0;
@@ -303,7 +303,7 @@ int simplify_constfold_div(CODE **c)
   {
     if (x / k >= 0 && x / k <= 127)
       return replace(c, 3, makeCODEldc_int(x / k, NULL));
-    
+
     return 0;
   }
   return 0;
@@ -326,7 +326,6 @@ int simplify_constfold_rem(CODE **c)
     if (x * k >= 0 && x * k <= 127)
       return replace(c, 3, makeCODEldc_int(x / k, NULL));
     return 0;
-
   }
   return 0;
 }
@@ -377,13 +376,13 @@ int simplify_constfold_sub(CODE **c)
 
 int simplify_load_store(CODE **c)
 {
-    int x;
-    if(is_iload(*c, &x)) && is_istore(next(*c), &x))
-        return replace(c, 2, NULL);
-    else if(is_aload(*c, &x)) && is_astore(next(*c), &x))
-        return replace(c, 2, NULL);
+  int x;
+  if (is_iload(*c, &x) && is_istore(next(*c), &x))
+    return replace(c, 2, NULL);
+  else if (is_aload(*c, &x) && is_astore(next(*c), &x))
+    return replace(c, 2, NULL);
 
-    return 0;
+  return 0;
 }
 
 /* getfield x
@@ -394,11 +393,11 @@ int simplify_load_store(CODE **c)
 
 int simplify_get_put(CODE **c)
 {
-    int x;
-    if(is_getfield(*c, &x) && is_putfield(next(*c), &x))
-        return replace(c, 2, NULL);
+  int x;
+  if (is_getfield(*c, &x) && is_putfield(next(*c), &x))
+    return replace(c, 2, NULL);
 
-    return 0;
+  return 0;
 }
 
 /* iload x      iload x
@@ -411,21 +410,19 @@ int simplify_get_put(CODE **c)
 
 int simplify_addition_left(CODE **c)
 {
-    int x, k;
-    if(
-        is_iload(*c, &x) &&
-        is_iload(next(*c), &k) &&
-        is_iadd(next(next(*c)))
-    )
-    {
-        if(k == 0)
-            return replace(c, 3, makeCODEiload(x, NULL));
-        else if(0 < k && k <= 127)
-            return replace(c, 3, makeCODEiinc(x, k, NULL));
-    }
+  int x, k;
+  if (
+      is_iload(*c, &x) &&
+      is_iload(next(*c), &k) &&
+      is_iadd(next(next(*c))))
+  {
+    if (k == 0)
+      return replace(c, 3, makeCODEiload(x, NULL));
+    else if (0 < k && k <= 127)
+      return replace(c, 3, makeCODEiinc(x, k, NULL));
+  }
 
-    return 0;
-
+  return 0;
 }
 
 /* iload 0      iload k (0<=k<=127)
@@ -436,20 +433,18 @@ int simplify_addition_left(CODE **c)
  *                  iinc x k
  */
 
-
 int simplify_addition_right(CODE **c)
 {
-    int x, k;
+  int x, k;
     if( is_iload(*c, &k) &&
-        is_iload(next(*c), &x)) &&
-        is_iadd(next(next(*c)))
+        is_iload(next(*c), &x) &&
+        is_iadd(next(next(*c))))
     {
-        if(k == 0)
-            return replace(c, 3, makeCODEiload(x, NULL));
-        else if(0 < k && k <= 127)
-            return replace(c, 3, makeCODEiinc(x, k, NULL));
+    if (k == 0)
+      return replace(c, 3, makeCODEiload(x, NULL));
+    else if (0 < k && k <= 127)
+      return replace(c, 3, makeCODEiinc(x, k, NULL));
     }
-
     return 0;
 }
 
@@ -461,10 +456,10 @@ int simplify_addition_right(CODE **c)
 
 int simplify_swap(CODE **c)
 {
-    if(is_swap(*c) && is_swap(next(*c)))
-        return replace(c, 2, NULL);
+  if (is_swap(*c) && is_swap(next(*c)))
+    return replace(c, 2, NULL);
 
-    return 0;
+  return 0;
 }
 
 /* ineg
@@ -475,10 +470,10 @@ int simplify_swap(CODE **c)
 
 int simplify_negation(CODE **c)
 {
-    if(is_ineg(*c) && is_ineg(next(*c)))
-        return replace(c, 2, NULL);
+  if (is_ineg(*c) && is_ineg(next(*c)))
+    return replace(c, 2, NULL);
 
-    return 0;
+  return 0;
 }
 
 /* iload x
@@ -491,15 +486,15 @@ int simplify_negation(CODE **c)
 
 int simplify_remainder(CODE **c)
 {
-    int x, k;
-    if( is_iload(*c, &x) &&
-        is_iload(*c, &k) &&
-        is_irem(*c)) &&
-        k == 1
+  int x, k;
+  if (is_iload(*c, &x) &&
+      is_iload(*c, &k) &&
+      is_irem(*c) &&
+      k == 1)
     {
-        return replace(c, 4, makeCODEldc_int(0, NULL));
+      return replace(c, 4, makeCODEldc_int(0, NULL));
     }
-    return 0;
+  return 0;
 }
 
 void init_patterns(void)
