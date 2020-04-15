@@ -660,6 +660,14 @@ int simplify_putfield(CODE **c)
     return 0;
 }
 
+int simplify_goto(CODE **c)
+{
+    int l1, l2;
+    if(is_goto(*c, &l1) && is_label(next(*c), &l2) && l1 == l2)
+        return replace(c, 1, NULL);
+    return 0;
+}
+
 void init_patterns(void)
 {
     ADD_PATTERN(simplify_multiplication_right);
@@ -693,4 +701,5 @@ void init_patterns(void)
     ADD_PATTERN(remove_dead_label);
     ADD_PATTERN(remove_unused_values);
     ADD_PATTERN(simplify_putfield);
+    ADD_PATTERN(simplify_goto);
 }
