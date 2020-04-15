@@ -298,11 +298,28 @@ int simplify_constfold_div(CODE **c)
       is_iload(next(*c), &k) &&
       is_idiv(next(next(*c))))
   {
-    if (x % k == 0)
-      if (x / k >= 0 && x / k <= 127)
-        return replace(c, 3, makeCODEldc_int(x / k, NULL));
-      return 0;
+    if (x / k >= 0 && x / k <= 127)
+      return replace(c, 3, makeCODEldc_int(x / k, NULL));
     return 0;
+  }
+  return 0;
+}
+
+/* iload x
+ * iload k 
+ * irem   
+ * ------> 
+ * ldc x%k 
+ */
+
+int simplify_constfold_rem(CODE **c)
+{
+  int x, k;
+  if (is_iload(*c, &x) &&
+      is_iload(next(*c), &k) &&
+      is_idiv(next(next(*c))))
+  {
+    return replace(c, 3, makeCODEldc_int(x % k, NULL));
   }
   return 0;
 }
@@ -324,4 +341,5 @@ void init_patterns(void)
   ADD_PATTERN(simplify_subtraction);
   ADD_PATTERN(simplify_constfold_mult);
   ADD_PATTERN(simplify_constfold_div);
+  ADD_PATTERN(simplify_constfold_rem);
 }
