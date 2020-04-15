@@ -517,28 +517,28 @@ int simplify_if(CODE **c)
        is_ldc_int(next(next(next(next(*c)))), &c2) &&
        is_label(next(next(next(next(next(*c))))), &l4) &&
        is_ifeq(next(next(next(next(next(next(*c)))))), &l5) &&
-       l2 == l4 && c1 == 0 && c2 == 1)
+       l2 == l4 && c1 == 0 && c2 == 1 && uniquelabel(l3) && uniquelabel(l2))
     {
         if(is_if_icmplt(*c, &l1) && l1 == l3)
-            return replace(c, 7, makeCODEif_icmpge(l5, NULL));
+            return replace_modified(c, 7, makeCODEif_icmpge(l5, NULL));
         else if(is_if_icmpgt(*c, &l1) && l1 == l3)
-            return replace(c, 7, makeCODEif_icmple(l5, NULL));
+            return replace_modified(c, 7, makeCODEif_icmple(l5, NULL));
         else if(is_if_icmple(*c, &l1) && l1 == l3)
-            return replace(c, 7, makeCODEif_icmpgt(l5, NULL));
+            return replace_modified(c, 7, makeCODEif_icmpgt(l5, NULL));
         else if(is_if_icmpge(*c, &l1) && l1 == l3)
-            return replace(c, 7, makeCODEif_icmplt(l5, NULL));
+            return replace_modified(c, 7, makeCODEif_icmplt(l5, NULL));
         else if(is_ifnull(*c, &l1) && l1 == l3)
-            return replace(c, 7, makeCODEifnonnull(l5, NULL));
+            return replace_modified(c, 7, makeCODEifnonnull(l5, NULL));
         else if(is_ifnonnull(*c, &l1) && l1 == l3)
-            return replace(c, 7, makeCODEifnull(l5, NULL));
+            return replace_modified(c, 7, makeCODEifnull(l5, NULL));
         else if(is_if_acmpeq(*c, &l1) && l1 == l3)
-            return replace(c, 7, makeCODEif_acmpne(l5, NULL));
+            return replace_modified(c, 7, makeCODEif_acmpne(l5, NULL));
         else if(is_if_acmpne(*c, &l1) && l1 == l3)
-            return replace(c, 7, makeCODEif_acmpeq(l5, NULL));
+            return replace_modified(c, 7, makeCODEif_acmpeq(l5, NULL));
         else if(is_ifeq(*c, &l1) && l1 == l3)
-            return replace(c, 7, makeCODEifne(l5, NULL));
+            return replace_modified(c, 7, makeCODEifne(l5, NULL));
         else if(is_ifne(*c, &l1) && l1 == l3)
-            return replace(c, 7, makeCODEifeq(l5, NULL));
+            return replace_modified(c, 7, makeCODEifeq(l5, NULL));
     }
     return 0;
 }
