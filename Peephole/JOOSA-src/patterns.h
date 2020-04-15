@@ -21,20 +21,20 @@
 
 int simplify_multiplication_right(CODE **c)
 {
-  int x, k;
-  if (is_iload(*c, &x) &&
-      is_ldc_int(next(*c), &k) &&
-      is_imul(next(next(*c))))
-  {
-    if (k == 0)
-      return replace(c, 3, makeCODEldc_int(0, NULL));
-    else if (k == 1)
-      return replace(c, 3, makeCODEiload(x, NULL));
-    else if (k == 2)
-      return replace(c, 3, makeCODEiload(x, makeCODEdup(makeCODEiadd(NULL))));
+    int x, k;
+    if (is_iload(*c, &x) &&
+        is_ldc_int(next(*c), &k) &&
+        is_imul(next(next(*c))))
+    {
+        if (k == 0)
+            return replace(c, 3, makeCODEldc_int(0, NULL));
+        else if (k == 1)
+            return replace(c, 3, makeCODEiload(x, NULL));
+        else if (k == 2)
+            return replace(c, 3, makeCODEiload(x, makeCODEdup(makeCODEiadd(NULL))));
+        return 0;
+    }
     return 0;
-  }
-  return 0;
 }
 
 /* dup
@@ -45,14 +45,14 @@ int simplify_multiplication_right(CODE **c)
  */
 int simplify_astore(CODE **c)
 {
-  int x;
-  if (is_dup(*c) &&
-      is_astore(next(*c), &x) &&
-      is_pop(next(next(*c))))
-  {
-    return replace(c, 3, makeCODEastore(x, NULL));
-  }
-  return 0;
+    int x;
+    if (is_dup(*c) &&
+        is_astore(next(*c), &x) &&
+        is_pop(next(next(*c))))
+    {
+        return replace(c, 3, makeCODEastore(x, NULL));
+    }
+    return 0;
 }
 
 /* iload x
@@ -64,16 +64,16 @@ int simplify_astore(CODE **c)
  */
 int positive_increment(CODE **c)
 {
-  int x, y, k;
-  if (is_iload(*c, &x) &&
-      is_ldc_int(next(*c), &k) &&
-      is_iadd(next(next(*c))) &&
-      is_istore(next(next(next(*c))), &y) &&
-      x == y && 0 <= k && k <= 127)
-  {
-    return replace(c, 4, makeCODEiinc(x, k, NULL));
-  }
-  return 0;
+    int x, y, k;
+    if (is_iload(*c, &x) &&
+        is_ldc_int(next(*c), &k) &&
+        is_iadd(next(next(*c))) &&
+        is_istore(next(next(next(*c))), &y) &&
+        x == y && 0 <= k && k <= 127)
+    {
+        return replace(c, 4, makeCODEiinc(x, k, NULL));
+    }
+    return 0;
 }
 
 /* goto L1
@@ -92,14 +92,14 @@ int positive_increment(CODE **c)
  */
 int simplify_goto_goto(CODE **c)
 {
-  int l1, l2;
-  if (is_goto(*c, &l1) && is_goto(next(destination(l1)), &l2) && l1 > l2)
-  {
-    droplabel(l1);
-    copylabel(l2);
-    return replace(c, 1, makeCODEgoto(l2, NULL));
-  }
-  return 0;
+    int l1, l2;
+    if (is_goto(*c, &l1) && is_goto(next(destination(l1)), &l2) && l1 > l2)
+    {
+        droplabel(l1);
+        copylabel(l2);
+        return replace(c, 1, makeCODEgoto(l2, NULL));
+    }
+    return 0;
 }
 
 /* ========================================================= */
@@ -113,14 +113,14 @@ int simplify_goto_goto(CODE **c)
  */
 int simplify_istore(CODE **c)
 {
-  int x;
-  if (is_dup(*c) &&
-      is_istore(next(*c), &x) &&
-      is_pop(next(next(*c))))
-  {
-    return replace(c, 3, makeCODEistore(x, NULL));
-  }
-  return 0;
+    int x;
+    if (is_dup(*c) &&
+        is_istore(next(*c), &x) &&
+        is_pop(next(next(*c))))
+    {
+        return replace(c, 3, makeCODEistore(x, NULL));
+    }
+    return 0;
 }
 
 /* ldc 0          ldc 1          ldc 2
@@ -134,20 +134,20 @@ int simplify_istore(CODE **c)
 
 int simplify_multiplication_left(CODE **c)
 {
-  int x, k;
-  if (is_ldc_int(*c, &x) &&
-      is_iload(next(*c), &k) &&
-      is_imul(next(next(*c))))
-  {
-    if (x == 0)
-      return replace(c, 3, makeCODEldc_int(0, NULL));
-    else if (x == 1)
-      return replace(c, 3, makeCODEiload(k, NULL));
-    else if (x == 2)
-      return replace(c, 3, makeCODEiload(k, makeCODEdup(makeCODEiadd(NULL))));
+    int x, k;
+    if (is_ldc_int(*c, &x) &&
+        is_iload(next(*c), &k) &&
+        is_imul(next(next(*c))))
+    {
+        if (x == 0)
+            return replace(c, 3, makeCODEldc_int(0, NULL));
+        else if (x == 1)
+            return replace(c, 3, makeCODEiload(k, NULL));
+        else if (x == 2)
+            return replace(c, 3, makeCODEiload(k, makeCODEdup(makeCODEiadd(NULL))));
+        return 0;
+    }
     return 0;
-  }
-  return 0;
 }
 
 /* iload x
@@ -159,16 +159,16 @@ int simplify_multiplication_left(CODE **c)
 
 int simplify_division_rightconst(CODE **c)
 {
-  int x, k;
-  if (is_iload(*c, &x) &&
-      is_ldc_int(next(*c), &k) &&
-      is_idiv(next(next(*c))))
-  {
-    if (k == 1)
-      return replace(c, 3, makeCODEiload(x, NULL));
+    int x, k;
+    if (is_iload(*c, &x) &&
+        is_ldc_int(next(*c), &k) &&
+        is_idiv(next(next(*c))))
+    {
+        if (k == 1)
+            return replace(c, 3, makeCODEiload(x, NULL));
+        return 0;
+    }
     return 0;
-  }
-  return 0;
 }
 
 /* iload x
@@ -181,16 +181,16 @@ int simplify_division_rightconst(CODE **c)
 
 int simplify_division_rightk(CODE **c)
 {
-  int x, k;
-  if (is_iload(*c, &x) &&
-      is_iload(next(*c), &k) &&
-      is_idiv(next(next(*c))))
-  {
-    if (x == k)
-      return replace(c, 3, makeCODEldc_int(1, NULL));
+    int x, k;
+    if (is_iload(*c, &x) &&
+        is_iload(next(*c), &k) &&
+        is_idiv(next(next(*c))))
+    {
+        if (x == k)
+            return replace(c, 3, makeCODEldc_int(1, NULL));
+        return 0;
+    }
     return 0;
-  }
-  return 0;
 }
 
 /* ldc 0
@@ -202,16 +202,16 @@ int simplify_division_rightk(CODE **c)
 
 int simplify_division_leftconst(CODE **c)
 {
-  int x, k;
-  if (is_ldc_int(*c, &x) &&
-      is_iload(next(*c), &k) &&
-      is_idiv(next(next(*c))))
-  {
-    if (x == 0)
-      return replace(c, 3, makeCODEldc_int(0, NULL));
+    int x, k;
+    if (is_ldc_int(*c, &x) &&
+        is_iload(next(*c), &k) &&
+        is_idiv(next(next(*c))))
+    {
+        if (x == 0)
+            return replace(c, 3, makeCODEldc_int(0, NULL));
+        return 0;
+    }
     return 0;
-  }
-  return 0;
 }
 
 /* iload x
@@ -224,16 +224,16 @@ int simplify_division_leftconst(CODE **c)
 
 int simplify_division_leftk(CODE **c)
 {
-  int x, k;
-  if (is_iload(*c, &x) &&
-      is_iload(next(*c), &k) &&
-      is_idiv(next(next(*c))))
-  {
-    if (x == k)
-      return replace(c, 3, makeCODEldc_int(1, NULL));
+    int x, k;
+    if (is_iload(*c, &x) &&
+        is_iload(next(*c), &k) &&
+        is_idiv(next(next(*c))))
+    {
+        if (x == k)
+            return replace(c, 3, makeCODEldc_int(1, NULL));
+        return 0;
+    }
     return 0;
-  }
-  return 0;
 }
 
 /* iload x                iload x           iload x
@@ -248,22 +248,22 @@ int simplify_division_leftk(CODE **c)
 
 int simplify_subtraction(CODE **c)
 {
-  int x, y, k;
-  if (is_iload(*c, &x) &&
-      is_ldc_int(next(*c), &k) &&
-      is_isub(next(next(*c))) &&
-      is_istore(next(next(next(*c))), &y) &&
-      x == y && 0 <= k && k <= 127)
-  {
-    if (x == 0)
-      return replace(c, 4, makeCODEiload(k, makeCODEineg(NULL)));
-    else if (k == 0)
-      return replace(c, 4, makeCODEiload(x, NULL));
-    else if (k > 0)
-      return replace(c, 4, makeCODEiinc(x, -k, NULL));
+    int x, y, k;
+    if (is_iload(*c, &x) &&
+        is_ldc_int(next(*c), &k) &&
+        is_isub(next(next(*c))) &&
+        is_istore(next(next(next(*c))), &y) &&
+        x == y && 0 <= k && k <= 127)
+    {
+        if (x == 0)
+            return replace(c, 4, makeCODEiload(k, makeCODEineg(NULL)));
+        else if (k == 0)
+            return replace(c, 4, makeCODEiload(x, NULL));
+        else if (k > 0)
+            return replace(c, 4, makeCODEiinc(x, -k, NULL));
+        return 0;
+    }
     return 0;
-  }
-  return 0;
 }
 
 /* ldc_int x
@@ -275,16 +275,16 @@ int simplify_subtraction(CODE **c)
 
 int simplify_constfold_mult(CODE **c)
 {
-  int x, k;
-  if (is_ldc_int(*c, &x) &&
-      is_ldc_int(next(*c), &k) &&
-      is_imul(next(next(*c))))
-  {
-    if (x * k >= 0 && x * k <= 127)
-      return replace(c, 3, makeCODEldc_int(x * k, NULL));
+    int x, k;
+    if (is_ldc_int(*c, &x) &&
+        is_ldc_int(next(*c), &k) &&
+        is_imul(next(next(*c))))
+    {
+        if (x * k >= 0 && x * k <= 127)
+            return replace(c, 3, makeCODEldc_int(x * k, NULL));
+        return 0;
+    }
     return 0;
-  }
-  return 0;
 }
 
 /* ldc_int x
@@ -296,17 +296,17 @@ int simplify_constfold_mult(CODE **c)
 
 int simplify_constfold_div(CODE **c)
 {
-  int x, k;
-  if (is_ldc_int(*c, &x) &&
-      is_ldc_int(next(*c), &k) &&
-      is_idiv(next(next(*c))))
-  {
-    if (x / k >= 0 && x / k <= 127)
-      return replace(c, 3, makeCODEldc_int(x / k, NULL));
+    int x, k;
+    if (is_ldc_int(*c, &x) &&
+        is_ldc_int(next(*c), &k) &&
+        is_idiv(next(next(*c))))
+    {
+        if (x / k >= 0 && x / k <= 127)
+            return replace(c, 3, makeCODEldc_int(x / k, NULL));
 
+        return 0;
+    }
     return 0;
-  }
-  return 0;
 }
 
 /* ldc_int x
@@ -318,16 +318,16 @@ int simplify_constfold_div(CODE **c)
 
 int simplify_constfold_rem(CODE **c)
 {
-  int x, k;
-  if (is_ldc_int(*c, &x) &&
-      is_ldc_int(next(*c), &k) &&
-      is_idiv(next(next(*c))))
-  {
-    if (x * k >= 0 && x * k <= 127)
-      return replace(c, 3, makeCODEldc_int(x % k, NULL));
+    int x, k;
+    if (is_ldc_int(*c, &x) &&
+        is_ldc_int(next(*c), &k) &&
+        is_idiv(next(next(*c))))
+    {
+        if (x * k >= 0 && x * k <= 127)
+            return replace(c, 3, makeCODEldc_int(x % k, NULL));
+        return 0;
+    }
     return 0;
-  }
-  return 0;
 }
 
 /* ldc_int x
@@ -339,14 +339,14 @@ int simplify_constfold_rem(CODE **c)
 
 int simplify_constfold_add(CODE **c)
 {
-  int x, k;
-  if (is_ldc_int(*c, &x) &&
-      is_ldc_int(next(*c), &k) &&
-      is_iadd(next(next(*c))))
-  {
-    return replace(c, 3, makeCODEldc_int(x + k, NULL));
-  }
-  return 0;
+    int x, k;
+    if (is_ldc_int(*c, &x) &&
+        is_ldc_int(next(*c), &k) &&
+        is_iadd(next(next(*c))))
+    {
+        return replace(c, 3, makeCODEldc_int(x + k, NULL));
+    }
+    return 0;
 }
 
 /* ldc_int x
@@ -358,14 +358,14 @@ int simplify_constfold_add(CODE **c)
 
 int simplify_constfold_sub(CODE **c)
 {
-  int x, k;
-  if (is_ldc_int(*c, &x) &&
-      is_ldc_int(next(*c), &k) &&
-      is_isub(next(next(*c))))
-  {
-    return replace(c, 3, makeCODEldc_int(x - k, NULL));
-  }
-  return 0;
+    int x, k;
+    if (is_ldc_int(*c, &x) &&
+        is_ldc_int(next(*c), &k) &&
+        is_isub(next(next(*c))))
+    {
+        return replace(c, 3, makeCODEldc_int(x - k, NULL));
+    }
+    return 0;
 }
 
 /* iload x      aload x
@@ -378,14 +378,14 @@ int simplify_load_store(CODE **c)
 {
     int x, y;
     char *s, *t;
-  if (is_iload(*c, &x) && is_istore(next(*c), &y) && x == y)
-    return replace(c, 2, NULL);
-  else if (is_aload(*c, &x) && is_astore(next(*c), &y) && x == y)
-    return replace(c, 2, NULL);
-  else if(is_getfield(*c, &s) && is_putfield(next(*c), &t) && strcmp(s, t) == 0)
-      return replace(c, 2, NULL);
+    if (is_iload(*c, &x) && is_istore(next(*c), &y) && x == y)
+        return replace(c, 2, NULL);
+    else if (is_aload(*c, &x) && is_astore(next(*c), &y) && x == y)
+        return replace(c, 2, NULL);
+    else if(is_getfield(*c, &s) && is_putfield(next(*c), &t) && strcmp(s, t) == 0)
+        return replace(c, 2, NULL);
 
-  return 0;
+    return 0;
 }
 
 /* dup
@@ -400,9 +400,9 @@ int simplify_get_put(CODE **c)
     char *f1, *f2;
     if (is_dup(*c) && is_getfield(next(*c), &f1) &&
         is_putfield(next(next(*c)), &f2) && strcmp(f1, f2) == 0)
-    return replace(c, 2, NULL);
+        return replace(c, 2, NULL);
 
-  return 0;
+    return 0;
 }
 
 /* iload x      iload x
@@ -416,19 +416,19 @@ int simplify_get_put(CODE **c)
 int simplify_addition_left(CODE **c)
 {
     int x, y, k;
-  if (
-      is_iload(*c, &x) &&
-      is_ldc_int(next(*c), &k) &&
-      is_iadd(next(next(*c))) &&
-      is_istore(next(next(next(*c))), &y) && x == y)
-  {
-    if (k == 0)
-      return replace(c, 4, NULL);
-    else if (0 < k && k <= 127)
-      return replace(c, 4, makeCODEiinc(x, k, NULL));
-  }
+    if (
+        is_iload(*c, &x) &&
+        is_ldc_int(next(*c), &k) &&
+        is_iadd(next(next(*c))) &&
+        is_istore(next(next(next(*c))), &y) && x == y)
+    {
+        if (k == 0)
+            return replace(c, 4, NULL);
+        else if (0 < k && k <= 127)
+            return replace(c, 4, makeCODEiinc(x, k, NULL));
+    }
 
-  return 0;
+    return 0;
 }
 
 /* iload 0      iload k (0<=k<=127)
@@ -442,17 +442,17 @@ int simplify_addition_left(CODE **c)
 int simplify_addition_right(CODE **c)
 {
     int x, y, k;
-  if (is_iload(*c, &k) &&
-      is_ldc_int(next(*c), &x) &&
-      is_iadd(next(next(*c))) &&
-      is_istore(next(next(next(*c))), &y) && x == y)
-  {
-    if (k == 0)
-      return replace(c, 4, NULL);
-    else if (0 < k && k <= 127)
-      return replace(c, 4, makeCODEiinc(x, k, NULL));
-  }
-  return 0;
+    if (is_iload(*c, &k) &&
+        is_ldc_int(next(*c), &x) &&
+        is_iadd(next(next(*c))) &&
+        is_istore(next(next(next(*c))), &y) && x == y)
+    {
+        if (k == 0)
+            return replace(c, 4, NULL);
+        else if (0 < k && k <= 127)
+            return replace(c, 4, makeCODEiinc(x, k, NULL));
+    }
+    return 0;
 }
 
 /* swap
@@ -463,10 +463,10 @@ int simplify_addition_right(CODE **c)
 
 int simplify_swap(CODE **c)
 {
-  if (is_swap(*c) && is_swap(next(*c)))
-    return replace(c, 2, NULL);
+    if (is_swap(*c) && is_swap(next(*c)))
+        return replace(c, 2, NULL);
 
-  return 0;
+    return 0;
 }
 
 /* ineg
@@ -477,10 +477,10 @@ int simplify_swap(CODE **c)
 
 int simplify_negation(CODE **c)
 {
-  if (is_ineg(*c) && is_ineg(next(*c)))
-    return replace(c, 2, NULL);
+    if (is_ineg(*c) && is_ineg(next(*c)))
+        return replace(c, 2, NULL);
 
-  return 0;
+    return 0;
 }
 
 /* iload x
@@ -493,15 +493,15 @@ int simplify_negation(CODE **c)
 
 int simplify_remainder(CODE **c)
 {
-  int x, k;
-  if (is_iload(*c, &x) &&
-      is_ldc_int(next(*c), &k) &&
-      is_irem(next(next(*c))) &&
-      k == 1)
-  {
-    return replace(c, 4, makeCODEldc_int(0, NULL));
-  }
-  return 0;
+    int x, k;
+    if (is_iload(*c, &x) &&
+        is_ldc_int(next(*c), &k) &&
+        is_irem(next(next(*c))) &&
+        k == 1)
+    {
+        return replace(c, 4, makeCODEldc_int(0, NULL));
+    }
+    return 0;
 }
 
 /* (op)
@@ -588,6 +588,25 @@ int simplify_if(CODE **c)
         if(is_if_icmpne(next(*c), &l1))
             return replace(c, 2, makeCODEifne(l1, NULL));
     }
+
+    if(is_ldc_int(*c, &c1))
+    {
+        if(is_ifeq(next(*c), &l1))
+        {
+            if(c1 == 0)
+                return replace(c, 2, makeCODEgoto(l1, NULL));
+            else
+                return replace_modified(c, 2, NULL);
+        }
+        else if(is_ifne(next(*c), &l1))
+        {
+            if(c1 != 0)
+                return replace(c, 2, makeCODEgoto(l1, NULL));
+            else
+                return replace_modified(c, 2, NULL);
+        }
+    }
+
     return 0;
 }
 
@@ -669,36 +688,36 @@ int simplify_putfield(CODE **c)
 
 void init_patterns(void)
 {
-  ADD_PATTERN(simplify_multiplication_right);
-  ADD_PATTERN(simplify_astore);
-  ADD_PATTERN(positive_increment);
-  ADD_PATTERN(simplify_goto_goto);
+    ADD_PATTERN(simplify_multiplication_right);
+    ADD_PATTERN(simplify_astore);
+    ADD_PATTERN(positive_increment);
+    ADD_PATTERN(simplify_goto_goto);
 
-  /* ========================================================= */
-  /* add new patterns */
-  ADD_PATTERN(simplify_istore);
-  ADD_PATTERN(simplify_multiplication_left);
-  ADD_PATTERN(simplify_division_rightconst);
-  ADD_PATTERN(simplify_division_leftconst);
-  ADD_PATTERN(simplify_division_leftk);
-  ADD_PATTERN(simplify_subtraction);
-  ADD_PATTERN(simplify_constfold_mult);
-  ADD_PATTERN(simplify_constfold_div);
-  ADD_PATTERN(simplify_constfold_rem);
-  ADD_PATTERN(simplify_constfold_add);
-  ADD_PATTERN(simplify_constfold_sub);
-  ADD_PATTERN(simplify_load_store);
-  ADD_PATTERN(simplify_addition_right);
-  ADD_PATTERN(simplify_addition_left);
-  ADD_PATTERN(simplify_get_put);
-  ADD_PATTERN(simplify_load_store);
-  ADD_PATTERN(simplify_swap);
-  ADD_PATTERN(simplify_negation);
-  ADD_PATTERN(simplify_remainder);
-  ADD_PATTERN(delete_extra_noop);
-  ADD_PATTERN(simplify_if);
-  ADD_PATTERN(remove_unreachable);
-  ADD_PATTERN(remove_dead_label);
-  ADD_PATTERN(remove_unused_values);
-  ADD_PATTERN(simplify_putfield);
+    /* ========================================================= */
+    /* add new patterns */
+    ADD_PATTERN(simplify_istore);
+    ADD_PATTERN(simplify_multiplication_left);
+    ADD_PATTERN(simplify_division_rightconst);
+    ADD_PATTERN(simplify_division_leftconst);
+    ADD_PATTERN(simplify_division_leftk);
+    ADD_PATTERN(simplify_subtraction);
+    ADD_PATTERN(simplify_constfold_mult);
+    ADD_PATTERN(simplify_constfold_div);
+    ADD_PATTERN(simplify_constfold_rem);
+    ADD_PATTERN(simplify_constfold_add);
+    ADD_PATTERN(simplify_constfold_sub);
+    ADD_PATTERN(simplify_load_store);
+    ADD_PATTERN(simplify_addition_right);
+    ADD_PATTERN(simplify_addition_left);
+    ADD_PATTERN(simplify_get_put);
+    ADD_PATTERN(simplify_load_store);
+    ADD_PATTERN(simplify_swap);
+    ADD_PATTERN(simplify_negation);
+    ADD_PATTERN(simplify_remainder);
+    ADD_PATTERN(delete_extra_noop);
+    ADD_PATTERN(simplify_if);
+    ADD_PATTERN(remove_unreachable);
+    ADD_PATTERN(remove_dead_label);
+    ADD_PATTERN(remove_unused_values);
+    ADD_PATTERN(simplify_putfield);
 }
