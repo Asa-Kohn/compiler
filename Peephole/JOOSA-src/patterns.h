@@ -618,6 +618,13 @@ int remove_dead_label(CODE **c)
     return 0;
 }
 
+/* iadd || isub || imul || idiv || irem   ldc_int || ldc_string || iload || aload || dup    dup
+ * pop                                    pop                                               swap
+ * ----->                                 ----->                                            ----->  
+ * pop                                    null                                              swap
+ * pop
+ */
+
 int remove_unused_values(CODE **c)
 {
     int a;
