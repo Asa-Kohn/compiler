@@ -123,11 +123,13 @@ int simplify_istore(CODE **c)
   return 0;
 }
 
-/* ldc 0          ldc 1
- * iload k        iload k
- * imul           imul
- * ------>        ------>
- * ldc 0          iload k
+/* ldc 0          ldc 1          ldc 2
+ * iload k        iload k        iload k
+ * imul           imul           imul
+ * ------>        ------>        ------>
+ * ldc 0          iload k        iload k
+ *                               dup
+ *                               iadd
  */
 
 int simplify_multiplication_left(CODE **c)
@@ -141,6 +143,8 @@ int simplify_multiplication_left(CODE **c)
       return replace(c, 3, makeCODEldc_int(0, NULL));
     else if (x == 1)
       return replace(c, 3, makeCODEiload(k, NULL));
+    else if (x == 2)
+      return replace(c, 3, makeCODEiload(k, makeCODEdup(makeCODEiadd(NULL))));
     return 0;
   }
   return 0;
