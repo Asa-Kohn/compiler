@@ -301,6 +301,44 @@ int simplify_constfold_div(CODE **c)
   return 0;
 }
 
+/* iload x
+ * iload k
+ * iadd
+ * ------>
+ * ldc x+k
+ */
+
+int simplify_constfold_add(CODE **c)
+{
+  int x, k;
+  if (is_iload(*c, &x) &&
+      is_iload(next(*c), &k) &&
+      is_iadd(next(next(*c))))
+  {
+    return replace(c, 3, makeCODEldc_int(x + k, NULL));
+  }
+  return 0;
+}
+
+/* iload x
+ * iload k
+ * isub
+ * ------>
+ * ldc x*k
+ */
+
+int simplify_constfold_sub(CODE **c)
+{
+  int x, k;
+  if (is_iload(*c, &x) &&
+      is_iload(next(*c), &k) &&
+      is_sub(next(next(*c))))
+  {
+    return replace(c, 3, makeCODEldc_int(x - k, NULL));
+  }
+  return 0;
+}
+
 void init_patterns(void)
 {
   ADD_PATTERN(simplify_multiplication_right);
