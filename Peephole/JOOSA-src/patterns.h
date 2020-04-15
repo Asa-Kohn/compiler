@@ -570,6 +570,14 @@ int simplify_if(CODE **c)
             return replace_modified(c, 7, makeCODEifeq(l5, NULL));
         }
     }
+
+    if(is_ldc_int(*c, &c1) && c1 == 0)
+    {
+        if(is_if_icmpeq(next(*c), &l1))
+            return replace(c, 2, makeCODEifeq(l1, NULL));
+        if(is_if_icmpne(next(*c), &l1))
+            return replace(c, 2, makeCODEifne(l1, NULL));
+    }
     return 0;
 }
 
@@ -595,6 +603,32 @@ int remove_dead_label(CODE **c)
     int l;
     if(is_label(*c, &l) && deadlabel(l))
         return replace(c, 1, NULL);
+    return 0;
+}
+
+int remove_unused_values(CODE **c)
+{
+    int a;
+    char *s;
+    if((is_iadd(*c) ||
+        is_isub(*c) ||
+        is_imul(*c) ||
+        is_idiv(*c) ||
+        is_irem(*c)) &&
+       is_pop(next(*c)))
+        return replace(c, 2, makeCODEpop(makeCODEpop(NULL)));
+
+    if((is_ldc_int(*c, &a) ||
+        is_ldc_string(*c, &s) ||
+        is_iload(*c, &a) ||
+        is_aload(*c, &a) ||
+        is_dup(*c)) &&
+       is_pop(next(*c)))
+        return replace(c, 2, NULL);
+
+    if(is_dup(*c) && is_swap(next(*c)))
+        return replace(c, 2, makeCODEswap(NULL));
+
     return 0;
 }
 
@@ -630,4 +664,5 @@ void init_patterns(void)
   ADD_PATTERN(simplify_if);
   ADD_PATTERN(remove_unreachable);
   ADD_PATTERN(remove_dead_label);
+  ADD_PATTERN(remove_unused_values);
 }
