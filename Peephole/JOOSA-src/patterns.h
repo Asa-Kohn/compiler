@@ -385,7 +385,8 @@ int simplify_load_store(CODE **c)
   return 0;
 }
 
-/* getfield x
+/* dup
+ * getfield x
  * putfield x
  * ------>
  * null
@@ -393,8 +394,9 @@ int simplify_load_store(CODE **c)
 
 int simplify_get_put(CODE **c)
 {
-  int x;
-  if (is_getfield(*c, &x) && is_putfield(next(*c), &x))
+    char *f1, *f2;
+    if (is_dup(*c) && is_getfield(next(*c), &f1) &&
+        is_putfield(next(next(*c)), &f2) && strcmp(f1, f2) == 0)
     return replace(c, 2, NULL);
 
   return 0;
