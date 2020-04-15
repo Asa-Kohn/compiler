@@ -378,9 +378,9 @@ int simplify_constfold_sub(CODE **c)
 int simplify_load_store(CODE **c)
 {
     int x;
-    if(is_iload(*c, &x)) && is_istore(next(*c), &x))
+    if(is_iload(*c, &x) && is_istore(next(*c), &x))
         return replace(c, 2, NULL);
-    else if(is_aload(*c, &x)) && is_astore(next(*c), &x))
+    else if(is_aload(*c, &x) && is_astore(next(*c), &x))
         return replace(c, 2, NULL);
 
     return 0;
