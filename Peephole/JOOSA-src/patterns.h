@@ -249,20 +249,16 @@ int simplify_division_leftk(CODE **c)
 int simplify_subtraction(CODE **c)
 {
     int x, y, k;
-    if (is_iload(*c, &x) &&
-        is_ldc_int(next(*c), &k) &&
-        is_isub(next(next(*c))) &&
-        is_istore(next(next(next(*c))), &y) &&
-        x == y && 0 <= k && k <= 127)
-    {
-        if (x == 0)
-            return replace(c, 4, makeCODEiload(k, makeCODEineg(NULL)));
-        else if (k == 0)
-            return replace(c, 4, makeCODEiload(x, NULL));
-        else if (k > 0)
-            return replace(c, 4, makeCODEiinc(x, -k, NULL));
-        return 0;
-    }
+    if (is_ldc_int(*c, &k) &&
+        is_isub(next(*c)) &&
+        k == 0)
+            return replace(c, 2, NULL);
+    if(is_iload(*c, &x) &&
+       is_ldc_int(next(*c), &k) &&
+       is_isub(next(next(*c))) &&
+       is_istore(next(next(next(*c))), &y) &&
+       x == y && -127 <= k && k <= 128)
+        return replace(c, 4, makeCODEiinc(x, -k, NULL));
     return 0;
 }
 
