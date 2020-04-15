@@ -356,4 +356,6 @@ void init_patterns(void)
   ADD_PATTERN(simplify_subtraction);
   ADD_PATTERN(simplify_constfold_mult);
   ADD_PATTERN(simplify_constfold_div);
+  ADD_PATTERN(simplify_constfold_add);
+  ADD_PATTERN(simplify_constfold_sub);
 }
