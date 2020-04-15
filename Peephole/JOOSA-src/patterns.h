@@ -69,7 +69,7 @@ int positive_increment(CODE **c)
       is_ldc_int(next(*c), &k) &&
       is_iadd(next(next(*c))) &&
       is_istore(next(next(next(*c))), &y) &&
-      x == y && 0 <= k && k <= 127)
+      x == y)
   {
     return replace(c, 4, makeCODEiinc(x, k, NULL));
   }
@@ -501,6 +501,48 @@ int simplify_remainder(CODE **c)
   return 0;
 }
 
+int delete_extra_noop(CODE **c)
+{
+    if(is_nop(next(*c)) && next(next(*c)))
+        return replace(c, 1, NULL);
+    return 0;
+}
+
+int simplify_if(CODE **c)
+{
+    int l1, l2, l3, l4, l5, c1, c2;
+    if(is_ldc_int(next(*c), &c1) &&
+       is_goto(next(next(*c)), &l2) &&
+       is_label(next(next(next(*c))), &l3) &&
+       is_ldc_int(next(next(next(next(*c)))), &c2) &&
+       is_label(next(next(next(next(next(*c))))), &l4) &&
+       is_ifeq(next(next(next(next(next(next(*c)))))), &l5) &&
+       l2 == l4 && c1 == 0 && c2 == 1)
+    {
+        if(is_if_icmplt(*c, &l1) && l1 == l3)
+            return replace(c, 7, makeCODEif_icmpge(l5, NULL));
+        else if(is_if_icmpgt(*c, &l1) && l1 == l3)
+            return replace(c, 7, makeCODEif_icmple(l5, NULL));
+        else if(is_if_icmple(*c, &l1) && l1 == l3)
+            return replace(c, 7, makeCODEif_icmpgt(l5, NULL));
+        else if(is_if_icmpge(*c, &l1) && l1 == l3)
+            return replace(c, 7, makeCODEif_icmplt(l5, NULL));
+        else if(is_ifnull(*c, &l1) && l1 == l3)
+            return replace(c, 7, makeCODEifnonnull(l5, NULL));
+        else if(is_ifnonnull(*c, &l1) && l1 == l3)
+            return replace(c, 7, makeCODEifnull(l5, NULL));
+        else if(is_if_acmpeq(*c, &l1) && l1 == l3)
+            return replace(c, 7, makeCODEif_acmpne(l5, NULL));
+        else if(is_if_acmpne(*c, &l1) && l1 == l3)
+            return replace(c, 7, makeCODEif_acmpeq(l5, NULL));
+        else if(is_ifeq(*c, &l1) && l1 == l3)
+            return replace(c, 7, makeCODEifne(l5, NULL));
+        else if(is_ifne(*c, &l1) && l1 == l3)
+            return replace(c, 7, makeCODEifeq(l5, NULL));
+    }
+    return 0;
+}
+
 void init_patterns(void)
 {
   ADD_PATTERN(simplify_multiplication_right);
@@ -529,4 +571,6 @@ void init_patterns(void)
   ADD_PATTERN(simplify_swap);
   ADD_PATTERN(simplify_negation);
   ADD_PATTERN(simplify_remainder);
+  ADD_PATTERN(delete_extra_noop);
+  ADD_PATTERN(simplify_if);
 }
