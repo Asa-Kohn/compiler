@@ -501,6 +501,13 @@ int simplify_remainder(CODE **c)
   return 0;
 }
 
+/* (op)
+ * nop
+ * ----->
+ * (op)
+ * null
+ */
+
 int delete_extra_noop(CODE **c)
 {
     if(is_nop(next(*c)) && next(next(*c)))
@@ -589,6 +596,11 @@ int remove_unreachable(CODE **c)
     }
     return 0;
 }
+
+/* label:
+ * ----->
+ * null
+ */
 
 int remove_dead_label(CODE **c)
 {
