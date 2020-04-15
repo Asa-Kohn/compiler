@@ -436,16 +436,16 @@ int simplify_addition_left(CODE **c)
 int simplify_addition_right(CODE **c)
 {
   int x, k;
-    if( is_iload(*c, &k) &&
-        is_iload(next(*c), &x) &&
-        is_iadd(next(next(*c))))
-    {
+  if (is_iload(*c, &k) &&
+      is_iload(next(*c), &x) &&
+      is_iadd(next(next(*c))))
+  {
     if (k == 0)
       return replace(c, 3, makeCODEiload(x, NULL));
     else if (0 < k && k <= 127)
       return replace(c, 3, makeCODEiinc(x, k, NULL));
-    }
-    return 0;
+  }
+  return 0;
 }
 
 /* swap
@@ -491,9 +491,9 @@ int simplify_remainder(CODE **c)
       is_iload(*c, &k) &&
       is_irem(*c) &&
       k == 1)
-    {
-      return replace(c, 4, makeCODEldc_int(0, NULL));
-    }
+  {
+    return replace(c, 4, makeCODEldc_int(0, NULL));
+  }
   return 0;
 }
 
