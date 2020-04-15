@@ -324,7 +324,7 @@ int simplify_constfold_rem(CODE **c)
       is_idiv(next(next(*c))))
   {
     if (x * k >= 0 && x * k <= 127)
-      return replace(c, 3, makeCODEldc_int(x / k, NULL));
+      return replace(c, 3, makeCODEldc_int(x % k, NULL));
     return 0;
   }
   return 0;
@@ -353,7 +353,7 @@ int simplify_constfold_add(CODE **c)
  * ldc_int k
  * isub
  * ------>
- * ldc x*k
+ * ldc x-k
  */
 
 int simplify_constfold_sub(CODE **c)
