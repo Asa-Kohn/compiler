@@ -266,8 +266,8 @@ int simplify_subtraction(CODE **c)
   return 0;
 }
 
-/* iload x
- * iload k
+/* ldc_int x
+ * ldc_int k
  * imul
  * ------>
  * ldc x*k
@@ -276,8 +276,8 @@ int simplify_subtraction(CODE **c)
 int simplify_constfold_mult(CODE **c)
 {
   int x, k;
-  if (is_iload(*c, &x) &&
-      is_iload(next(*c), &k) &&
+  if (is_ldc_int(*c, &x) &&
+      is_ldc_int(next(*c), &k) &&
       is_imul(next(next(*c))))
   {
     if (x * k >= 0 && x * k <= 127)
@@ -287,8 +287,8 @@ int simplify_constfold_mult(CODE **c)
   return 0;
 }
 
-/* iload x
- * iload k
+/* ldc_int x
+ * ldc_int k
  * idiv
  * ------>
  * ldc x/k
@@ -297,8 +297,8 @@ int simplify_constfold_mult(CODE **c)
 int simplify_constfold_div(CODE **c)
 {
   int x, k;
-  if (is_iload(*c, &x) &&
-      is_iload(next(*c), &k) &&
+  if (is_ldc_int(*c, &x) &&
+      is_ldc_int(next(*c), &k) &&
       is_idiv(next(next(*c))))
   {
     if (x / k >= 0 && x / k <= 127)
@@ -309,8 +309,8 @@ int simplify_constfold_div(CODE **c)
   return 0;
 }
 
-/* iload x
- * iload k 
+/* ldc_int x
+ * ldc_int k 
  * irem   
  * ------> 
  * ldc x%k 
@@ -319,8 +319,8 @@ int simplify_constfold_div(CODE **c)
 int simplify_constfold_rem(CODE **c)
 {
   int x, k;
-  if (is_iload(*c, &x) &&
-      is_iload(next(*c), &k) &&
+  if (is_ldc_int(*c, &x) &&
+      is_ldc_int(next(*c), &k) &&
       is_idiv(next(next(*c))))
   {
     if (x * k >= 0 && x * k <= 127)
@@ -330,8 +330,8 @@ int simplify_constfold_rem(CODE **c)
   return 0;
 }
 
-/* iload x
- * iload k
+/* ldc_int x
+ * ldc_int k
  * iadd
  * ------>
  * ldc x+k
@@ -340,8 +340,8 @@ int simplify_constfold_rem(CODE **c)
 int simplify_constfold_add(CODE **c)
 {
   int x, k;
-  if (is_iload(*c, &x) &&
-      is_iload(next(*c), &k) &&
+  if (is_ldc_int(*c, &x) &&
+      is_ldc_int(next(*c), &k) &&
       is_iadd(next(next(*c))))
   {
     return replace(c, 3, makeCODEldc_int(x + k, NULL));
@@ -349,8 +349,8 @@ int simplify_constfold_add(CODE **c)
   return 0;
 }
 
-/* iload x
- * iload k
+/* ldc_int x
+ * ldc_int k
  * isub
  * ------>
  * ldc x*k
@@ -359,8 +359,8 @@ int simplify_constfold_add(CODE **c)
 int simplify_constfold_sub(CODE **c)
 {
   int x, k;
-  if (is_iload(*c, &x) &&
-      is_iload(next(*c), &k) &&
+  if (is_ldc_int(*c, &x) &&
+      is_ldc_int(next(*c), &k) &&
       is_isub(next(next(*c))))
   {
     return replace(c, 3, makeCODEldc_int(x - k, NULL));
@@ -376,10 +376,10 @@ int simplify_constfold_sub(CODE **c)
 
 int simplify_load_store(CODE **c)
 {
-  int x;
-  if (is_iload(*c, &x) && is_istore(next(*c), &x))
+    int x, y;
+  if (is_iload(*c, &x) && is_istore(next(*c), &y) && x == y)
     return replace(c, 2, NULL);
-  else if (is_aload(*c, &x) && is_astore(next(*c), &x))
+  else if (is_aload(*c, &x) && is_astore(next(*c), &y) && x == y)
     return replace(c, 2, NULL);
 
   return 0;
