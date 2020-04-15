@@ -684,7 +684,6 @@ void init_patterns(void)
     ADD_PATTERN(simplify_addition_right);
     ADD_PATTERN(simplify_addition_left);
     ADD_PATTERN(simplify_get_put);
-    ADD_PATTERN(simplify_load_store);
     ADD_PATTERN(simplify_swap);
     ADD_PATTERN(simplify_negation);
     ADD_PATTERN(simplify_remainder);
