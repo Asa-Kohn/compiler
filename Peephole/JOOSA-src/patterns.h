@@ -277,7 +277,9 @@ int simplify_constfold_mult(CODE **c)
       is_iload(next(*c), &k) &&
       is_imul(next(next(*c))))
   {
-    return replace(c, 3, makeCODEldc_int(x * k, NULL));
+    if (x * k >= 0 && x * k <= 127)
+      return replace(c, 3, makeCODEldc_int(x * k, NULL));
+    return 0;
   }
   return 0;
 }
@@ -296,7 +298,9 @@ int simplify_constfold_div(CODE **c)
       is_iload(next(*c), &k) &&
       is_idiv(next(next(*c))))
   {
-    return replace(c, 3, makeCODEldc_int(x / k, NULL));
+    if (x * k >= 0 && x * k <= 127)
+      return replace(c, 3, makeCODEldc_int(x / k, NULL));
+    return 0;
   }
   return 0;
 }
