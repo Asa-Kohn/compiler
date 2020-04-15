@@ -412,16 +412,17 @@ int simplify_get_put(CODE **c)
 
 int simplify_addition_left(CODE **c)
 {
-  int x, k;
+    int x, y, k;
   if (
       is_iload(*c, &x) &&
-      is_iload(next(*c), &k) &&
-      is_iadd(next(next(*c))))
+      is_ldc_int(next(*c), &k) &&
+      is_iadd(next(next(*c))) &&
+      is_istore(next(next(next(*c))), &y) && x == y)
   {
     if (k == 0)
-      return replace(c, 3, makeCODEiload(x, NULL));
+      return replace(c, 4, NULL);
     else if (0 < k && k <= 127)
-      return replace(c, 3, makeCODEiinc(x, k, NULL));
+      return replace(c, 4, makeCODEiinc(x, k, NULL));
   }
 
   return 0;
@@ -437,15 +438,16 @@ int simplify_addition_left(CODE **c)
 
 int simplify_addition_right(CODE **c)
 {
-  int x, k;
+    int x, y, k;
   if (is_iload(*c, &k) &&
-      is_iload(next(*c), &x) &&
-      is_iadd(next(next(*c))))
+      is_ldc_int(next(*c), &x) &&
+      is_iadd(next(next(*c))) &&
+      is_istore(next(next(next(*c))), &y) && x == y)
   {
     if (k == 0)
-      return replace(c, 3, makeCODEiload(x, NULL));
+      return replace(c, 4, NULL);
     else if (0 < k && k <= 127)
-      return replace(c, 3, makeCODEiinc(x, k, NULL));
+      return replace(c, 4, makeCODEiinc(x, k, NULL));
   }
   return 0;
 }
