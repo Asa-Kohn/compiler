@@ -171,28 +171,6 @@ int simplify_division_rightconst(CODE **c)
     return 0;
 }
 
-/* iload x
- * iload k
- * idiv
- * ------>
- * if x == k
- *  ldc 1
- */
-
-int simplify_division_rightk(CODE **c)
-{
-    int x, k;
-    if (is_iload(*c, &x) &&
-        is_iload(next(*c), &k) &&
-        is_idiv(next(next(*c))))
-    {
-        if (x == k)
-            return replace(c, 3, makeCODEldc_int(1, NULL));
-        return 0;
-    }
-    return 0;
-}
-
 /* ldc 0
  * iload k
  * idiv
@@ -222,7 +200,7 @@ int simplify_division_leftconst(CODE **c)
  *  ldc 1
  */
 
-int simplify_division_leftk(CODE **c)
+int simplify_division(CODE **c)
 {
     int x, k;
     if (is_iload(*c, &x) &&
@@ -695,7 +673,7 @@ void init_patterns(void)
     ADD_PATTERN(simplify_multiplication_left);
     ADD_PATTERN(simplify_division_rightconst);
     ADD_PATTERN(simplify_division_leftconst);
-    ADD_PATTERN(simplify_division_leftk);
+    ADD_PATTERN(simplify_division);
     ADD_PATTERN(simplify_subtraction);
     ADD_PATTERN(simplify_constfold_mult);
     ADD_PATTERN(simplify_constfold_div);
