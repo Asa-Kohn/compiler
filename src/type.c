@@ -48,6 +48,8 @@ static int typematch(struct tree_type *i, struct tree_type *j)
 
 static struct tree_type *rt(struct tree_type *type)
 {
+    if(!type)
+        return NULL;
     if(type->kind == tree_type_kind_defined)
         return rt(type->defined);
     return type;
@@ -55,7 +57,8 @@ static struct tree_type *rt(struct tree_type *type)
 
 static int isnumeric(struct tree_type *type)
 {
-    return type->kind == tree_type_kind_base &&
+    return type &&
+        type->kind == tree_type_kind_base &&
         (type->base == tree_base_type_int ||
          type->base == tree_base_type_float64 ||
          type->base == tree_base_type_rune);
@@ -64,19 +67,23 @@ static int isnumeric(struct tree_type *type)
 static int isinteger(struct tree_type *type)
 {
     struct tree_type *resolve = rt(type);
-    return resolve->kind == tree_type_kind_base &&
+    return resolve &&
+        resolve->kind == tree_type_kind_base &&
         (resolve->base == tree_base_type_int ||
          resolve->base == tree_base_type_rune);
 }
 
 static int isbool(struct tree_type *type)
 {
-    return type->kind == tree_type_kind_base &&
+    return type &&
+        type->kind == tree_type_kind_base &&
         type->base == tree_base_type_bool;
 }
 
 static int iscomparable(struct tree_type *type)
 {
+    if(!type)
+        return 0;
     if(type->kind == tree_type_kind_base)
         return 1;
     if(type->kind == tree_type_kind_array)
@@ -94,7 +101,8 @@ static int iscomparable(struct tree_type *type)
 
 static int isordered(struct tree_type *type)
 {
-    return type->kind == tree_type_kind_base &&
+    return type &&
+        type->kind == tree_type_kind_base &&
         type->base != tree_base_type_bool;
 }
 
@@ -247,7 +255,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
                     {
                         fprintf(stderr,
                                 "Error: too few arguments on line %d\n",
-                                arg->exp->lineno);
+                                exp->lineno);
                         exit(1);
                     }
                     exp->type = exp->call.func->ident->symbol->func->type;
@@ -383,7 +391,8 @@ static enum expkind tc_exp(struct tree_exp *exp)
 
 static int isaddressable(struct tree_exp *exp)
 {
-    if(exp->kind == tree_exp_kind_ident)
+    if(exp->kind == tree_exp_kind_ident &&
+       exp->ident->symbol->kind == symbol_kind_var)
         return 1;
     if(exp->kind == tree_exp_kind_index)
         return exp->index.arr->type->kind == tree_type_kind_slice ||
@@ -417,6 +426,13 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
     {
         case tree_stmt_kind_exp:
             tc_val(&stmt->expstmt);
+            if(stmt->expstmt.kind != tree_exp_kind_call ||
+               stmt->expstmt.call.func->ident->symbol->kind != symbol_kind_func)
+            {
+                fprintf(stderr, "Error: expression statement on line %d is not "
+                        "function call\n", stmt->expstmt.lineno);
+                exit(1);
+            }
             break;
         case tree_stmt_kind_block:
             tc_stmts(stmt->block, rtype);
@@ -519,6 +535,13 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
         case tree_stmt_kind_inc:
         case tree_stmt_kind_dec:
             tc_val(stmt->exp);
+            if(!isaddressable(stmt->exp))
+            {
+                fprintf(stderr,
+                        "Error: expression on line %d is not addressable\n",
+                        stmt->exp->lineno);
+                exit(1);
+            }
             if(!isnumeric(rt(stmt->exp->type)))
             {
                 fprintf(stderr, "Error: expression on line %d is not numeric\n",
@@ -534,7 +557,8 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
             for(exp = stmt->exps; exp; exp = exp->next)
             {
                 tc_val(exp->exp);
-                if(rt(exp->exp->type)->kind != tree_type_kind_base)
+                if(!exp->exp->type ||
+                   rt(exp->exp->type)->kind != tree_type_kind_base)
                 {
                     fprintf(stderr,
                             "Error: expression on line %d is not printable\n",
@@ -663,17 +687,23 @@ static void tc_varspecs(struct tree_var_spec *var_spec)
     if(var_spec->val)
     {
         tc_val(var_spec->val);
-        if(var_spec->type)
+        if(var_spec->ident->symbol)
         {
-            if(!typematch(var_spec->val->type, var_spec->type))
+            if(!var_spec->ident->symbol->type &&
+               !(var_spec->type = var_spec->ident->symbol->type =
+                 var_spec->val->type))
+            {
+                fprintf(stderr, "Error: expression on line %d with no type "
+                        "used in initializer\n", var_spec->val->lineno);
+                exit(1);
+            }
+            else if(!typematch(var_spec->val->type, var_spec->type))
             {
                 fprintf(stderr, "Error: type mismatch on line %d\n",
                         var_spec->val->lineno);
                 exit(1);
             }
         }
-        else if(var_spec->ident->symbol)
-            var_spec->ident->symbol->type = var_spec->val->type;
     }
     tc_varspecs(var_spec->next);
 }
