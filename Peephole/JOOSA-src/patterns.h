@@ -664,7 +664,7 @@ int simplify_goto(CODE **c)
 {
     int l1, l2;
     if(is_goto(*c, &l1) && is_label(next(*c), &l2) && l1 == l2)
-        return replace(c, 1, NULL);
+        return replace_modified(c, 1, NULL);
     return 0;
 }
 
