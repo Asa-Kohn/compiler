@@ -69,7 +69,7 @@ int positive_increment(CODE **c)
       is_ldc_int(next(*c), &k) &&
       is_iadd(next(next(*c))) &&
       is_istore(next(next(next(*c))), &y) &&
-      x == y)
+      x == y && 0 <= k && k <= 127)
   {
     return replace(c, 4, makeCODEiinc(x, k, NULL));
   }
@@ -543,6 +543,20 @@ int simplify_if(CODE **c)
     return 0;
 }
 
+int remove_unreachable(CODE **c)
+{
+    int l1, l2;
+    if(is_return(*c) && next(*c) && !is_label(next(*c), &l1))
+        return replace(c, 2, makeCODEreturn(NULL));
+    if(is_areturn(*c) && next(*c) && !is_label(next(*c), &l1))
+        return replace(c, 2, makeCODEareturn(NULL));
+    if(is_ireturn(*c) && next(*c) && !is_label(next(*c), &l1))
+        return replace(c, 2, makeCODEireturn(NULL));
+    if(is_goto(*c, &l2) && next(*c) && !is_label(next(*c), &l1))
+        return replace(c, 2, makeCODEgoto(l2, NULL));
+    return 0;
+}
+
 void init_patterns(void)
 {
   ADD_PATTERN(simplify_multiplication_right);
@@ -573,4 +587,5 @@ void init_patterns(void)
   ADD_PATTERN(simplify_remainder);
   ADD_PATTERN(delete_extra_noop);
   ADD_PATTERN(simplify_if);
+  ADD_PATTERN(remove_unreachable);
 }
