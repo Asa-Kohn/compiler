@@ -361,7 +361,7 @@ int simplify_constfold_sub(CODE **c)
   int x, k;
   if (is_iload(*c, &x) &&
       is_iload(next(*c), &k) &&
-      is_sub(next(next(*c))))
+      is_isub(next(next(*c))))
   {
     return replace(c, 3, makeCODEldc_int(x - k, NULL));
   }
