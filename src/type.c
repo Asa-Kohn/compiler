@@ -182,32 +182,32 @@ static enum expkind tc_exp(struct tree_exp *exp)
             {
                 case tree_binaryexp_kind_or:
                 case tree_binaryexp_kind_and:
-                    valid = isbool(rtexp);
-                    exp->type->base = tree_base_type_bool;
+                    if((valid = isbool(rtexp)))
+                        exp->type->base = tree_base_type_bool;
                     break;
                 case tree_binaryexp_kind_eq:
                 case tree_binaryexp_kind_neq:
-                    valid = iscomparable(rtexp);
-                    exp->type->base = tree_base_type_bool;
+                    if((valid = iscomparable(rtexp)))
+                        exp->type->base = tree_base_type_bool;
                     break;
                 case tree_binaryexp_kind_lt:
                 case tree_binaryexp_kind_leq:
                 case tree_binaryexp_kind_gt:
                 case tree_binaryexp_kind_geq:
-                    valid = isordered(rtexp);
-                    exp->type->base = tree_base_type_bool;
+                    if((valid = isordered(rtexp)))
+                        exp->type->base = tree_base_type_bool;
                     break;
                 case tree_binaryexp_kind_plus:
-                    valid = isnumeric(rtexp) ||
+                    if((valid = isnumeric(rtexp) ||
                         (rtexp->kind == tree_type_kind_base &&
-                         rtexp->base == tree_base_type_str);
-                    exp->type->base = rtexp->base;
+                         rtexp->base == tree_base_type_str)))
+                        exp->type->base = rtexp->base;
                     break;
                 case tree_binaryexp_kind_minus:
                 case tree_binaryexp_kind_times:
                 case tree_binaryexp_kind_div:
-                    valid = isnumeric(rtexp);
-                    exp->type->base = rtexp->base;
+                    if((valid = isnumeric(rtexp)))
+                        exp->type->base = rtexp->base;
                     break;
                 case tree_binaryexp_kind_bitor:
                 case tree_binaryexp_kind_xor:
@@ -216,8 +216,8 @@ static enum expkind tc_exp(struct tree_exp *exp)
                 case tree_binaryexp_kind_rshift:
                 case tree_binaryexp_kind_bitand:
                 case tree_binaryexp_kind_andnot:
-                    valid = isinteger(rtexp);
-                    exp->type->base = rtexp->base;
+                    if((valid = isinteger(rtexp)))
+                        exp->type->base = rtexp->base;
                     break;
             }
             if(!valid)
@@ -391,9 +391,9 @@ static enum expkind tc_exp(struct tree_exp *exp)
 
 static int isaddressable(struct tree_exp *exp)
 {
-    if(exp->kind == tree_exp_kind_ident &&
-       exp->ident->symbol->kind == symbol_kind_var)
-        return 1;
+    if(exp->kind == tree_exp_kind_ident)
+        return exp->ident->symbol &&
+            exp->ident->symbol->kind == symbol_kind_var;
     if(exp->kind == tree_exp_kind_index)
         return exp->index.arr->type->kind == tree_type_kind_slice ||
             isaddressable(exp->index.arr);
@@ -443,7 +443,8 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
                 left = left->next, right = right->next)
             {
                 tc_val(right->exp);
-                if(!left->exp->ident->symbol)
+                if(left->exp->kind == tree_exp_kind_ident &&
+                   !left->exp->ident->symbol)
                     continue;
                 tc_val(left->exp);
                 if(!typematch(left->exp->type, right->exp->type))
@@ -652,10 +653,10 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
             }
             break;
         case tree_stmt_kind_for:
+            if(stmt->forstmt.init)
+                tc_stmt(stmt->forstmt.init, rtype);
             if(stmt->forstmt.condition)
             {
-                if(stmt->forstmt.init)
-                    tc_stmt(stmt->forstmt.init, rtype);
                 tc_val(stmt->forstmt.condition);
                 if(!isbool(rt(stmt->forstmt.condition->type)))
                 {
@@ -664,9 +665,9 @@ static void tc_stmt(struct tree_stmt *stmt, struct tree_type *rtype)
                             stmt->forstmt.condition->lineno);
                     exit(1);
                 }
-                if(stmt->forstmt.init)
-                    tc_stmt(stmt->forstmt.iter, rtype);
             }
+            if(stmt->forstmt.iter)
+                tc_stmt(stmt->forstmt.iter, rtype);
             tc_stmts(stmt->forstmt.body, rtype);
             break;
         default:
