@@ -174,19 +174,21 @@ static enum expkind tc_exp(struct tree_exp *exp)
                 exit(1);
             }
 
-            exp->type = emalloc(sizeof(struct tree_type));
-            exp->type->kind = tree_type_kind_base;
             struct tree_type *rtexp = rt(exp->binary.left->type);
             int valid = 0;
             switch(exp->binary.kind)
             {
                 case tree_binaryexp_kind_or:
                 case tree_binaryexp_kind_and:
+                    exp->type = emalloc(sizeof(struct tree_type));
+                    exp->type->kind = tree_type_kind_base;
                     if((valid = isbool(rtexp)))
                         exp->type->base = tree_base_type_bool;
                     break;
                 case tree_binaryexp_kind_eq:
                 case tree_binaryexp_kind_neq:
+                    exp->type = emalloc(sizeof(struct tree_type));
+                    exp->type->kind = tree_type_kind_base;
                     if((valid = iscomparable(rtexp)))
                         exp->type->base = tree_base_type_bool;
                     break;
@@ -194,6 +196,8 @@ static enum expkind tc_exp(struct tree_exp *exp)
                 case tree_binaryexp_kind_leq:
                 case tree_binaryexp_kind_gt:
                 case tree_binaryexp_kind_geq:
+                    exp->type = emalloc(sizeof(struct tree_type));
+                    exp->type->kind = tree_type_kind_base;
                     if((valid = isordered(rtexp)))
                         exp->type->base = tree_base_type_bool;
                     break;
@@ -201,13 +205,13 @@ static enum expkind tc_exp(struct tree_exp *exp)
                     if((valid = isnumeric(rtexp) ||
                         (rtexp->kind == tree_type_kind_base &&
                          rtexp->base == tree_base_type_str)))
-                        exp->type->base = rtexp->base;
+                        exp->type = exp->binary.left->type;
                     break;
                 case tree_binaryexp_kind_minus:
                 case tree_binaryexp_kind_times:
                 case tree_binaryexp_kind_div:
                     if((valid = isnumeric(rtexp)))
-                        exp->type->base = rtexp->base;
+                        exp->type = exp->binary.left->type;
                     break;
                 case tree_binaryexp_kind_bitor:
                 case tree_binaryexp_kind_xor:
@@ -217,7 +221,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
                 case tree_binaryexp_kind_bitand:
                 case tree_binaryexp_kind_andnot:
                     if((valid = isinteger(rtexp)))
-                        exp->type->base = rtexp->base;
+                        exp->type = exp->binary.left->type;
                     break;
             }
             if(!valid)
@@ -313,7 +317,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
             else
             {
                 fprintf(stderr, "Error: indexed expression on line %d is "
-                        "neither an array not a slice\n",
+                        "neither an array nor a slice\n",
                         exp->index.arr->lineno);
                 exit(1);
             }
