@@ -3,5 +3,6 @@
 package main
 
 func main() {
-	var a, b : bool = True, True
+	var a : bool = True
+	var b, c : bool = a, a
 }
