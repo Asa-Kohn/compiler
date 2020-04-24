@@ -64,9 +64,9 @@ int main(int argc, char **argv)
     {
         yyparse();
         weed(root);
-        symbol_weave(root);
+        struct symbol_rec *symbols = symbol_weave(root);
         typecheck(root);
-        py_program(root);
+        py_program(root, symbols);
     }
 
     return 0;

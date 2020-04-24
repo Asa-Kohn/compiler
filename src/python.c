@@ -1,6 +1,7 @@
 #include "python.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 
 #include "symbol.h"
@@ -28,8 +29,8 @@ static void py_exp(struct tree_exp *exp)
     else if(exp->kind == tree_exp_kind_str)
     {
         printf("'");
-        for(char *c =  exp->strval; c; c++)
-            printf("\\%02x", *c);
+        for(char *c =  exp->strval; *c; c++)
+            printf("\\x%02x", *c);
         printf("'");
     }
     else if(exp->kind == tree_exp_kind_unary)
@@ -97,7 +98,7 @@ static void py_exp(struct tree_exp *exp)
         {
             py_exp(exp->call.func);
             printf("(");
-            for(struct tree_exps *exps = exp->call.exps; exps->next;
+            for(struct tree_exps *exps = exp->call.exps; exps;
                 exps = exps->next)
             {
                 py_exp(exps->exp);
@@ -189,6 +190,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
     }
     else if(stmt->kind == tree_stmt_kind_assignop)
     {
+        print_indent(indent);
         py_exp(stmt->assignop.left);
         printf(" ");
         if(stmt->assignop.kind == tree_assignop_kind_plus)
@@ -253,7 +255,15 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         printf("print(");
         for(struct tree_exps *exp = stmt->exps; exp; exp = exp->next)
         {
-            py_exp(exp->exp);
+            if(exp->exp->type->kind == tree_type_kind_base &&
+               exp->exp->type->base == tree_base_type_bool)
+            {
+                printf("bool(");
+                py_exp(exp->exp);
+                printf(")");
+            }
+            else
+                py_exp(exp->exp);
             printf(", ");
         }
         printf("sep='', end='')\n");
@@ -279,10 +289,12 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
     else if(stmt->kind == tree_stmt_kind_if)
     {
         py_stmt(stmt->ifstmt.init, indent, continuestmt);
+        print_indent(indent);
         printf("if ");
         py_exp(stmt->ifstmt.condition);
         printf(":\n");
         py_stmts(stmt->ifstmt.body, indent + 1, continuestmt);
+        print_indent(indent);
         printf("else:\n");
         py_stmts(stmt->ifstmt.elsebody, indent + 1, continuestmt);
     }
@@ -369,7 +381,7 @@ static void py_stmts(struct tree_stmts *stmts, int indent,
     }
     else
         for(struct tree_stmts *stmt = stmts; stmt; stmt = stmt->next)
-            py_stmt(&stmts->stmt, indent, continuestmt);
+            py_stmt(&stmt->stmt, indent, continuestmt);
 }
 
 static void py_zerovalue(struct tree_type *type)
@@ -406,6 +418,7 @@ static void py_zerovalue(struct tree_type *type)
         {
             printf("'%s': ", c->name);
             py_zerovalue(c->type);
+            printf(", ");
         }
         printf("}");
     }
@@ -434,20 +447,33 @@ static void py_funcdecl(struct tree_func_decl node, int indent)
     printf("def _%zd(", node.ident->symbol->num);
     for(struct tree_params *param = node.params; param; param = param->next)
         printf("_%zd, ", param->ident->symbol->num);
-    printf("):");
+    printf("):\n");
     py_stmts(node.body, indent + 1, NULL);
 }
 
-void py_program(struct tree_decls *root)
+void py_program(struct tree_decls *root, struct symbol_rec *symbols)
 {
     puts((char *) base_py);
     putchar('\n');
 
+    size_t mainfunc = 0;
+    for(size_t i = 0; symbols[i].name; i++)
+        if(symbols[i].kind == symbol_kind_const)
+            printf("_%zd = %d\n", symbols[i].num, symbols[i].constrec.constval);
+        else if(symbols[i].kind == symbol_kind_func &&
+                strcmp(symbols[i].name, "main") == 0)
+            mainfunc = symbols[i].num;
+
     for(struct tree_decls *c = root; c; c = c->next)
-    {
         if(c->kind == tree_decls_kind_var_decl)
             py_varspec(c->var_spec, 0);
         else if(c->kind == tree_decls_kind_func_decl)
-            py_funcdecl(c->func_decl, 0);
-    }
+        {
+            if(strcmp(c->func_decl.ident->name, "init") == 0)
+                py_stmts(c->func_decl.body, 0, NULL);
+            else
+                py_funcdecl(c->func_decl, 0);
+        }
+
+    printf("\n_%zd()\n", mainfunc);
 }

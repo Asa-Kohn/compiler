@@ -626,7 +626,8 @@ static size_t count_syms(struct tree_decls *decls)
 struct symbol_rec *symbol_weave(struct tree_decls *root)
 {
     size_t nsyms = count_syms(root);
-    struct symbol_rec *symbols = emalloc((nsyms + 7) * sizeof(*symbols));
+    struct symbol_rec *symbols = emalloc((nsyms + 8) * sizeof(*symbols));
+    symbols[nsyms + 7].name = NULL;
 
     struct scopetable base = {NULL};
     base.parent = NULL;
