@@ -3,6 +3,6 @@
 package main
 
 func main() {
-	var a = True
+	var a = true
 	var b, c = a, a
 }

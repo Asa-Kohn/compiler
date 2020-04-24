@@ -2,10 +2,11 @@
 
 package main
 
-func somefunc(a bool) {
-	println(a)
-}
-
 func main() {
-	somefunc(true)
+
+	var s [3]float
+
+	s[3] = 0.;
+
+	print(-1);
 }
