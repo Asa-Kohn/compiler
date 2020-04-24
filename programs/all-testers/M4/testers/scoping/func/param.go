@@ -8,7 +8,6 @@ func somefunc(a float) float {
 	return a + 1.
 }
 
-
 func main() {
-
+	somefunc(a);
 }
