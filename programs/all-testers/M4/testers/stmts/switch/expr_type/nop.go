@@ -4,11 +4,12 @@ package main
 
 func main() {
 
-	var a = 0
+	var a = 4
 
 	switch a {
-	case 0, 1, 2:
-		println(0,1,2)
+	case 0:
+	case 3:
+		print(3)
 	default:
 		println("default")
 	}
