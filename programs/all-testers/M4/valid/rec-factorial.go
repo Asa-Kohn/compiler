@@ -1,0 +1,16 @@
+//~recFactorial: 3628800
+
+//recursively compute x factorial
+package main
+
+func recFactorial(x int) int {
+	if x == 0 {
+		return 1;
+	}
+	return x * recFactorial(x - 1);
+}
+
+func main() {
+	var x int = 10;
+	print("recFactorial:", recFactorial(x));
+}
