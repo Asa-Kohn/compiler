@@ -9,6 +9,7 @@
 #include "symbol.h"
 #include "symbolprint.h"
 #include "type.h"
+#include "python.h"
 
 int yylex();
 int print_tokens = 0;
@@ -58,6 +59,14 @@ int main(int argc, char **argv)
         symbol_weave(root);
         typecheck(root);
         printf("OK\n");
+    }
+    else if(strcmp(argv[1], "codegen") == 0)
+    {
+        yyparse();
+        weed(root);
+        symbol_weave(root);
+        typecheck(root);
+        py_program(root);
     }
 
     return 0;
