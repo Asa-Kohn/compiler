@@ -46,7 +46,7 @@ static int typematch(struct tree_type *i, struct tree_type *j)
     }
 }
 
-static struct tree_type *rt(struct tree_type *type)
+struct tree_type *rt(struct tree_type *type)
 {
     if(!type)
         return NULL;

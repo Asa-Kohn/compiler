@@ -256,9 +256,9 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             struct tree_idents *ident = node->shortdecl.idents;
             struct tree_exps *exp = node->shortdecl.exps;
             int newdecl = 0;
-            while(ident)
+            for(; ident; ident = ident->next, exp = exp->next)
             {
-                for(struct tree_idents *i = node->shortdecl.idents; i;
+                for(struct tree_idents *i = node->shortdecl.idents; i != ident;
                     i = i->next)
                     if(strcmp(ident->ident->name, i->ident->name) == 0)
                     {
@@ -266,8 +266,9 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                                 "declaration on line %d\n", node->lineno);
                         exit(1);
                     }
-                if(strcmp(ident->ident->name, "_") != 0 &&
-                   !(ident->ident->symbol =
+                if(strcmp(ident->ident->name, "_") == 0)
+                    continue;
+                if(!(ident->ident->symbol =
                      scopetable_getleaf(table->table, ident->ident->name)))
                 {
                     newdecl = 1;
@@ -286,8 +287,6 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                             node->lineno);
                     exit(1);
                 }
-                ident = ident->next;
-                exp = exp->next;
             }
             if(!newdecl)
             {
@@ -324,7 +323,8 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                     symbols[*index].name = j->ident->name;
                     symbols[*index].kind = symbol_kind_var;
                     symbols[*index].type = j->type;
-                    scopetable_add(table->table, j->ident->symbol = &symbols[*index]);
+                    scopetable_add(table->table,
+                                   j->ident->symbol = &symbols[*index]);
                     (*index)++;
                 }
             }
@@ -368,7 +368,8 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             gather_exp(symbols, node->ifstmt.condition, &outertable, index);
             gather_stmts(symbols, node->ifstmt.body, &innertable, index);
             scopetable_free(innertable);
-            innertable = (struct scopetable) {.table = {NULL}, .parent = table};
+            innertable = (struct scopetable) {.table = {NULL},
+                                              .parent = &outertable};
             gather_stmts(symbols, node->ifstmt.elsebody,
                          &innertable, index);
             scopetable_free(innertable);
@@ -428,10 +429,11 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
         {
             for(struct tree_var_spec *j = i->var_spec; j; j = j->next)
             {
-                if(strcmp(j->ident->name, "init") == 0)
+                if(strcmp(j->ident->name, "init") == 0 ||
+                   strcmp(j->ident->name, "main") == 0)
                 {
-                    fprintf(stderr, "Error: symbol \"init\" declared as a variable "
-                            "at top level on line %d\n", i->lineno);
+                    fprintf(stderr, "Error: special symbol declared as a "
+                            "variable at top level on line %d\n", i->lineno);
                     exit(1);
                 }
                 gather_type(j->type, &table, i->lineno);
@@ -462,19 +464,17 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
         }
         if(i->kind == tree_decls_kind_type_spec)
         {
-            gather_type(i->type_spec.type, &table, i->lineno);
-            struct tree_type *temp = emalloc(sizeof(struct tree_type));
-            temp->kind = tree_type_kind_defined;
-            temp->defined = i->type_spec.type;
-            i->type_spec.type = temp;
+            struct tree_type *temp = i->type_spec.type;
+            i->type_spec.type = emalloc(sizeof(struct tree_type));
             if(strcmp(i->type_spec.ident->name, "_") == 0)
                 i->type_spec.ident->symbol = NULL;
             else
             {
-                if(strcmp(i->type_spec.ident->name, "init") == 0)
+                if(strcmp(i->type_spec.ident->name, "init") == 0 ||
+                    strcmp(i->type_spec.ident->name, "main") == 0)
                 {
-                    fprintf(stderr, "Error: symbol \"init\" declared as a type at "
-                            "top level on line %d\n", i->lineno);
+                    fprintf(stderr, "Error: special symbol declared as a type "
+                            "at top level on line %d\n", i->lineno);
                     exit(1);
                 }
                 if(scopetable_getleaf(table.table, i->type_spec.ident->name))
@@ -492,6 +492,9 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                                i->type_spec.ident->symbol = &symbols[*index]);
                 (*index)++;
             }
+            gather_type(temp, &table, i->lineno);
+            i->type_spec.type->kind = tree_type_kind_defined;
+            i->type_spec.type->defined = temp;
         }
         if(i->kind == tree_decls_kind_func_decl)
         {
@@ -518,8 +521,9 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
             gather_type(i->func_decl.type, &table, i->lineno);
             struct scopetable innertable = {.table = {NULL}, .parent = &table};
             for(struct tree_params *c = i->func_decl.params; c; c = c->next)
-            {
                 gather_type(c->type, &innertable, i->lineno);
+            for(struct tree_params *c = i->func_decl.params; c; c = c->next)
+            {
                 if(strcmp(c->ident->name, "_") == 0)
                 {
                     c->ident->symbol = NULL;
@@ -622,7 +626,8 @@ static size_t count_syms(struct tree_decls *decls)
 struct symbol_rec *symbol_weave(struct tree_decls *root)
 {
     size_t nsyms = count_syms(root);
-    struct symbol_rec *symbols = emalloc((nsyms + 7) * sizeof(*symbols));
+    struct symbol_rec *symbols = emalloc((nsyms + 8) * sizeof(*symbols));
+    symbols[nsyms + 7].name = NULL;
 
     struct scopetable base = {NULL};
     base.parent = NULL;
