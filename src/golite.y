@@ -435,6 +435,7 @@ type_decl_stmt: TOK_TYPE ident type
                     $$->stmt.kind = tree_stmt_kind_type_spec;
                     $$->stmt.type_spec.ident = $2;
                     $$->stmt.type_spec.type = $3;
+                    $$->next = NULL;
                 }
         |       TOK_TYPE '(' type_specs_stmt ')'
                 {
@@ -649,18 +650,12 @@ stmt:           block
         |       var_decl_stmt
                 {
                     if(($$ = $1))
-                    {
                         $$->stmt.lineno = yylineno;
-                        $$->next = NULL;
-                    }
                 }
         |       type_decl_stmt
                 {
                     if(($$ = $1))
-                    {
                         $$->stmt.lineno = yylineno;
-                        $$->next = NULL;
-                    }
                 }
         |       TOK_PRINT '(' exps ')'
                 {
