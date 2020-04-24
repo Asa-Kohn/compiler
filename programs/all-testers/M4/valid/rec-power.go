@@ -1,3 +1,5 @@
+//~recPower: 4
+
 //recursively compute x to the power of y
 package main
 
@@ -11,5 +13,5 @@ func recPower(x int, y int) int {
 func main() {
 	var x int = 2;
 	var y int = 2;
-	println("recPower:", recPower(x, y));
+	print("recPower:", recPower(x, y));
 }

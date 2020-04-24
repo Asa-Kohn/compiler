@@ -1,3 +1,5 @@
+//~Result: 1 1 1 1 1 1 1 1 1 
+
 /* Computes the dot product of two vectors provided, uses this to calculate
  * multiplication of two matrices. This is done very inefficiently.
  * https://en.wikipedia.org/wiki/Dot_product
@@ -73,11 +75,11 @@ func main() {
     var C [3][3]int = matmul(A, B);
 
     // Output
-    println("Result")
+    print("Result")
     for i := 0; i < 3; i++ {
         for j := 0; j < 3; j++ {
             print(C[i][j], " ");
         }
-        print("\n");
+        // print("\n");
     }
 }

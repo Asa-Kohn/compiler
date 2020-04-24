@@ -1,3 +1,5 @@
+//~recFactorial: 3628800
+
 //recursively compute x factorial
 package main
 
@@ -10,5 +12,5 @@ func recFactorial(x int) int {
 
 func main() {
 	var x int = 10;
-	println("recFactorial:", recFactorial(x));
+	print("recFactorial:", recFactorial(x));
 }

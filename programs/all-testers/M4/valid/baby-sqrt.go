@@ -1,3 +1,5 @@
+//~babySqrt: +3.464102e+000
+
 /*
 approximating square root using babylonian method
 https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method
@@ -18,5 +20,5 @@ func babySqrt(x float64) float64 {
 
 func main() {
 	var x float64 = 12;
-	println("babySqrt:", babySqrt(x));
+	print("babySqrt:", babySqrt(x));
 }

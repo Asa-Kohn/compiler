@@ -1,3 +1,5 @@
+//~Result:+4.200000e+003
+
 /* Squared Frobenius matrix norm of a 5 x 5 matrix
  * https://en.wikipedia.org/wiki/Matrix_norm#Frobenius_norm
  */
@@ -33,12 +35,12 @@ func main() {
         }
     }
 
-    println("Calculating Squared Frobenius norm of:")
-    for i := 0; i < 5; i++ {
-        for j := 0; j < 5; j++ {
-            print(A[i][j], " ");
-        }
-        print("\n");
-    }
-    println("Result:", fro(A))
+    // println("Calculating Squared Frobenius norm of:")
+    // for i := 0; i < 5; i++ {
+    //     for j := 0; j < 5; j++ {
+    //         print(A[i][j], " ");
+    //     }
+    //     print("\n");
+    // }
+    print("Result:", fro(A))
 }

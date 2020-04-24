@@ -1,3 +1,5 @@
+//~Cross product: ( +1.000000e+001 +2.000000e+001 +3.000000e+001 ) x ( +5.000000e+000 -5.000000e+000 +0.000000e+000 ) is: ( +1.500000e+002 +1.500000e+002 -1.500000e+002 )
+
 /* Computes the cross product of two vectors in R^3 (up to 64 bit precision)
  * https://en.wikipedia.org/wiki/Cross_product
  */
@@ -30,5 +32,5 @@ func crossprod(u point, v point) point{
 
     // Compute the cross product and print to stdout
     var c point = crossprod(u, v);
-    println("Cross product:",  "(", u.x, u.y, u.z, ") x (", v.x, v.y, v.z, ") is:", "(", c.x, c.y, c.z, ")");
+    print("Cross product:",  "(", u.x, u.y, u.z, ") x (", v.x, v.y, v.z, ") is:", "(", c.x, c.y, c.z, ")");
  }

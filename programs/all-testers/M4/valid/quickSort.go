@@ -1,3 +1,5 @@
+//~sorted: 1 3 4 5 7 8 10 13 55 99 
+
 //sorting tingz
 package main
 
@@ -53,11 +55,11 @@ func main() {
 	// array := [10]int{7, 3, 4, 1, 99, 13, 5, 8, 10, 55};
 
 	//printing without fmt import
-	print("unsorted: ");
-	for i := 0; i < len(array); i++ {
-		print(array[i], " ");
-	}
-	println("\r");
+	// print("unsorted: ");
+	// for i := 0; i < len(array); i++ {
+	// 	print(array[i], " ");
+	// }
+	// println("\r");
 	
 	quickSort(array, 0, len(array)-1);
 
@@ -65,5 +67,5 @@ func main() {
 	for i := 0; i < len(array); i++ {
 		print(array[i], " ");
 	}
-	println("\r");
+	// println("\r");
 }

@@ -1,3 +1,5 @@
+//~false
+
 /* Checks if a number is a perfect square using elementary properties.
  * \sum_{i=0}^n (2i + 1) = (n + 1)^2
  */
@@ -18,6 +20,5 @@ func perf(num int) bool {
 }
 
 func main() {
-	var num int = 20;
-    println("It is", perf(num), "that", num, "is a perfect square.");
+    print(perf(20));
 }

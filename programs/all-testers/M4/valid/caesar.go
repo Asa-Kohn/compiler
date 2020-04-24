@@ -1,3 +1,5 @@
+//~Scrambled message: I have a marvelous proof for P = NP, although it is too large for my floppy disk.
+
 /* Simple Caesar cipher implementation. Do not use this for sensitive data!
  * https://en.wikipedia.org/wiki/Caesar_cipher
  */
@@ -12,7 +14,7 @@ func caesar(shift byte, message string, mlength int) {
     for i := 0; i < mlength; i++ {
         print(string(shift_rune(shift, message[i])));
     }
-    print("\n");
+    // print("\n");
 }
 
 func shift_rune(shift byte, r byte) rune {
