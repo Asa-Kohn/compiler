@@ -7,12 +7,12 @@ class Slice:
         else:
             self.capacity = self.length = 0
             self.data = []
-    def add(self, new):
+    def add(self, item):
         new = Slice(self)
         if new.length >= new.capacity:
             new.capacity *= 2
             new.data = new.data[:]
-        new.data.append(new)
+        new.data.append(item)
         new.length += 1
         return new
     def __len__(self):

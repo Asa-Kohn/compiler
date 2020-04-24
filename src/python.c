@@ -47,50 +47,59 @@ static void py_exp(struct tree_exp *exp)
     }
     else if(exp->kind == tree_exp_kind_binary)
     {
-        printf("(");
-        py_exp(exp->binary.left);
-        printf(") ");
-        if(exp->binary.kind == tree_binaryexp_kind_or)
-            printf("or");
-        else if(exp->binary.kind == tree_binaryexp_kind_and)
-            printf("and");
-        else if(exp->binary.kind == tree_binaryexp_kind_eq)
-            printf("==");
-        else if(exp->binary.kind == tree_binaryexp_kind_neq)
-            printf("!=");
-        else if(exp->binary.kind == tree_binaryexp_kind_lt)
-            printf("<");
-        else if(exp->binary.kind == tree_binaryexp_kind_leq)
-            printf("<=");
-        else if(exp->binary.kind == tree_binaryexp_kind_gt)
-            printf(">");
-        else if(exp->binary.kind == tree_binaryexp_kind_geq)
-            printf(">=");
-        else if(exp->binary.kind == tree_binaryexp_kind_plus)
-            printf("+");
-        else if(exp->binary.kind == tree_binaryexp_kind_minus)
-            printf("-");
-        else if(exp->binary.kind == tree_binaryexp_kind_bitor)
-            printf("|");
-        else if(exp->binary.kind == tree_binaryexp_kind_xor)
-            printf("^");
-        else if(exp->binary.kind == tree_binaryexp_kind_times)
-            printf("*");
-        else if(exp->binary.kind == tree_binaryexp_kind_div)
-            printf("/");
-        else if(exp->binary.kind == tree_binaryexp_kind_rem)
-            printf("%%");
-        else if(exp->binary.kind == tree_binaryexp_kind_lshift)
-            printf("<<");
-        else if(exp->binary.kind == tree_binaryexp_kind_rshift)
-            printf(">>");
-        else if(exp->binary.kind == tree_binaryexp_kind_bitand)
-            printf("&");
-        else if(exp->binary.kind == tree_binaryexp_kind_andnot)
-            printf("and not");
-        printf(" (");
-        py_exp(exp->binary.right);
-        printf(")");
+        if(exp->binary.kind == tree_binaryexp_kind_div)
+        {
+            printf("int((");
+            py_exp(exp->binary.left);
+            printf(") / (");
+            py_exp(exp->binary.right);
+            printf("))");
+        }
+        else
+        {
+            printf("(");
+            py_exp(exp->binary.left);
+            printf(") ");
+            if(exp->binary.kind == tree_binaryexp_kind_or)
+                printf("or");
+            else if(exp->binary.kind == tree_binaryexp_kind_and)
+                printf("and");
+            else if(exp->binary.kind == tree_binaryexp_kind_eq)
+                printf("==");
+            else if(exp->binary.kind == tree_binaryexp_kind_neq)
+                printf("!=");
+            else if(exp->binary.kind == tree_binaryexp_kind_lt)
+                printf("<");
+            else if(exp->binary.kind == tree_binaryexp_kind_leq)
+                printf("<=");
+            else if(exp->binary.kind == tree_binaryexp_kind_gt)
+                printf(">");
+            else if(exp->binary.kind == tree_binaryexp_kind_geq)
+                printf(">=");
+            else if(exp->binary.kind == tree_binaryexp_kind_plus)
+                printf("+");
+            else if(exp->binary.kind == tree_binaryexp_kind_minus)
+                printf("-");
+            else if(exp->binary.kind == tree_binaryexp_kind_bitor)
+                printf("|");
+            else if(exp->binary.kind == tree_binaryexp_kind_xor)
+                printf("^");
+            else if(exp->binary.kind == tree_binaryexp_kind_times)
+                printf("*");
+            else if(exp->binary.kind == tree_binaryexp_kind_rem)
+                printf("%%");
+            else if(exp->binary.kind == tree_binaryexp_kind_lshift)
+                printf("<<");
+            else if(exp->binary.kind == tree_binaryexp_kind_rshift)
+                printf(">>");
+            else if(exp->binary.kind == tree_binaryexp_kind_bitand)
+                printf("&");
+            else if(exp->binary.kind == tree_binaryexp_kind_andnot)
+                printf("and not");
+            printf(" (");
+            py_exp(exp->binary.right);
+            printf(")");
+        }
     }
     else if(exp->kind == tree_exp_kind_call)
     {
@@ -274,7 +283,15 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         printf("print(");
         for(struct tree_exps *exp = stmt->exps; exp; exp = exp->next)
         {
-            py_exp(exp->exp);
+            if(exp->exp->type->kind == tree_type_kind_base &&
+               exp->exp->type->base == tree_base_type_bool)
+            {
+                printf("bool(");
+                py_exp(exp->exp);
+                printf(")");
+            }
+            else
+                py_exp(exp->exp);
             printf(", ");
         }
         printf(")\n");
