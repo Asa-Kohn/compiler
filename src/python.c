@@ -18,7 +18,9 @@ static void print_indent(int n)
 
 static void py_exp(struct tree_exp *exp)
 {
-    if(exp->kind == tree_exp_kind_ident)
+    if(!exp)
+        printf("True");
+    else if(exp->kind == tree_exp_kind_ident)
         printf("_%zd", exp->ident->symbol->num);
     else if(exp->kind == tree_exp_kind_int)
         printf("%d", exp->intval);
