@@ -111,6 +111,8 @@ static void py_exp(struct tree_exp *exp, int copy)
                 printf(", ");
             }
             printf(")");
+            if(copy && rt(exp->type)->kind != tree_type_kind_base)
+                printf(".copy()");
         }
         else
         {
