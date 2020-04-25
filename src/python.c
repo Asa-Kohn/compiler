@@ -16,12 +16,16 @@ static void print_indent(int n)
         printf("    ");
 }
 
-static void py_exp(struct tree_exp *exp)
+static void py_exp(struct tree_exp *exp, int copy)
 {
     if(!exp)
         printf("True");
     else if(exp->kind == tree_exp_kind_ident)
+    {
         printf("_%zd", exp->ident->symbol->num);
+        if(copy && rt(exp->type)->kind != tree_type_kind_base)
+            printf(".copy()");
+    }
     else if(exp->kind == tree_exp_kind_int)
         printf("%d", exp->intval);
     else if(exp->kind == tree_exp_kind_float)
@@ -44,13 +48,13 @@ static void py_exp(struct tree_exp *exp)
         if(exp->unary.kind == tree_unaryexp_kind_comp)
             printf("~");
         printf("(");
-        py_exp(exp->unary.right);
+        py_exp(exp->unary.right, 0);
         printf(")");
     }
     else if(exp->kind == tree_exp_kind_binary)
     {
         printf("(");
-        py_exp(exp->binary.left);
+        py_exp(exp->binary.left, 0);
         printf(") ");
         if(exp->binary.kind == tree_binaryexp_kind_or)
             printf("or");
@@ -91,19 +95,19 @@ static void py_exp(struct tree_exp *exp)
         else if(exp->binary.kind == tree_binaryexp_kind_andnot)
             printf("&~");
         printf(" (");
-        py_exp(exp->binary.right);
+        py_exp(exp->binary.right, 0);
         printf(")");
     }
     else if(exp->kind == tree_exp_kind_call)
     {
         if(exp->call.func->ident->symbol->kind == symbol_kind_func)
         {
-            py_exp(exp->call.func);
+            py_exp(exp->call.func, 0);
             printf("(");
             for(struct tree_exps *exps = exp->call.exps; exps;
                 exps = exps->next)
             {
-                py_exp(exps->exp);
+                py_exp(exps->exp, 1);
                 printf(", ");
             }
             printf(")");
@@ -115,43 +119,43 @@ static void py_exp(struct tree_exp *exp)
                type->base == tree_base_type_str)
             {
                 printf("chr(");
-                py_exp(exp->call.exps->exp);
+                py_exp(exp->call.exps->exp, 0);
                 printf(")");
             }
             else
-                py_exp(exp->call.exps->exp);
+                py_exp(exp->call.exps->exp, copy);
         }
     }
     else if(exp->kind == tree_exp_kind_index)
     {
-        py_exp(exp->index.arr);
+        py_exp(exp->index.arr, copy);
         printf("[");
-        py_exp(exp->index.index);
+        py_exp(exp->index.index, 0);
         printf("]");
     }
     else if(exp->kind == tree_exp_kind_field)
     {
-        py_exp(exp->field.instance);
+        py_exp(exp->field.instance, copy);
         printf("['%s']", exp->field.field);
     }
     else if(exp->kind == tree_exp_kind_append)
     {
         printf("(");
-        py_exp(exp->append.exp1);
+        py_exp(exp->append.exp1, 1);
         printf(").add(");
-        py_exp(exp->append.exp2);
+        py_exp(exp->append.exp2, 1);
         printf(")");
     }
     else if(exp->kind == tree_exp_kind_len)
     {
         printf("len(");
-        py_exp(exp->exp);
+        py_exp(exp->exp, 0);
         printf(")");
     }
     else if(exp->kind == tree_exp_kind_cap)
     {
         printf("(");
-        py_exp(exp->exp);
+        py_exp(exp->exp, 0);
         printf(").capacity");
     }
 }
@@ -169,7 +173,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
     if(stmt->kind == tree_stmt_kind_exp)
     {
         print_indent(indent);
-        py_exp(&stmt->expstmt);
+        py_exp(&stmt->expstmt, 0);
         printf("\n");
     }
     else if(stmt->kind == tree_stmt_kind_block)
@@ -179,13 +183,13 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         print_indent(indent);
         for(struct tree_exps *exp = stmt->assign.left; exp; exp = exp->next)
         {
-            py_exp(exp->exp);
+            py_exp(exp->exp, 0);
             printf(", ");
         }
         printf("= ");
         for(struct tree_exps *exp = stmt->assign.right; exp; exp = exp->next)
         {
-            py_exp(exp->exp);
+            py_exp(exp->exp, 1);
             printf(", ");
         }
         printf("\n");
@@ -193,7 +197,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
     else if(stmt->kind == tree_stmt_kind_assignop)
     {
         print_indent(indent);
-        py_exp(stmt->assignop.left);
+        py_exp(stmt->assignop.left, 0);
         printf(" ");
         if(stmt->assignop.kind == tree_assignop_kind_plus)
             printf("+");
@@ -220,7 +224,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         printf("= ");
         if(stmt->assignop.kind == tree_assignop_kind_andnot)
             printf("not ");
-        py_exp(stmt->assignop.right);
+        py_exp(stmt->assignop.right, 1);
         printf("\n");
     }
     else if(stmt->kind == tree_stmt_kind_shortdecl)
@@ -232,7 +236,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
             if(!ident->ident->symbol)
             {
                 print_indent(indent);
-                py_exp(exp->exp);
+                py_exp(exp->exp, 0);
                 printf("\n");
             }
         print_indent(indent);
@@ -244,7 +248,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
             exp = exp->next, ident = ident->next)
             if(ident->ident->symbol)
             {
-                py_exp(exp->exp);
+                py_exp(exp->exp, 1);
                 printf(", ");
             }
         printf("\n");
@@ -252,13 +256,13 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
     else if(stmt->kind == tree_stmt_kind_inc)
     {
         print_indent(indent);
-        py_exp(stmt->exp);
+        py_exp(stmt->exp, 0);
         printf(" += 1\n");
     }
     else if(stmt->kind == tree_stmt_kind_dec)
     {
         print_indent(indent);
-        py_exp(stmt->exp);
+        py_exp(stmt->exp, 0);
         printf(" -= 1\n");
     }
     else if(stmt->kind == tree_stmt_kind_var_decl)
@@ -273,11 +277,11 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
             if(isbool(rt(exp->exp->type)))
             {
                 printf("bool(");
-                py_exp(exp->exp);
+                py_exp(exp->exp, 0);
                 printf(")");
             }
             else
-                py_exp(exp->exp);
+                py_exp(exp->exp, 0);
             printf(")");
             printf(", ");
         }
@@ -294,11 +298,11 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
                exp->exp->type->base == tree_base_type_bool)
             {
                 printf("bool(");
-                py_exp(exp->exp);
+                py_exp(exp->exp, 0);
                 printf(")");
             }
             else
-                py_exp(exp->exp);
+                py_exp(exp->exp, 0);
             printf(")");
             printf(", ");
         }
@@ -308,7 +312,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
     {
         print_indent(indent);
         printf("return ");
-        py_exp(stmt->exp);
+        py_exp(stmt->exp, 1);
         printf("\n");
     }
     else if(stmt->kind == tree_stmt_kind_if)
@@ -316,7 +320,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         py_stmt(stmt->ifstmt.init, indent, continuestmt);
         print_indent(indent);
         printf("if ");
-        py_exp(stmt->ifstmt.condition);
+        py_exp(stmt->ifstmt.condition, 0);
         printf(":\n");
         py_stmts(stmt->ifstmt.body, indent + 1, continuestmt);
         print_indent(indent);
@@ -328,7 +332,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         py_stmt(stmt->switchstmt.init, indent, continuestmt);
         print_indent(indent);
         printf("switchvals.append(");
-        py_exp(stmt->switchstmt.exp);
+        py_exp(stmt->switchstmt.exp, 0);
         printf(")\n");
         print_indent(indent);
         printf("while True:\n");
@@ -347,7 +351,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
                 printf("if switchvals[-1] in (");
                 for(struct tree_exps *exp = cases->val; exp; exp = exp->next)
                 {
-                    py_exp(exp->exp);
+                    py_exp(exp->exp, 0);
                     printf(", ");
                 }
                 printf("):\n");
@@ -362,7 +366,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
                         for(struct tree_exps *exp = cases->val; exp;
                             exp = exp->next)
                         {
-                            py_exp(exp->exp);
+                            py_exp(exp->exp, 0);
                             printf(", ");
                         }
                         printf("):\n");
@@ -388,7 +392,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         py_stmt(stmt->forstmt.init, indent, continuestmt);
         print_indent(indent);
         printf("while ");
-        py_exp(stmt->forstmt.condition);
+        py_exp(stmt->forstmt.condition, 0);
         printf(":\n");
         py_stmts(stmt->forstmt.body, indent + 1, stmt->forstmt.iter);
         py_stmt(stmt->forstmt.iter, indent + 1, NULL);
@@ -469,7 +473,7 @@ static void py_varspec(struct tree_var_spec *node, int indent)
     print_indent(indent);
     printf("_%zd = ", node->ident->symbol->num);
     if(node->val)
-        py_exp(node->val);
+        py_exp(node->val, 1);
     else
         py_zerovalue(rt(node->type));
     printf("\n");
