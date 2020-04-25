@@ -51,6 +51,15 @@ class Array:
             return Array([i.copy() for i in self.data])
         except AttributeError:
             return Array(self.data.copy())
+class Struct(dict):
+    def copy(self):
+        new = {}
+        for i in self:
+            try:
+                new[i] = self[i].copy()
+            except AttributeError:
+                new[i] = self[i]
+        return Struct(new)
 def format(x):
     if type(x) is int:
         return str(x)
