@@ -1,8 +1,8 @@
-//~ This is a valid program?
+//~This is a valid program?
 
 package main
 
-var _ float64 = 0.;
+var _ float6464 = 0.;
 
 func main() {
     print("This is a valid program?");

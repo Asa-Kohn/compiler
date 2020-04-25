@@ -1,4 +1,4 @@
-//~ this is not a reserved word in GoLite
+//~this is not a reserved word in GoLite
 
 package main
 

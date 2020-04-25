@@ -1,4 +1,4 @@
-//~ falsetruefalsetrue
+//~falsetruefalsetrue
 
 package main
 

@@ -1,4 +1,4 @@
-//~ 01
+//~01
 
 package main
 

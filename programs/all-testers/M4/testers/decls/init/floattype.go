@@ -1,10 +1,10 @@
-//~ +1.000000e+000+2.000000e+000
+//~+1.000000e+000 +2.000000e+000
 
 package main
 
 func main() {
-	var a float = 1.
-	var b float = 2.
+	var a float64 = 1.
+	var b float64 = 2.
 
-	print(a,b)
+	println(a, b)
 }

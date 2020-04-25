@@ -1,4 +1,4 @@
-//~ 00
+//~0 0
 
 package main
 
@@ -11,5 +11,5 @@ func main() {
 	a.value = 0
 
 	var b, c = a, a;
-	print(b.value, c.value)
+	println(b.value, c.value)
 }

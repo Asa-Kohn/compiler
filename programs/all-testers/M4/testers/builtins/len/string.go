@@ -1,4 +1,4 @@
-//~ 16
+//~16
 
 package main
 

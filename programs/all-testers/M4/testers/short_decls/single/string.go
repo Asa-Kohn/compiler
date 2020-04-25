@@ -1,4 +1,4 @@
-//~ word
+//~word
 
 package main
 
