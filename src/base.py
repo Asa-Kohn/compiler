@@ -18,11 +18,11 @@ class Slice:
     def __len__(self):
         return self.length
     def __getitem__(self, key):
-        if not 0 <= key < self.length:
+        if not 0 <= key < len(self):
             raise IndexError('slice index out of range')
         return self.data[key]
     def __setitem__(self, key, value):
-        if not 0 <= key < self.length:
+        if not 0 <= key < len(self):
             raise IndexError('slice assignment index out of range')
         self.data[key] = value
 class Array:
@@ -34,11 +34,11 @@ class Array:
     def __len__(self):
         return self.capacity
     def __getitem__(self, key):
-        if not 0 <= key < self.length:
+        if not 0 <= key < len(self):
             raise IndexError('array index out of range')
         return self.data[key]
     def __setitem__(self, key, value):
-        if not 0 <= key < self.length:
+        if not 0 <= key < len(self):
             raise IndexError('array assignment index out of range')
         self.data[key] = value
 switchvals = []
