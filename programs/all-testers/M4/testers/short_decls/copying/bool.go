@@ -5,7 +5,6 @@
 package main
 
 func main() {
-	var a bool;
 	a := true
 	b, c := a, a
 	println(a)

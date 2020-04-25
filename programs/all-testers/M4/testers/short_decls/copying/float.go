@@ -5,7 +5,6 @@
 package main
 
 func main() {
-	var a float64
 	a := 0.
 	b, c := a, a
 	println(a)

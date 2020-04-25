@@ -3,7 +3,6 @@
 package main
 
 func main() {
-	var a float64;
 	a := 0.
 	print(a)
 }
