@@ -509,12 +509,10 @@ void py_program(struct tree_decls *root, struct symbol_rec *symbols)
             py_varspec(c->var_spec, 0);
         else if(c->kind == tree_decls_kind_func_decl &&
                 c->func_decl.ident->symbol)
-        {
-            if(strcmp(c->func_decl.ident->name, "init") == 0)
-                py_stmts(c->func_decl.body, 0, NULL);
-            else
-                py_funcdecl(c->func_decl, 0);
-        }
+            py_funcdecl(c->func_decl, 0);
 
+    for(size_t i = 0; symbols[i].name; i++)
+        if(strcmp(symbols[i].name, "init") == 0)
+            printf("_%zd()\n", symbols[i].num);
     printf("\n_%zd()\n", mainfunc);
 }
