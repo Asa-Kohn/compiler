@@ -3,7 +3,7 @@
 package main
 
 func main() {
-	var a : int
+	var a int
 	a := 0
 	b, c := a, a
 	println(a)

@@ -4,7 +4,7 @@ package main
 
 var a = 0.;
 
-func somefunc(b float64) float {
+func somefunc(b float64) float64 {
 	return b + a + 1.
 }
 
