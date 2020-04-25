@@ -77,7 +77,7 @@ static void py_exp(struct tree_exp *exp)
         else if(exp->binary.kind == tree_binaryexp_kind_times)
             printf("*");
         else if(exp->binary.kind == tree_binaryexp_kind_div)
-            printf("/");
+            printf("//");
         else if(exp->binary.kind == tree_binaryexp_kind_rem)
             printf("%%");
         else if(exp->binary.kind == tree_binaryexp_kind_lshift)
@@ -87,7 +87,7 @@ static void py_exp(struct tree_exp *exp)
         else if(exp->binary.kind == tree_binaryexp_kind_bitand)
             printf("&");
         else if(exp->binary.kind == tree_binaryexp_kind_andnot)
-            printf("and not");
+            printf("&~");
         printf(" (");
         py_exp(exp->binary.right);
         printf(")");
@@ -204,7 +204,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         else if(stmt->assignop.kind == tree_assignop_kind_times)
             printf("*");
         else if(stmt->assignop.kind == tree_assignop_kind_div)
-            printf("/");
+            printf("//");
         else if(stmt->assignop.kind == tree_assignop_kind_rem)
             printf("%%");
         else if(stmt->assignop.kind == tree_assignop_kind_lshift)
@@ -223,16 +223,28 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
     }
     else if(stmt->kind == tree_stmt_kind_shortdecl)
     {
+        struct tree_idents *ident;
+        struct tree_exps *exp;
+        for(ident = stmt->shortdecl.idents, exp = stmt->shortdecl.exps; ident;
+            ident = ident->next, exp = exp->next)
+            if(!ident->ident->symbol)
+            {
+                print_indent(indent);
+                py_exp(exp->exp);
+                printf("\n");
+            }
         print_indent(indent);
-        for(struct tree_idents *ident = stmt->shortdecl.idents; ident;
-            ident = ident->next)
-            printf("_%zd, ", ident->ident->symbol->num);
+        for(ident = stmt->shortdecl.idents; ident; ident = ident->next)
+            if(ident->ident->symbol)
+                printf("_%zd, ", ident->ident->symbol->num);
         printf("= ");
-        for(struct tree_exps *exp = stmt->shortdecl.exps; exp; exp = exp->next)
-        {
-            py_exp(exp->exp);
-            printf(", ");
-        }
+        for(exp = stmt->shortdecl.exps, ident = stmt->shortdecl.idents; exp;
+            exp = exp->next, ident = ident->next)
+            if(ident->ident->symbol)
+            {
+                py_exp(exp->exp);
+                printf(", ");
+            }
         printf("\n");
     }
     else if(stmt->kind == tree_stmt_kind_inc)
@@ -255,8 +267,8 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         printf("print(");
         for(struct tree_exps *exp = stmt->exps; exp; exp = exp->next)
         {
-            if(exp->exp->type->kind == tree_type_kind_base &&
-               exp->exp->type->base == tree_base_type_bool)
+            printf("format(");
+            if(isbool(rt(exp->exp->type)))
             {
                 printf("bool(");
                 py_exp(exp->exp);
@@ -264,6 +276,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
             }
             else
                 py_exp(exp->exp);
+            printf(")");
             printf(", ");
         }
         printf("sep='', end='')\n");
@@ -274,7 +287,17 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         printf("print(");
         for(struct tree_exps *exp = stmt->exps; exp; exp = exp->next)
         {
-            py_exp(exp->exp);
+            printf("format(");
+            if(exp->exp->type->kind == tree_type_kind_base &&
+               exp->exp->type->base == tree_base_type_bool)
+            {
+                printf("bool(");
+                py_exp(exp->exp);
+                printf(")");
+            }
+            else
+                py_exp(exp->exp);
+            printf(")");
             printf(", ");
         }
         printf(")\n");
@@ -305,6 +328,8 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         printf("switchvals.append(");
         py_exp(stmt->switchstmt.exp);
         printf(")\n");
+        print_indent(indent);
+        printf("while True:\n");
         struct tree_cases *cases = stmt->switchstmt.cases;
         if(cases)
         {
@@ -314,7 +339,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
                 defaultbody = cases->body;
                 cases = cases->next;
             }
-            print_indent(indent);
+            print_indent(indent + 1);
             printf("if switchvals[-1] in (");
             for(struct tree_exps *exp = cases->val; exp; exp = exp->next)
             {
@@ -322,11 +347,11 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
                 printf(", ");
             }
             printf("):\n");
-            py_stmts(cases->body, indent + 1, continuestmt);
+            py_stmts(cases->body, indent + 2, continuestmt);
 
             for(; cases; cases = cases->next)
             {
-                print_indent(indent);
+                print_indent(indent + 1);
                 printf("elif switchvals[-1] in (");
                 for(struct tree_exps *exp = cases->val; exp; exp = exp->next)
                 {
@@ -334,17 +359,19 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
                     printf(", ");
                 }
                 printf("):\n");
-                py_stmts(cases->body, indent + 1, continuestmt);
+                py_stmts(cases->body, indent + 2, continuestmt);
             }
             if(!stmt->switchstmt.cases->val && !stmt->switchstmt.cases->next)
-                py_stmts(defaultbody, indent, continuestmt);
+                py_stmts(defaultbody, indent + 1, continuestmt);
             else
             {
-                print_indent(indent);
+                print_indent(indent + 1);
                 printf("else:\n");
-                py_stmts(defaultbody, indent + 1, continuestmt);
+                py_stmts(defaultbody, indent + 2, continuestmt);
             }
         }
+        print_indent(indent + 1);
+        printf("break\n");
         print_indent(indent);
         printf("switchvals.pop()\n");
     }
@@ -453,8 +480,7 @@ static void py_funcdecl(struct tree_func_decl node, int indent)
 
 void py_program(struct tree_decls *root, struct symbol_rec *symbols)
 {
-    puts((char *) base_py);
-    putchar('\n');
+    printf("%.*s", base_py_len, base_py);
 
     size_t mainfunc = 0;
     for(size_t i = 0; symbols[i].name; i++)
@@ -467,7 +493,8 @@ void py_program(struct tree_decls *root, struct symbol_rec *symbols)
     for(struct tree_decls *c = root; c; c = c->next)
         if(c->kind == tree_decls_kind_var_decl)
             py_varspec(c->var_spec, 0);
-        else if(c->kind == tree_decls_kind_func_decl)
+        else if(c->kind == tree_decls_kind_func_decl &&
+                c->func_decl.ident->symbol)
         {
             if(strcmp(c->func_decl.ident->name, "init") == 0)
                 py_stmts(c->func_decl.body, 0, NULL);

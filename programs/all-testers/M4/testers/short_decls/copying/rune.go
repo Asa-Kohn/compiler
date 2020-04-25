@@ -5,7 +5,6 @@
 package main
 
 func main() {
-	var a rune
 	a := 'w'
 	b, c := a, a
 	println(a)
