@@ -269,10 +269,10 @@ static int last_token = 0;
 }
 
 `[^`]*` {
-    size_t len = strlen(yytext - 1);
-    yylval.strval = emalloc(len - 1);
-    strncpy(yylval.strval, &yytext[1], len - 2);
-    yylval.strval[len - 2] = '\0';
+    size_t len = strlen(&yytext[1]);
+    yylval.strval = emalloc(len);
+    strncpy(yylval.strval, &yytext[1], len - 1);
+    yylval.strval[len - 1] = '\0';
     OUTPUT_TOK_STR
 }
 
