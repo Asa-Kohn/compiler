@@ -73,7 +73,7 @@ static int isinteger(struct tree_type *type)
          resolve->base == tree_base_type_rune);
 }
 
-static int isbool(struct tree_type *type)
+int isbool(struct tree_type *type)
 {
     return type &&
         type->kind == tree_type_kind_base &&
