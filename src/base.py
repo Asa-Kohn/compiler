@@ -5,7 +5,8 @@ class Slice:
             self.length = s.length
             self.data = s.data
         else:
-            self.capacity = self.length = 0
+            self.capacity = 1
+            self.length = 0
             self.data = []
     def add(self, item):
         new = Slice(self)
@@ -41,4 +42,12 @@ class Array:
         if not 0 <= key < len(self):
             raise IndexError('array assignment index out of range')
         self.data[key] = value
+def format(x):
+    if type(x) is int:
+        return str(x)
+    if type(x) is bool:
+        return 'true' if x else 'false'
+    if type(x) is float:
+        return ('+' if x >= 0 else '') + '{:e}'.format(x)
+    return x
 switchvals = []
