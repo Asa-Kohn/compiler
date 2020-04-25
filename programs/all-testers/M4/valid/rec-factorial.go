@@ -12,5 +12,5 @@ func recFactorial(x int) int {
 
 func main() {
 	var x int = 10;
-	print("recFactorial:", recFactorial(x));
+	println("recFactorial:", recFactorial(x));
 }

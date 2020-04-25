@@ -11,16 +11,11 @@ SEGFAULT=$(echo "$USER_OUTPUT" | grep -i "segmentation" | wc -l)
 
 if [[ "$USER_OUTPUT" == "$EXPECTED_OUTPUT" || ( $SHOULD_ERROR == "1" && $EXIT_CODE != 0 && $SEGFAULT == 0 ) ]]
 then
-	echo ">>> User Output"
-	if [ ! -z "$USER_OUTPUT" ]
-	then
-		echo $USER_OUTPUT
-	fi
-	echo ">>> Expected Output"
-	echo $EXPECTED_OUTPUT
+    echo $1
 	echo -e ">>> \033[0;32m[pass]\033[0m"
 	exit 0
 else
+    echo $1
 	echo ">>> User Output"
 	if [ ! -z "$USER_OUTPUT" ]
 	then

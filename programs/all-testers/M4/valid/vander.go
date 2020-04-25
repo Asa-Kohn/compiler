@@ -65,5 +65,5 @@ func main() {
 	//     // print("\n");
 	// }
 
-	print("It has the following determinant: ", detvan(V))
+	println("It has the following determinant:", detvan(V))
 }

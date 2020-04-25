@@ -7,7 +7,7 @@
 package main
 
 func abs(x float64) float64 {
-    if(x < 0) {
+    if(x < 0.0) {
         return -x
     }
 
@@ -42,5 +42,5 @@ func main() {
     //     }
     //     print("\n");
     // }
-    print("Result:", fro(A))
+    println("Result:", fro(A))
 }

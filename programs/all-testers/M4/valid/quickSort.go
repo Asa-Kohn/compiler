@@ -3,14 +3,6 @@
 //sorting tingz
 package main
 
-func quickSort(array []int, lo int, hi int) {
-	if lo < hi {
-		p := partition(array, lo, hi);
-		quickSort(array, lo, p-1);
-		quickSort(array, p+1, hi);
-	}
-}
-
 func partition(array []int, lo int, hi int) int {
 	pivot := array[hi];
 	i := lo;
@@ -27,6 +19,14 @@ func partition(array []int, lo int, hi int) int {
 	array[i] = array[hi];
 	array[hi] = temp;
 	return i;
+}
+
+func quickSort(array []int, lo int, hi int) {
+	if lo < hi {
+		p := partition(array, lo, hi);
+		quickSort(array, lo, p-1);
+		quickSort(array, p+1, hi);
+	}
 }
 
 func main() {
@@ -67,5 +67,5 @@ func main() {
 	for i := 0; i < len(array); i++ {
 		print(array[i], " ");
 	}
-	// println("\r");
+	print("\n");
 }
