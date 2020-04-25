@@ -10,23 +10,23 @@ func main() {
 
 	// left
 	print(ai << 2)
-	print(ar << 2)
+	print(ar << rune(2))
 
 	// right
 	print(ai >> 2)
-	print(ar >> 2)
+	print(ar >> rune(2))
 
 	// mod
 	print(ai % 2)
-	print(ar % 2)
+	print(ar % rune(2))
 
 	// or
 	print(ai | 2)
-	print(ar | 2)
+	print(ar | rune(2))
 
 	// and
 	print(ai & 2)
-	print(ar & 2)
+	print(ar & rune(2))
 
 	// bitwise not
 	print(^ai)
@@ -34,6 +34,6 @@ func main() {
 
 	// bitwise not and
 	print(ai &^ 2)
-	print(ar &^ 2)
+	print(ar &^ rune(2))
 
 }
