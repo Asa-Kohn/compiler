@@ -13,5 +13,5 @@ func recPower(x int, y int) int {
 func main() {
 	var x int = 2;
 	var y int = 2;
-	print("recPower:", recPower(x, y));
+	println("recPower:", recPower(x, y));
 }

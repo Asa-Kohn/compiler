@@ -20,5 +20,5 @@ func perf(num int) bool {
 }
 
 func main() {
-    print(perf(20));
+    println(perf(20));
 }
