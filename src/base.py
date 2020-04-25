@@ -5,13 +5,15 @@ class Slice:
             self.length = s.length
             self.data = s.data
         else:
-            self.capacity = 1
-            self.length = 0
+            self.capacity = self.length = 0
             self.data = []
     def add(self, item):
         new = Slice(self)
         if new.length >= new.capacity:
-            new.capacity *= 2
+            if new.capacity == 0:
+                new.capacity = 2
+            else:
+                new.capacity *= 2
             new.data = new.data[:]
         new.data.append(item)
         new.length += 1
