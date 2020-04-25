@@ -1,9 +1,9 @@
-// generated from template.go
+//~ +0.000000e+000
 
 package main
 
-var float : float = 0.;
+var float = 0.;
 
 func main() {
-    println(float);
+    print(float);
 }

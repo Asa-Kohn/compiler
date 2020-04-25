@@ -1,4 +1,4 @@
-// generated from template.go
+//~ 0
 
 package main
 
@@ -10,5 +10,6 @@ func main() {
 			break
 		}
 	}
+	print(a)
 
 }

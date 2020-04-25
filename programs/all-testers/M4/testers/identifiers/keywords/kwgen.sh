@@ -2,5 +2,5 @@
 
 for kw in $(cat keywords.txt)
 do
-    echo -e "// generated from template.go\n\npackage main\n\nvar ${kw} : string =\"this is not a reserved word in GoLite\";\n\nfunc main() {\n\tprintln(${kw});\n}" > "${kw}".go
+    echo -e "//~ this is not a reserved word in GoLite\n\npackage main\n\nvar ${kw} string = \"this is not a reserved word in GoLite\";\n\nfunc main() {\n\tprint(${kw});\n}" > "${kw}".go
 done

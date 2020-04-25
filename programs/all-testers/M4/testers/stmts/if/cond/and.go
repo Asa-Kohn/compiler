@@ -1,4 +1,4 @@
-// generated from template.go
+//~ 00001
 
 package main
 

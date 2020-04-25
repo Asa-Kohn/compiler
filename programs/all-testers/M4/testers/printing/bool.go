@@ -1,4 +1,5 @@
-// generated from template.go
+//~ true
+//~ false
 
 package main
 

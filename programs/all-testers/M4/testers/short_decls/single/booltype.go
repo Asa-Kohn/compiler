@@ -1,8 +1,8 @@
-// generated from template.go
+//~ true
 
 package main
 
 func main() {
-	var a : bool;
+	var a bool;
 	a := true
 }

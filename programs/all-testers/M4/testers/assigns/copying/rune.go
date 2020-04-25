@@ -1,8 +1,9 @@
-// generated from template.go
+//~ 49
 
 package main
 
 func main() {
-	var a : rune =  '1'
+	var a rune =  '1'
 	var b = a
+	print(b)
 }

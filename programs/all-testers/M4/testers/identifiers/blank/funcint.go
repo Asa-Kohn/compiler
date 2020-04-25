@@ -1,11 +1,11 @@
-// generated from template.go
+//~ This is a valid program?
 
 package main
 
 func _() int {
-    return
+    return 1
 }
 
 func main() {
-    println("This is a valid program?");
+    print("This is a valid program?");
 }

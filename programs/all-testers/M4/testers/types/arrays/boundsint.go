@@ -1,4 +1,4 @@
-// generated from template.go
+//! out of bounds
 
 package main
 
@@ -8,6 +8,6 @@ func main() {
 
 	s[3] = 0;
 
-	print(-1); 
+	print(-1);
 
 }

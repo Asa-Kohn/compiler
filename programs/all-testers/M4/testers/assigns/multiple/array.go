@@ -1,4 +1,4 @@
-// generated from template.go
+//~ 01
 
 package main
 
@@ -7,4 +7,5 @@ func main() {
 	a[0], a[1] = 0, 1
 
 	var b, c = a, a;
+	print(b[0], c[1])
 }

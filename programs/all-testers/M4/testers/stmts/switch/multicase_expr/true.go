@@ -1,4 +1,4 @@
-// generated from template.go
+//~ 0
 
 package main
 
@@ -8,11 +8,11 @@ func main() {
 
 	switch {
 	case a>0 && a<2:
-		println(0)
+		print(0)
 	case a>5:
-		println(">5")
+		print(">5")
 	default:
-		println("default")
+		print("default")
 	}
 
 }

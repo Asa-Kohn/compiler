@@ -1,4 +1,4 @@
-// generated from template.go
+//~ default
 
 package main
 
@@ -12,7 +12,7 @@ func main() {
 	case a == 3:
 		print(3)
 	default:
-		println("default")
+		print("default")
 	}
 
 }
