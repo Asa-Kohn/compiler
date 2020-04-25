@@ -1,4 +1,17 @@
-//~03880240129900-1-98097
+//~0
+//~0
+//~0
+//~0
+//~0
+//~13
+//~2
+//~109
+//~0
+//~1
+//~-1
+//~-14
+//~0
+//~12
 
 package main
 
@@ -9,35 +22,31 @@ func main() {
 	var ar rune = 'a'
 
 	// left
-	print(ai << 2)
-	print(ar << 'a')
+	println(ai << 2)
+	// println(ar << 'a') //ar (32 bits) too small for shift of 97
 
 	// right
-	print(ai >> 2)
-	print(ar >> 'a')
+	println(ai >> 2)
+	// println(ar >> 'a') //ar (32 bits) too small for shift of 97
 
 	// mod
-	print(ai % 2)
-	print(ar % 'a')
+	println(ai % 2)
+	println(ar % 'a')
 
 	// or
-	print(ai | 2)
-	print(ar | 'a')
+	println(ai | 2)
+	println(ar | 'a')
 
 	// and
-	print(ai & 2)
-	print(ar & 'a')
+	println(ai & 2)
+	println(ar & 'a')
 
 	// bitwise not
-	print(^ai)
-	print(^ar)
+	println(^ai)
+	println(^ar)
 
 	// bitwise not and
-	print(ai &^ 2)
-<<<<<<< HEAD
-	print(ar &^ rune(2))
-=======
-	print(ar &^ 'a')
->>>>>>> fixprogs
+	println(ai &^ 2)
+	println(ar &^ 'a')
 
 }
