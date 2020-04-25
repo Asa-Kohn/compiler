@@ -1,6 +1,6 @@
-//~ word
-//~ word
-//~ word
+//~word
+//~word
+//~word
 
 package main
 

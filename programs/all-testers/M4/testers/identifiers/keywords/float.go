@@ -1,9 +1,9 @@
-//~ +0.000000e+000
+//~+0.000000e+000
 
 package main
 
-var float = 0.;
+var float64 = 0.;
 
 func main() {
-    print(float);
+    print(float64);
 }

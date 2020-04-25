@@ -1,8 +1,8 @@
-//~ This is a valid program?
+//~This is a valid program?
 
 package main
 
-func _() float {
+func _() float64 {
     return 0.
 }
 

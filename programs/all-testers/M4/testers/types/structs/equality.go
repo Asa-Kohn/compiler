@@ -1,10 +1,10 @@
-//~ 1
+//~1
 
 package main
 
 type point struct {
-	x float
-	y float
+	x float64
+	y float64
 }
 
 func main() {

@@ -1,4 +1,4 @@
-//~ 48
+//~48
 
 package main
 

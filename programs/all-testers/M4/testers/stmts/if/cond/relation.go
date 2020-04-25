@@ -1,4 +1,4 @@
-//~ 000000001
+//~000000001
 package main
 
 func main() {

@@ -1,4 +1,4 @@
-//! out of bounds error
+//!out of bounds error
 
 package main
 

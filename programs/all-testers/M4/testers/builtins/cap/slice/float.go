@@ -1,9 +1,9 @@
-//~ 4
+//~4
 
 package main
 
 func main() {
-	var arr []float
+	var arr []float64
 
 	arr = append(arr, 0.)
 	arr = append(arr, 0.)

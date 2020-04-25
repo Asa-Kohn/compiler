@@ -1,4 +1,4 @@
-//~ 00
+//~0 0
 
 package main
 
@@ -8,5 +8,5 @@ func main() {
 	arr = append(arr, 0)
 	arr = append(arr, 0)
 
-	print(arr[0], arr[1])
+	println(arr[0], arr[1])
 }

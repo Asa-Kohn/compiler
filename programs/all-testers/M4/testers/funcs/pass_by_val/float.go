@@ -1,8 +1,8 @@
-//~ +1.000000e+000
+//~+1.000000e+000
 
 package main
 
-func somefunc(a float) {
+func somefunc(a float64) {
 	println(a)
 }
 

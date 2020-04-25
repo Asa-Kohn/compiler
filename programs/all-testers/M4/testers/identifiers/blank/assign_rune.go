@@ -1,4 +1,4 @@
-//~ This is a valid program?
+//~This is a valid program?
 
 package main
 
