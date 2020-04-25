@@ -87,7 +87,7 @@ static void py_exp(struct tree_exp *exp)
         else if(exp->binary.kind == tree_binaryexp_kind_bitand)
             printf("&");
         else if(exp->binary.kind == tree_binaryexp_kind_andnot)
-            printf("and not");
+            printf("&~");
         printf(" (");
         py_exp(exp->binary.right);
         printf(")");
@@ -268,8 +268,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         for(struct tree_exps *exp = stmt->exps; exp; exp = exp->next)
         {
             printf("format(");
-            if(exp->exp->type->kind == tree_type_kind_base &&
-               exp->exp->type->base == tree_base_type_bool)
+            if(isbool(rt(exp->exp->type)))
             {
                 printf("bool(");
                 py_exp(exp->exp);
@@ -329,6 +328,8 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         printf("switchvals.append(");
         py_exp(stmt->switchstmt.exp);
         printf(")\n");
+        print_indent(indent);
+        printf("while True:\n");
         struct tree_cases *cases = stmt->switchstmt.cases;
         if(cases)
         {
@@ -338,7 +339,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
                 defaultbody = cases->body;
                 cases = cases->next;
             }
-            print_indent(indent);
+            print_indent(indent + 1);
             printf("if switchvals[-1] in (");
             for(struct tree_exps *exp = cases->val; exp; exp = exp->next)
             {
@@ -346,11 +347,11 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
                 printf(", ");
             }
             printf("):\n");
-            py_stmts(cases->body, indent + 1, continuestmt);
+            py_stmts(cases->body, indent + 2, continuestmt);
 
             for(; cases; cases = cases->next)
             {
-                print_indent(indent);
+                print_indent(indent + 1);
                 printf("elif switchvals[-1] in (");
                 for(struct tree_exps *exp = cases->val; exp; exp = exp->next)
                 {
@@ -358,17 +359,19 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
                     printf(", ");
                 }
                 printf("):\n");
-                py_stmts(cases->body, indent + 1, continuestmt);
+                py_stmts(cases->body, indent + 2, continuestmt);
             }
             if(!stmt->switchstmt.cases->val && !stmt->switchstmt.cases->next)
-                py_stmts(defaultbody, indent, continuestmt);
+                py_stmts(defaultbody, indent + 1, continuestmt);
             else
             {
-                print_indent(indent);
+                print_indent(indent + 1);
                 printf("else:\n");
-                py_stmts(defaultbody, indent + 1, continuestmt);
+                py_stmts(defaultbody, indent + 2, continuestmt);
             }
         }
+        print_indent(indent + 1);
+        printf("break\n");
         print_indent(indent);
         printf("switchvals.pop()\n");
     }
