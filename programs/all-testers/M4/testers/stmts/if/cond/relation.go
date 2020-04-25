@@ -1,5 +1,4 @@
-// generated from template.go
-
+//~ 000000001
 package main
 
 func main() {

@@ -1,9 +1,9 @@
-// generated from template.go
+//~ this is not a reserved word in GoLite
 
 package main
 
-var while : string ="this is not a reserved word in GoLite";
+var while string = "this is not a reserved word in GoLite";
 
 func main() {
-	println(while);
+	print(while);
 }

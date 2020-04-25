@@ -1,4 +1,4 @@
-// generated from template.go
+//~ +0.000000e+000
 
 package main
 
@@ -9,5 +9,5 @@ func somefunc(b float) float {
 }
 
 func main() {
-	somefunc(-1.);
+	print(somefunc(-1.));
 }

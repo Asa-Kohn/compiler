@@ -1,4 +1,4 @@
-// generated from template.go
+//! out of bounds
 
 package main
 

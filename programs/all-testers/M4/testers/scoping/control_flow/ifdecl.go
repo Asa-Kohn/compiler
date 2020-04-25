@@ -1,4 +1,9 @@
-// generated from template.go
+//~ -1
+//~ -2
+//~ -3
+//~ 1
+//~ 2
+//~ 3
 
 package main
 
@@ -20,10 +25,10 @@ func main() {
 
 	if (true) {
 		var c = -3;
-		println(b);
+		println(c);
 	}
 
 	println(a)
 	println(b)
-	println(c)
+	print(c)
 }

@@ -1,4 +1,8 @@
-// generated from template.go
+//~ 49
+//~ 50
+//~ 51
+//~ 52
+//~ 53
 
 package main
 

@@ -1,11 +1,11 @@
-// generated from template.go
+//! out of bounds error
 
 package main
 
 func main() {
 
 	var s []bool
-	append(s, true)
+	s = append(s, true)
 
 	print(s[1]);
 

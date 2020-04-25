@@ -1,8 +1,8 @@
-// generated from template.go
+//~ 16
 
 package main
 
 func main() {
 	var arr = "this is a string"
-	len(arr)
+	print(len(arr))
 }

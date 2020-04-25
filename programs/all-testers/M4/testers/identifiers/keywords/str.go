@@ -2,8 +2,8 @@
 
 package main
 
-var pass string = "this is not a reserved word in GoLite";
+var str string = "this is not a reserved word in GoLite";
 
 func main() {
-	print(pass);
+    print(str);
 }
