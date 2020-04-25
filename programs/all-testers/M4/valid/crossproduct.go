@@ -21,16 +21,16 @@ func crossprod(u point, v point) point{
 
  func main() {
     var u point;
-    u.x = 10;
-    u.y = 20;
-    u.z = 30;
+    u.x = 10.0;
+    u.y = 20.0;
+    u.z = 30.0;
 
     var v point;
-    v.x = 5;
-    v.y = -5;
-    v.z = 0;
+    v.x = 5.0;
+    v.y = -5.0;
+    v.z = 0.0;
 
     // Compute the cross product and print to stdout
     var c point = crossprod(u, v);
-    print("Cross product:",  "(", u.x, u.y, u.z, ") x (", v.x, v.y, v.z, ") is:", "(", c.x, c.y, c.z, ")");
+    println("Cross product:",  "(", u.x, u.y, u.z, ") x (", v.x, v.y, v.z, ") is:", "(", c.x, c.y, c.z, ")");
  }

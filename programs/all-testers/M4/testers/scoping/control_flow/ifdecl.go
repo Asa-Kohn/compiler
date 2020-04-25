@@ -8,17 +8,17 @@ func main() {
 	var b = 2;
 	var c = 3;
 
-	if (True) {
+	if (true) {
 		var a = -1;
 		println(a);
 	}
 
-	if (True) {
+	if (true) {
 		var b = -2;
 		println(b);
 	}
 
-	if (True) {
+	if (true) {
 		var c = -3;
 		println(b);
 	}

@@ -75,7 +75,7 @@ func main() {
     var C [3][3]int = matmul(A, B);
 
     // Output
-    print("Result")
+    print("Result: ")
     for i := 0; i < 3; i++ {
         for j := 0; j < 3; j++ {
             print(C[i][j], " ");

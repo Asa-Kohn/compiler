@@ -3,6 +3,6 @@
 package main
 
 func main() {
-	println(True)
-	println(False)
+	println(true)
+	println(false)
 }
