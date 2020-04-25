@@ -48,6 +48,6 @@ def format(x):
     if type(x) is bool:
         return 'true' if x else 'false'
     if type(x) is float:
-        return ('+' if x >= 0 else '') + '{:e}'.format(x)
+        return '{:+e}'.format(x)
     return x
 switchvals = []
