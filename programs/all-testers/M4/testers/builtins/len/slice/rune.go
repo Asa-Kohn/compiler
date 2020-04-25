@@ -1,12 +1,12 @@
-// generated from template.go
+//~2
 
 package main
 
 func main() {
 	var arr []rune
 
-	append(arr, '0')
-	append(arr, '0')
+	arr = append(arr, '0')
+	arr = append(arr, '0')
 
-	len(arr)
+	print(len(arr))
 }

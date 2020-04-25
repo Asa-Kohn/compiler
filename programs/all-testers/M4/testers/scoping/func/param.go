@@ -1,13 +1,13 @@
-// generated from template.go
+//~+1.000000e+000
 
 package main
 
-var a = 0;
+var a = 0.;
 
-func somefunc(a float) float {
+func somefunc(a float64) float64 {
 	return a + 1.
 }
 
 func main() {
-	somefunc(a);
+	print(somefunc(a));
 }

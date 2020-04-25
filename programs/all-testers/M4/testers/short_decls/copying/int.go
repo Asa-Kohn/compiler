@@ -3,6 +3,10 @@
 package main
 
 func main() {
-	var a : int
-	a, b, c := 0, 0, 0
+	var a int
+	a := 0
+	b, c := a, a
+	println(a)
+	println(b)
+	print(c)
 }

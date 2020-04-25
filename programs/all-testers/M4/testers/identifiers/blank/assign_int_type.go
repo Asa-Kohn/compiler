@@ -1,9 +1,9 @@
-// generated from template.go
+//~This is a valid program?
 
 package main
 
-var _ : int = 0;
+var _ int = 0;
 
 func main() {
-    println("This is a valid program?");
+    print("This is a valid program?");
 }

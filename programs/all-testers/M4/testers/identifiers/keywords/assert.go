@@ -1,9 +1,9 @@
-// generated from template.go
+//~this is not a reserved word in GoLite
 
 package main
 
-var assert : string ="this is not a reserved word in GoLite";
+var assert string = "this is not a reserved word in GoLite";
 
 func main() {
-	println(assert);
+	print(assert);
 }

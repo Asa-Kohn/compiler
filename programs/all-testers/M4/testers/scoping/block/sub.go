@@ -1,4 +1,4 @@
-// generated from template.go
+//~0
 
 package main
 
@@ -6,8 +6,8 @@ func main() {
 
 	var a = "0"
 	{
-		var a : float = 0.
-		a = a - 1;
+		var a float64 = 0.
+		a = a - 1.;
 	}
-	println(a);
+	print(a);
 }

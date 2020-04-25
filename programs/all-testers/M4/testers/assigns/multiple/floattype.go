@@ -1,8 +1,9 @@
-// generated from template.go
+//~+1.000000e+000 +1.000000e+000
 
 package main
 
 func main() {
-	var a : float = 1.
-	var b, c : float = a, a
+	var a float64 = 1.
+	var b, c float64 = a, a
+	println(b,c)
 }

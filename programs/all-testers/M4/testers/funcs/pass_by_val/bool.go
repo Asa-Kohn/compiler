@@ -1,4 +1,4 @@
-// generated from template.go
+//~true
 
 package main
 
@@ -7,5 +7,5 @@ func somefunc(a bool) {
 }
 
 func main() {
-	somefunc(True)
+	somefunc(true)
 }

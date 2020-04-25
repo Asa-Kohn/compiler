@@ -1,9 +1,9 @@
-// generated from template.go
+//~this is not a reserved word in GoLite
 
 package main
 
-var def : string ="this is not a reserved word in GoLite";
+var def string = "this is not a reserved word in GoLite";
 
 func main() {
-	println(def);
+	print(def);
 }

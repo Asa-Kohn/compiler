@@ -1,8 +1,9 @@
-// generated from template.go
+//~0
 
 package main
 
 func main() {
-	var a : int
+	var a int
 	a := 0
+	print(a)
 }

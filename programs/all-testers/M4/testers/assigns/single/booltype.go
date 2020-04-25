@@ -1,8 +1,9 @@
-// generated from template.go
+//~true true
 
 package main
 
 func main() {
-	var a : bool = True
-	var b : bool = True
+	var a bool = true
+	var b bool = true
+	println(a,b)
 }

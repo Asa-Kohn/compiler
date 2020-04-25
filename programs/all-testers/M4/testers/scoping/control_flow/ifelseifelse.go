@@ -1,4 +1,6 @@
-// generated from template.go
+//~-2
+//~1
+//~2
 
 package main
 
@@ -21,6 +23,5 @@ func main() {
 	}
 
 	println(a)
-	println(b)
-	println(c)
+	print(b)
 }
