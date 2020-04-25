@@ -347,7 +347,7 @@ func main() {
 	}
 
 	for i := 0; i < 298; i++ {
-		print("//~")
+		// print("//~")
 		for j := 0; j < 298; j++ {
 			print(error[i][j], " ")
 		}
