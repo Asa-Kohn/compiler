@@ -454,14 +454,14 @@ static void py_zerovalue(struct tree_type *type)
         printf("Slice()");
     else if(type->kind == tree_type_kind_struct)
     {
-        printf("{");
+        printf("Struct({");
         for(struct tree_fields *c = type->structtype.fields; c; c = c->next)
         {
             printf("'%s': ", c->name);
             py_zerovalue(c->type);
             printf(", ");
         }
-        printf("}");
+        printf("})");
     }
 }
 
