@@ -339,20 +339,10 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
                 defaultbody = cases->body;
                 cases = cases->next;
             }
-            print_indent(indent + 1);
-            printf("if switchvals[-1] in (");
-            for(struct tree_exps *exp = cases->val; exp; exp = exp->next)
-            {
-                py_exp(exp->exp);
-                printf(", ");
-            }
-            printf("):\n");
-            py_stmts(cases->body, indent + 2, continuestmt);
-
-            for(; cases; cases = cases->next)
+            if(cases)
             {
                 print_indent(indent + 1);
-                printf("elif switchvals[-1] in (");
+                printf("if switchvals[-1] in (");
                 for(struct tree_exps *exp = cases->val; exp; exp = exp->next)
                 {
                     py_exp(exp->exp);
@@ -360,15 +350,31 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
                 }
                 printf("):\n");
                 py_stmts(cases->body, indent + 2, continuestmt);
-            }
-            if(!stmt->switchstmt.cases->val && !stmt->switchstmt.cases->next)
-                py_stmts(defaultbody, indent + 1, continuestmt);
-            else
-            {
+
+                for(cases = cases->next; cases; cases = cases->next)
+                {
+                    if(cases->val)
+                    {
+                        print_indent(indent + 1);
+                        printf("elif switchvals[-1] in (");
+                        for(struct tree_exps *exp = cases->val; exp;
+                            exp = exp->next)
+                        {
+                            py_exp(exp->exp);
+                            printf(", ");
+                        }
+                        printf("):\n");
+                        py_stmts(cases->body, indent + 2, continuestmt);
+                    }
+                    else
+                        defaultbody = cases->body;
+                }
                 print_indent(indent + 1);
                 printf("else:\n");
                 py_stmts(defaultbody, indent + 2, continuestmt);
             }
+            else
+                py_stmts(defaultbody, indent + 1, continuestmt);
         }
         print_indent(indent + 1);
         printf("break\n");
