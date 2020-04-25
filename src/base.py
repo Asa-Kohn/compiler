@@ -5,17 +5,8 @@ class Slice:
             self.length = s.length
             self.data = s.data
         else:
-            self.capacity = 1
-            self.length = 0
-            self.data = []
-    def add(self, item):
-        new = Slice(self)
-        if new.length >= new.capacity:
-            new.capacity *= 2
-            new.data = new.data[:]
-        new.data.append(item)
-        new.length += 1
-        return new
+            self.capacity = self.length = 0
+            self.data = Array([])
     def __len__(self):
         return self.length
     def __getitem__(self, key):
@@ -26,6 +17,19 @@ class Slice:
         if not 0 <= key < len(self):
             raise IndexError('slice assignment index out of range')
         self.data[key] = value
+    def add(self, item):
+        if self.length >= self.capacity:
+            if self.capacity == 0:
+                self.capacity = 2
+            else:
+                self.capacity *= 2
+            self.data = self.data.copy()
+            self.data.capacity = self.capacity
+        self.data.data.append(item)
+        self.length += 1
+        return self
+    def copy(self):
+        return Slice(self)
 class Array:
     def __init__(self, data):
         self.data = data
@@ -42,6 +46,11 @@ class Array:
         if not 0 <= key < len(self):
             raise IndexError('array assignment index out of range')
         self.data[key] = value
+    def copy(self):
+        try:
+            return Array([i.copy() for i in self.data])
+        except AttributeError:
+            return Array(self.data.copy())
 def format(x):
     if type(x) is int:
         return str(x)
