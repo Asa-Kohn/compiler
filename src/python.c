@@ -125,12 +125,23 @@ static void py_exp(struct tree_exp *exp, int copy)
         else
         {
             struct tree_type *type = rt(exp->call.func->ident->symbol->type);
-            if(type->kind == tree_type_kind_base &&
-               type->base == tree_base_type_str)
+            if(type->kind == tree_type_kind_base)
             {
-                printf("chr(");
-                py_exp(exp->call.exps->exp, 0);
-                printf(")");
+                if(type->base == tree_base_type_str &&
+                   isinteger(rt(exp->call.exps->exp->type)))
+                {
+                    printf("chr(");
+                    py_exp(exp->call.exps->exp, 0);
+                    printf(")");
+                }
+                else if(type->base == tree_base_type_float64)
+                {
+                    printf("float(");
+                    py_exp(exp->call.exps->exp, 0);
+                    printf(")");
+                }
+                else
+                    py_exp(exp->call.exps->exp, copy);
             }
             else
                 py_exp(exp->call.exps->exp, copy);
