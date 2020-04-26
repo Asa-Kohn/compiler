@@ -368,7 +368,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
                   rtarr->base == tree_base_type_str)))
             {
                 fprintf(stderr, "Error: expression on line %d is neither an "
-                        "array not a slice\n", exp->index.arr->lineno);
+                        "array nor a slice\n", exp->index.arr->lineno);
                 exit(1);
             }
             exp->type = emalloc(sizeof(struct tree_type));
@@ -382,7 +382,7 @@ static enum expkind tc_exp(struct tree_exp *exp)
                  rtarr->kind == tree_type_kind_slice))
             {
                 fprintf(stderr, "Error: expression on line %d is neither an "
-                        "array not a slice\n", exp->index.arr->lineno);
+                        "array nor a slice\n", exp->index.arr->lineno);
                 exit(1);
             }
             exp->type = emalloc(sizeof(struct tree_type));
