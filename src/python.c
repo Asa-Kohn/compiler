@@ -83,7 +83,12 @@ static void py_exp(struct tree_exp *exp, int copy)
         else if(exp->binary.kind == tree_binaryexp_kind_times)
             printf("*");
         else if(exp->binary.kind == tree_binaryexp_kind_div)
-            printf("//");
+        {
+            if(isinteger(rt(exp->binary.left->type)))
+                printf("//");
+            else
+                printf("/");
+        }
         else if(exp->binary.kind == tree_binaryexp_kind_rem)
             printf("%%");
         else if(exp->binary.kind == tree_binaryexp_kind_lshift)

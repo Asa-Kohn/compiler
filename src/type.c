@@ -64,7 +64,7 @@ static int isnumeric(struct tree_type *type)
          type->base == tree_base_type_rune);
 }
 
-static int isinteger(struct tree_type *type)
+int isinteger(struct tree_type *type)
 {
     struct tree_type *resolve = rt(type);
     return resolve &&
