@@ -96,7 +96,7 @@ void traverse_vars(PARAMS * v) {
 
 void traverse_fields(FIELDS * v) {
     indentation();
-    if(f == NULL) return;
+    if(v == NULL) return;
     printf("%s ", v->name);
     pretty_type(v->type);
     printf(";");
