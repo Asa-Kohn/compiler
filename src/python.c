@@ -201,19 +201,40 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         py_stmts(stmt->block, indent, continuestmt);
     else if(stmt->kind == tree_stmt_kind_assign)
     {
-        print_indent(indent);
-        for(struct tree_exps *exp = stmt->assign.left; exp; exp = exp->next)
+        struct tree_exps *left, *right;
+        int nonblank = 0;
+        for(left = stmt->assign.left, right = stmt->assign.right; left;
+            left = left->next, right = right->next)
+            if(left->exp->kind == tree_exp_kind_ident &&
+               !left->exp->ident->symbol)
+            {
+                print_indent(indent);
+                py_exp(right->exp, 0);
+                printf("\n");
+            }
+            else
+                nonblank = 1;
+        if(nonblank)
         {
-            py_exp(exp->exp, 0);
-            printf(", ");
+            print_indent(indent);
+            for(left = stmt->assign.left; left; left = left->next)
+                if(!(left->exp->kind == tree_exp_kind_ident &&
+                     !left->exp->ident->symbol))
+                {
+                    py_exp(left->exp, 0);
+                    printf(", ");
+                }
+            printf("= ");
+            for(right = stmt->assign.right, left = stmt->assign.left; right;
+                right = right->next, left = left->next)
+                if(!(left->exp->kind == tree_exp_kind_ident &&
+                     !left->exp->ident->symbol))
+                {
+                    py_exp(right->exp, 1);
+                    printf(", ");
+                }
+            printf("\n");
         }
-        printf("= ");
-        for(struct tree_exps *exp = stmt->assign.right; exp; exp = exp->next)
-        {
-            py_exp(exp->exp, 1);
-            printf(", ");
-        }
-        printf("\n");
     }
     else if(stmt->kind == tree_stmt_kind_assignop)
     {
@@ -493,6 +514,7 @@ static void py_varspec(struct tree_var_spec *node, int indent)
 {
     if(!node)
         return;
+    int nonblank = 0;
     for(struct tree_var_spec *spec = node; spec; spec = spec->next)
         if(!spec->ident->symbol)
         {
@@ -500,32 +522,42 @@ static void py_varspec(struct tree_var_spec *node, int indent)
             py_exp(spec->val, 0);
             printf("\n");
         }
-    print_indent(indent);
-    for(struct tree_var_spec *spec = node; spec; spec = spec->next)
-        if(spec->ident->symbol)
-        {
-            if(spec->ident->symbol->scope == symbol_scope_normal)
-                printf("globals()['_%zd'], ", spec->ident->symbol->num);
-            else
-                printf("_%zd, ", spec->ident->symbol->num);
-        }
-    printf("= ");
-    for(struct tree_var_spec *spec = node; spec; spec = spec->next)
-        if(spec->ident->symbol)
-        {
-            if(spec->val)
-                py_exp(spec->val, 1);
-            else
-                py_zerovalue(rt(node->type));
-            printf(", ");
-        }
-    printf("\n");
+        else
+            nonblank = 1;
+    if(nonblank)
+    {
+        print_indent(indent);
+        for(struct tree_var_spec *spec = node; spec; spec = spec->next)
+            if(spec->ident->symbol)
+            {
+                if(spec->ident->symbol->scope == symbol_scope_normal)
+                    printf("globals()['_%zd'], ", spec->ident->symbol->num);
+                else
+                    printf("_%zd, ", spec->ident->symbol->num);
+            }
+        printf("= ");
+        for(struct tree_var_spec *spec = node; spec; spec = spec->next)
+            if(spec->ident->symbol)
+            {
+                if(spec->val)
+                    py_exp(spec->val, 1);
+                else
+                    py_zerovalue(rt(node->type));
+                printf(", ");
+            }
+        printf("\n");
+    }
 }
 
 static void py_funcdecl(struct tree_func_decl node, int indent)
 {
     print_indent(indent);
-    printf("def _%zd(", node.ident->symbol->num);
+    printf("def ");
+    if(strcmp(node.ident->name, "init") == 0)
+        printf("init");
+    else
+        printf("_%zd", node.ident->symbol->num);
+    printf("(");
     size_t blanknum = 0;
     for(struct tree_params *param = node.params; param; param = param->next)
         if(param->ident->symbol)
@@ -551,13 +583,16 @@ void py_program(struct tree_decls *root, struct symbol_rec *symbols)
     for(struct tree_decls *c = root; c; c = c->next)
         if(c->kind == tree_decls_kind_var_decl)
             py_varspec(c->var_spec, 0);
-        else if(c->kind == tree_decls_kind_func_decl &&
-                c->func_decl.ident->symbol)
-            py_funcdecl(c->func_decl, 0);
-
-    for(size_t i = 0; symbols[i].name; i++)
-        if(strcmp(symbols[i].name, "init") == 0)
-            printf("_%zd()\n", symbols[i].num);
+        else if(c->kind == tree_decls_kind_func_decl)
+        {
+            if(c->func_decl.ident->symbol)
+                py_funcdecl(c->func_decl, 0);
+            else if(strcmp(c->func_decl.ident->name, "init") == 0)
+            {
+                py_funcdecl(c->func_decl, 0);
+                printf("init()\n");
+            }
+        }
 
     if(mainfunc > 0)
         printf("\n_%zd()\n", mainfunc);
