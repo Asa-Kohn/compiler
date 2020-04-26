@@ -1,4 +1,4 @@
-//~sorted: 1 3 4 5 7 8 10 13 55 99
+//~sorted: 1 3 4 5 7 8 10 13 55 99 
 
 //sorting tingz
 package main

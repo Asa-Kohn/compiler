@@ -1,4 +1,4 @@
-//~true true true false false  true
+//~true true true false false true 
 
 //checks whether string is palindrome
 package main
