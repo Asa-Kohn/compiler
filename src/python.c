@@ -482,25 +482,45 @@ static void py_varspec(struct tree_var_spec *node, int indent)
 {
     if(!node)
         return;
-
-    if(!node->ident->symbol)
-        return;
+    for(struct tree_var_spec *spec = node; spec; spec = spec->next)
+        if(!spec->ident->symbol)
+        {
+            print_indent(indent);
+            py_exp(spec->val, 0);
+            printf("\n");
+        }
     print_indent(indent);
-    printf("globals()['_%zd'] = ", node->ident->symbol->num);
-    if(node->val)
-        py_exp(node->val, 1);
-    else
-        py_zerovalue(rt(node->type));
+    for(struct tree_var_spec *spec = node; spec; spec = spec->next)
+        if(spec->ident->symbol)
+        {
+            if(spec->ident->symbol->scope == symbol_scope_normal)
+                printf("globals()['_%zd'], ", spec->ident->symbol->num);
+            else
+                printf("_%zd, ", spec->ident->symbol->num);
+        }
+    printf("= ");
+    for(struct tree_var_spec *spec = node; spec; spec = spec->next)
+        if(spec->ident->symbol)
+        {
+            if(spec->val)
+                py_exp(spec->val, 1);
+            else
+                py_zerovalue(rt(node->type));
+            printf(", ");
+        }
     printf("\n");
-    py_varspec(node->next, indent);
 }
 
 static void py_funcdecl(struct tree_func_decl node, int indent)
 {
     print_indent(indent);
     printf("def _%zd(", node.ident->symbol->num);
+    size_t blanknum = 0;
     for(struct tree_params *param = node.params; param; param = param->next)
-        printf("_%zd, ", param->ident->symbol->num);
+        if(param->ident->symbol)
+            printf("_%zd, ", param->ident->symbol->num);
+        else
+            printf("_blankparam%zd, ", blanknum++);
     printf("):\n");
     py_stmts(node.body, indent + 1, NULL);
 }
