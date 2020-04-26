@@ -85,17 +85,6 @@ void traverse_vars_spec(VAR_SPEC vs) {
     }
 }
 
-void traverse_fields(VARS * f) {
-    indentation();
-    if(f == NULL) return;
-    printf("%s ", f->name);
-    pretty_type(f->type);
-    if(f->next != NULL) {
-        printf("\n");
-        traverse_fields(f->next);
-    }
-}
-
 void traverse_vars(PARAMS * v) {
     printf("%s ", v->ident->name);
     pretty_type(v->type);
@@ -106,6 +95,8 @@ void traverse_vars(PARAMS * v) {
 }
 
 void traverse_fields(FIELDS * v) {
+    indentation();
+    if(f == NULL) return;
     printf("%s ", v->name);
     pretty_type(v->type);
     printf(";");
