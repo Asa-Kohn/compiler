@@ -22,7 +22,10 @@ static void py_exp(struct tree_exp *exp, int copy)
         printf("True");
     else if(exp->kind == tree_exp_kind_ident)
     {
-        printf("globals()['_%zd']", exp->ident->symbol->num);
+        if(exp->ident->symbol->scope == symbol_scope_normal)
+            printf("globals()['_%zd']", exp->ident->symbol->num);
+        else
+            printf("_%zd", exp->ident->symbol->num);
         if(copy && rt(exp->type)->kind != tree_type_kind_base)
             printf(".copy()");
     }
@@ -249,7 +252,12 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         print_indent(indent);
         for(ident = stmt->shortdecl.idents; ident; ident = ident->next)
             if(ident->ident->symbol)
-                printf("globals()['_%zd'], ", ident->ident->symbol->num);
+            {
+                if(ident->ident->symbol->scope == symbol_scope_normal)
+                    printf("globals()['_%zd'], ", ident->ident->symbol->num);
+                else
+                    printf("_%zd, ", ident->ident->symbol->num);
+            }
         printf("= ");
         for(exp = stmt->shortdecl.exps, ident = stmt->shortdecl.idents; exp;
             exp = exp->next, ident = ident->next)

@@ -151,7 +151,7 @@ static void gather_type(struct tree_type *type, struct scopetable *table,
 }
 
 static void gather_exp(struct symbol_rec *symbols, struct tree_exp *node,
-                        struct scopetable *table, size_t *index)
+                       struct scopetable *table, size_t *index)
 {
     if(!node)
         return;
@@ -273,6 +273,7 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                 {
                     newdecl = 1;
                     symbols[*index].num = *index;
+                    symbols[*index].scope = symbol_scope_normal;
                     symbols[*index].name = ident->ident->name;
                     symbols[*index].kind = symbol_kind_var;
                     symbols[*index].type = NULL;
@@ -320,6 +321,7 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                         exit(1);
                     }
                     symbols[*index].num = *index;
+                    symbols[*index].scope = symbol_scope_normal;
                     symbols[*index].name = j->ident->name;
                     symbols[*index].kind = symbol_kind_var;
                     symbols[*index].type = j->type;
@@ -347,6 +349,7 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                     exit(1);
                 }
                 symbols[*index].num = *index;
+                symbols[*index].scope = symbol_scope_normal;
                 symbols[*index].name = node->type_spec.ident->name;
                 symbols[*index].kind = symbol_kind_type;
                 symbols[*index].type = node->type_spec.type;
@@ -453,6 +456,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                         exit(1);
                     }
                     symbols[*index].num = *index;
+                    symbols[*index].scope = symbol_scope_normal;
                     symbols[*index].name = j->ident->name;
                     symbols[*index].kind = symbol_kind_var;
                     symbols[*index].type = j->type;
@@ -471,7 +475,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
             else
             {
                 if(strcmp(i->type_spec.ident->name, "init") == 0 ||
-                    strcmp(i->type_spec.ident->name, "main") == 0)
+                   strcmp(i->type_spec.ident->name, "main") == 0)
                 {
                     fprintf(stderr, "Error: special symbol declared as a type "
                             "at top level on line %d\n", i->lineno);
@@ -485,6 +489,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                     exit(1);
                 }
                 symbols[*index].num = *index;
+                symbols[*index].scope = symbol_scope_normal;
                 symbols[*index].name = i->type_spec.ident->name;
                 symbols[*index].kind = symbol_kind_type;
                 symbols[*index].type = i->type_spec.type;
@@ -510,6 +515,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                     exit(1);
                 }
                 symbols[*index].num = *index;
+                symbols[*index].scope = symbol_scope_normal;
                 symbols[*index].name = i->func_decl.ident->name;
                 symbols[*index].kind = symbol_kind_func;
                 symbols[*index].func = &i->func_decl;
@@ -537,6 +543,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                     exit(1);
                 }
                 symbols[*index].num = *index;
+                symbols[*index].scope = symbol_scope_param;
                 symbols[*index].name = c->ident->name;
                 symbols[*index].kind = symbol_kind_var;
                 symbols[*index].type = c->type;
