@@ -28,4 +28,9 @@ fi
 #
 # You MUST replace the following command with the command for invoking your compiler
 
-./src/winnipeg "$1" < "$2"
+if [[ $1 == "codegen" ]]
+then
+    ./src/winnipeg codegen < $2 > ${2%.go}.py && echo OK
+else
+    ./src/winnipeg "$1" < "$2"
+fi

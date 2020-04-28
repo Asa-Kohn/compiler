@@ -149,10 +149,12 @@ static void py_exp(struct tree_exp *exp, int copy)
     }
     else if(exp->kind == tree_exp_kind_index)
     {
-        py_exp(exp->index.arr, copy);
+        py_exp(exp->index.arr, 0);
         printf("[");
         py_exp(exp->index.index, 0);
         printf("]");
+        if(copy && rt(exp->type)->kind != tree_type_kind_base)
+            printf(".copy()");
     }
     else if(exp->kind == tree_exp_kind_field)
     {
@@ -486,14 +488,9 @@ static void py_zerovalue(struct tree_type *type)
     }
     else if(type->kind == tree_type_kind_array)
     {
-        printf("Array([");
-        for(int i = 0; i < type->array.len - 1; i++)
-        {
-            py_zerovalue(type->array.type);
-            printf(", ");
-        }
+        printf("Array(length = %d, gen = lambda: ", type->array.len);
         py_zerovalue(type->array.type);
-        printf("])");
+        printf(")");
     }
     else if(type->kind == tree_type_kind_slice)
         printf("Slice()");

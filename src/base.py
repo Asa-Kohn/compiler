@@ -6,15 +6,15 @@ class Slice:
             self.data = s.data
         else:
             self.capacity = self.length = 0
-            self.data = Array([])
+            self.data = Array()
     def __len__(self):
         return self.length
     def __getitem__(self, key):
-        if not 0 <= key < len(self):
+        if not 0 <= key < self.length:
             raise IndexError('slice index out of range')
         return self.data[key]
     def __setitem__(self, key, value):
-        if not 0 <= key < len(self):
+        if not 0 <= key < self.length:
             raise IndexError('slice assignment index out of range')
         self.data[key] = value
     def add(self, item):
@@ -31,26 +31,30 @@ class Slice:
     def copy(self):
         return Slice(self)
 class Array:
-    def __init__(self, data):
-        self.data = data
-        self.capacity = len(data)
+    def __init__(self, data = None, length = 0, gen = lambda: 0):
+        if data:
+            self.data = data
+            self.capacity = len(data)
+        else:
+            self.data = [gen() for i in range(length)]
+            self.capacity = length
     def __eq__(self, other):
         return all(i == j for i,j in zip(self.data, other.data))
     def __len__(self):
         return self.capacity
     def __getitem__(self, key):
-        if not 0 <= key < len(self):
+        if key < 0:
             raise IndexError('array index out of range')
         return self.data[key]
     def __setitem__(self, key, value):
-        if not 0 <= key < len(self):
+        if key < 0:
             raise IndexError('array assignment index out of range')
         self.data[key] = value
     def copy(self):
         try:
-            return Array([i.copy() for i in self.data])
+            return Array(data = [i.copy() for i in self.data])
         except AttributeError:
-            return Array(self.data.copy())
+            return Array(data = self.data.copy())
 class Struct(dict):
     def copy(self):
         new = {}
