@@ -1,12 +1,13 @@
+import numpy
 class Slice:
-    def __init__(self, s = None):
-        if s:
-            self.capacity = s.capacity
-            self.length = s.length
-            self.data = s.data
+    def __init__(self, data = None, length = 0):
+        if data:
+            self.data = data
+            self.capacity = data.capacity
         else:
-            self.capacity = self.length = 0
             self.data = Array()
+            self.capacity = 0
+        self.length = length
     def __len__(self):
         return self.length
     def __getitem__(self, key):
@@ -23,20 +24,24 @@ class Slice:
                 self.capacity = 2
             else:
                 self.capacity *= 2
-            self.data = self.data.copy()
-            self.data.capacity = self.capacity
-        self.data.data.append(item)
+            newarr = Array(length = self.capacity, gen = lambda: None)
+            for i in range(self.length):
+                newarr[i] = self.data.data[i]
+            self.data = newarr
+        self.data.data[self.length] = item
         self.length += 1
         return self
     def copy(self):
-        return Slice(self)
+        return Slice(self.data, self.length)
 class Array:
     def __init__(self, data = None, length = 0, gen = lambda: 0):
-        if data:
+        if data is not None:
             self.data = data
             self.capacity = len(data)
         else:
-            self.data = [gen() for i in range(length)]
+            self.data = numpy.zeros(length, dtype = numpy.dtype(numpy.object))
+            for i in range(length):
+                self.data[i] = gen()
             self.capacity = length
     def __eq__(self, other):
         return all(i == j for i,j in zip(self.data, other.data))
@@ -52,7 +57,10 @@ class Array:
         self.data[key] = value
     def copy(self):
         try:
-            return Array(data = [i.copy() for i in self.data])
+            data = numpy.zeros(self.capacity)
+            for i in range(self.capacity):
+                data[i] = self.data[i]
+            return Array(data = data)
         except AttributeError:
             return Array(data = self.data.copy())
 class Struct(dict):
