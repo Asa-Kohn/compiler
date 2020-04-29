@@ -15,8 +15,8 @@ enum symbol_kind
 
 enum symbol_scope
 {
-    symbol_scope_normal,
-    symbol_scope_param
+    symbol_scope_global,
+    symbol_scope_local
 };
 
 struct symbol_const

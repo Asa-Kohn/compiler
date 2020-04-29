@@ -22,7 +22,7 @@ static void py_exp(struct tree_exp *exp, int copy)
         printf("True");
     else if(exp->kind == tree_exp_kind_ident)
     {
-        if(exp->ident->symbol->scope == symbol_scope_normal)
+        if(exp->ident->symbol->scope == symbol_scope_global)
             printf("globals()['_%zd']", exp->ident->symbol->num);
         else
             printf("_%zd", exp->ident->symbol->num);
@@ -287,7 +287,7 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
         for(ident = stmt->shortdecl.idents; ident; ident = ident->next)
             if(ident->ident->symbol)
             {
-                if(ident->ident->symbol->scope == symbol_scope_normal)
+                if(ident->ident->symbol->scope == symbol_scope_global)
                     printf("globals()['_%zd'], ", ident->ident->symbol->num);
                 else
                     printf("_%zd, ", ident->ident->symbol->num);
@@ -527,7 +527,7 @@ static void py_varspec(struct tree_var_spec *node, int indent)
         for(struct tree_var_spec *spec = node; spec; spec = spec->next)
             if(spec->ident->symbol)
             {
-                if(spec->ident->symbol->scope == symbol_scope_normal)
+                if(spec->ident->symbol->scope == symbol_scope_global)
                     printf("globals()['_%zd'], ", spec->ident->symbol->num);
                 else
                     printf("_%zd, ", spec->ident->symbol->num);

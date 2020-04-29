@@ -273,7 +273,7 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                 {
                     newdecl = 1;
                     symbols[*index].num = *index;
-                    symbols[*index].scope = symbol_scope_normal;
+                    symbols[*index].scope = symbol_scope_local;
                     symbols[*index].name = ident->ident->name;
                     symbols[*index].kind = symbol_kind_var;
                     symbols[*index].type = NULL;
@@ -321,7 +321,7 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                         exit(1);
                     }
                     symbols[*index].num = *index;
-                    symbols[*index].scope = symbol_scope_normal;
+                    symbols[*index].scope = symbol_scope_local;
                     symbols[*index].name = j->ident->name;
                     symbols[*index].kind = symbol_kind_var;
                     symbols[*index].type = j->type;
@@ -349,7 +349,7 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                     exit(1);
                 }
                 symbols[*index].num = *index;
-                symbols[*index].scope = symbol_scope_normal;
+                symbols[*index].scope = symbol_scope_local;
                 symbols[*index].name = node->type_spec.ident->name;
                 symbols[*index].kind = symbol_kind_type;
                 symbols[*index].type = node->type_spec.type;
@@ -456,7 +456,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                         exit(1);
                     }
                     symbols[*index].num = *index;
-                    symbols[*index].scope = symbol_scope_normal;
+                    symbols[*index].scope = symbol_scope_global;
                     symbols[*index].name = j->ident->name;
                     symbols[*index].kind = symbol_kind_var;
                     symbols[*index].type = j->type;
@@ -489,7 +489,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                     exit(1);
                 }
                 symbols[*index].num = *index;
-                symbols[*index].scope = symbol_scope_normal;
+                symbols[*index].scope = symbol_scope_global;
                 symbols[*index].name = i->type_spec.ident->name;
                 symbols[*index].kind = symbol_kind_type;
                 symbols[*index].type = i->type_spec.type;
@@ -515,7 +515,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                     exit(1);
                 }
                 symbols[*index].num = *index;
-                symbols[*index].scope = symbol_scope_normal;
+                symbols[*index].scope = symbol_scope_global;
                 symbols[*index].name = i->func_decl.ident->name;
                 symbols[*index].kind = symbol_kind_func;
                 symbols[*index].func = &i->func_decl;
@@ -543,7 +543,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                     exit(1);
                 }
                 symbols[*index].num = *index;
-                symbols[*index].scope = symbol_scope_param;
+                symbols[*index].scope = symbol_scope_local;
                 symbols[*index].name = c->ident->name;
                 symbols[*index].kind = symbol_kind_var;
                 symbols[*index].type = c->type;
