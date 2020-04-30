@@ -1,4 +1,6 @@
+from copy import deepcopy
 class Slice:
+    __slots__ = ('capacity', 'length', 'data')
     def __init__(self, s = None):
         if s:
             self.capacity = s.capacity
@@ -23,38 +25,26 @@ class Slice:
                 self.capacity = 2
             else:
                 self.capacity *= 2
-            self.data = self.data.copy()
-            self.data.capacity = self.capacity
-        self.data.data.append(item)
+            self.data = deepcopy(self.data)
+        self.data.append(item)
         self.length += 1
         return self
-    def copy(self):
+    def __deepcopy__(self, memo):
         return Slice(self)
-class Array:
+class Array(list):
     def __init__(self, data = None, length = 0, gen = lambda: 0):
-        if data:
-            self.data = data
-            self.capacity = len(data)
+        if data is not None:
+            list.__init__(self, data)
         else:
-            self.data = [gen() for i in range(length)]
-            self.capacity = length
-    def __eq__(self, other):
-        return all(i == j for i,j in zip(self.data, other.data))
-    def __len__(self):
-        return self.capacity
+            list.__init__(self, [gen() for i in range(length)])
     def __getitem__(self, key):
         if key < 0:
             raise IndexError('array index out of range')
-        return self.data[key]
+        return list.__getitem__(self, key)
     def __setitem__(self, key, value):
         if key < 0:
             raise IndexError('array assignment index out of range')
-        self.data[key] = value
-    def copy(self):
-        try:
-            return Array(data = [i.copy() for i in self.data])
-        except AttributeError:
-            return Array(data = self.data.copy())
+        return list.__setitem__(self, key, value)
 class Struct(dict):
     def copy(self):
         new = {}

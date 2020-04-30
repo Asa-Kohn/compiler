@@ -22,12 +22,14 @@ static void py_exp(struct tree_exp *exp, int copy)
         printf("True");
     else if(exp->kind == tree_exp_kind_ident)
     {
+        if(copy && rt(exp->type)->kind != tree_type_kind_base)
+            printf("deepcopy(");
         if(exp->ident->symbol->scope == symbol_scope_global)
-            printf("globals()['_%zd']", exp->ident->symbol->num);
+            printf("symbols._%zd", exp->ident->symbol->num);
         else
             printf("_%zd", exp->ident->symbol->num);
         if(copy && rt(exp->type)->kind != tree_type_kind_base)
-            printf(".copy()");
+            printf(")");
     }
     else if(exp->kind == tree_exp_kind_int)
         printf("%d", exp->intval);
@@ -110,6 +112,8 @@ static void py_exp(struct tree_exp *exp, int copy)
     {
         if(exp->call.func->ident->symbol->kind == symbol_kind_func)
         {
+            if(copy && rt(exp->type)->kind != tree_type_kind_base)
+                printf("deepcopy(");
             py_exp(exp->call.func, 0);
             printf("(");
             for(struct tree_exps *exps = exp->call.exps; exps;
@@ -120,7 +124,7 @@ static void py_exp(struct tree_exp *exp, int copy)
             }
             printf(")");
             if(copy && rt(exp->type)->kind != tree_type_kind_base)
-                printf(".copy()");
+                printf(")");
         }
         else
         {
@@ -149,12 +153,14 @@ static void py_exp(struct tree_exp *exp, int copy)
     }
     else if(exp->kind == tree_exp_kind_index)
     {
+        if(copy && rt(exp->type)->kind != tree_type_kind_base)
+            printf("deepcopy(");
         py_exp(exp->index.arr, 0);
         printf("[");
         py_exp(exp->index.index, 0);
         printf("]");
         if(copy && rt(exp->type)->kind != tree_type_kind_base)
-            printf(".copy()");
+            printf(")");
     }
     else if(exp->kind == tree_exp_kind_field)
     {
@@ -177,9 +183,13 @@ static void py_exp(struct tree_exp *exp, int copy)
     }
     else if(exp->kind == tree_exp_kind_cap)
     {
+        if(rt(exp->exp->type)->kind == tree_type_kind_array)
+            printf("len");
         printf("(");
         py_exp(exp->exp, 0);
-        printf(").capacity");
+        printf(")");
+        if(rt(exp->exp->type)->kind == tree_type_kind_slice)
+            printf(".capacity");
     }
 }
 
@@ -224,7 +234,8 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
                      !left->exp->ident->symbol))
                 {
                     py_exp(left->exp, 0);
-                    printf(", ");
+                    if(left->next)
+                        printf(", ");
                 }
             printf("= ");
             for(right = stmt->assign.right, left = stmt->assign.left; right;
@@ -233,7 +244,8 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
                      !left->exp->ident->symbol))
                 {
                     py_exp(right->exp, 1);
-                    printf(", ");
+                    if(left->next)
+                        printf(", ");
                 }
             printf("\n");
         }
@@ -288,9 +300,11 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
             if(ident->ident->symbol)
             {
                 if(ident->ident->symbol->scope == symbol_scope_global)
-                    printf("globals()['_%zd'], ", ident->ident->symbol->num);
+                    printf("symbols._%zd", ident->ident->symbol->num);
                 else
-                    printf("_%zd, ", ident->ident->symbol->num);
+                    printf("_%zd", ident->ident->symbol->num);
+                if(ident->next)
+                    printf(", ");
             }
         printf("= ");
         for(exp = stmt->shortdecl.exps, ident = stmt->shortdecl.idents; exp;
@@ -298,7 +312,8 @@ static void py_stmt(struct tree_stmt *stmt, int indent,
             if(ident->ident->symbol)
             {
                 py_exp(exp->exp, 1);
-                printf(", ");
+                if(ident->next)
+                    printf(", ");
             }
         printf("\n");
     }
@@ -528,9 +543,11 @@ static void py_varspec(struct tree_var_spec *node, int indent)
             if(spec->ident->symbol)
             {
                 if(spec->ident->symbol->scope == symbol_scope_global)
-                    printf("globals()['_%zd'], ", spec->ident->symbol->num);
+                    printf("symbols._%zd", spec->ident->symbol->num);
                 else
-                    printf("_%zd, ", spec->ident->symbol->num);
+                    printf("_%zd", spec->ident->symbol->num);
+                if(spec->next)
+                    printf(", ");
             }
         printf("= ");
         for(struct tree_var_spec *spec = node; spec; spec = spec->next)
@@ -540,7 +557,8 @@ static void py_varspec(struct tree_var_spec *node, int indent)
                     py_exp(spec->val, 1);
                 else
                     py_zerovalue(rt(node->type));
-                printf(", ");
+                if(spec->next)
+                    printf(", ");
             }
         printf("\n");
     }
@@ -569,10 +587,19 @@ void py_program(struct tree_decls *root, struct symbol_rec *symbols)
 {
     printf("%.*s", base_py_len, base_py);
 
+    printf("class Symbols(object):\n");
+    printf("    __slots__ = (");
+    for(size_t i = 0; symbols[i].name; i++)
+        if(symbols[i].scope == symbol_scope_global &&
+           symbols[i].kind != symbol_kind_type)
+            printf("'_%zd', ", symbols[i].num);
+    printf(")\n");
+    printf("symbols = Symbols()\n");
+
     size_t mainfunc = 0;
     for(size_t i = 0; symbols[i].name; i++)
         if(symbols[i].kind == symbol_kind_const)
-            printf("_%zd = %d\n", symbols[i].num, symbols[i].constrec.constval);
+            printf("symbols._%zd = %d\n", symbols[i].num, symbols[i].constrec.constval);
         else if(symbols[i].kind == symbol_kind_func &&
                 strcmp(symbols[i].name, "main") == 0)
             mainfunc = symbols[i].num;
@@ -583,7 +610,11 @@ void py_program(struct tree_decls *root, struct symbol_rec *symbols)
         else if(c->kind == tree_decls_kind_func_decl)
         {
             if(c->func_decl.ident->symbol)
+            {
                 py_funcdecl(c->func_decl, 0);
+                printf("symbols._%zd = _%zd\n", c->func_decl.ident->symbol->num,
+                       c->func_decl.ident->symbol->num);
+            }
             else if(strcmp(c->func_decl.ident->name, "init") == 0)
             {
                 py_funcdecl(c->func_decl, 0);

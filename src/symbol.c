@@ -641,42 +641,49 @@ struct symbol_rec *symbol_weave(struct tree_decls *root)
         .num = 0,
         .name = "true",
         .kind = symbol_kind_const,
+        .scope = symbol_scope_global,
         .constrec = {.constval = 1, .type = emalloc(sizeof(struct tree_type))}
     };
     symbols[1] = (struct symbol_rec) {
         .num = 1,
         .name = "false",
         .kind = symbol_kind_const,
+        .scope = symbol_scope_global,
         .constrec = {.constval = 0, .type = emalloc(sizeof(struct tree_type))}
     };
     symbols[2] = (struct symbol_rec) {
         .num = 2,
         .name = "int",
         .kind = symbol_kind_type,
+        .scope = symbol_scope_global,
         .type = emalloc(sizeof(struct tree_type))
     };
     symbols[3] = (struct symbol_rec) {
         .num = 3,
         .name = "float64",
         .kind = symbol_kind_type,
+        .scope = symbol_scope_global,
         .type = emalloc(sizeof(struct tree_type))
     };
     symbols[4] = (struct symbol_rec) {
         .num = 4,
         .name = "rune",
         .kind = symbol_kind_type,
+        .scope = symbol_scope_global,
         .type = emalloc(sizeof(struct tree_type))
     };
     symbols[5] = (struct symbol_rec) {
         .num = 5,
         .name = "bool",
         .kind = symbol_kind_type,
+        .scope = symbol_scope_global,
         .type = emalloc(sizeof(struct tree_type))
     };
     symbols[6] = (struct symbol_rec) {
         .num = 6,
         .name = "string",
         .kind = symbol_kind_type,
+        .scope = symbol_scope_global,
         .type = emalloc(sizeof(struct tree_type))
     };
     symbols[0].constrec.type->kind = tree_type_kind_base;
