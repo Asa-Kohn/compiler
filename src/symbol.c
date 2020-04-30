@@ -519,9 +519,9 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                 symbols[*index].name = i->func_decl.ident->name;
                 symbols[*index].kind = symbol_kind_func;
                 symbols[*index].func = &i->func_decl;
+                i->func_decl.ident->symbol = &symbols[*index];
                 if(strcmp(i->func_decl.ident->name, "init") != 0)
-                    scopetable_add(table.table,
-                                   i->func_decl.ident->symbol = &symbols[*index]);
+                    scopetable_add(table.table, i->func_decl.ident->symbol);
                 (*index)++;
             }
             gather_type(i->func_decl.type, &table, i->lineno);
