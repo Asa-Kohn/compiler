@@ -4,8 +4,10 @@
 \usepackage{amsmath}
 
 \usepackage{natbib}
+\usepackage{setspace}
 \bibliographystyle{unsrtnat}
 
+\setstretch{1.30}
 
 \title{The GoLite Project}
 \author{Alexander Iannantuono, Asa Kohn, and William Chien\\
@@ -19,8 +21,6 @@ Alexander Krolik}
 %                           with compilers, but not Go/GoLite or vice versa.
 
 
-\usepackage{geometry}
-\geometry{margin=1in}
 \usepackage{hyperref}
 
 % TODO remove this when done
@@ -61,7 +61,7 @@ The possibility of implementing a fully functional compiler for a language such 
     \item Any type switch statements are no longer allowed
     \item There are only three type of for-loops: infinite, while and three-part loops
     \item Removal of break and continue unlabelled forms
-    \item There are four unary operators: \verb|!|, \verb|^|, \verb|+|, \verb|-|
+    \item There are now only four unary operators: \verb|!|, \verb|^|, \verb|+|, \verb|-|
     \item Trailing commas in functions calls are disallowed
     \item Slice expressions are disallowed
     \item Simpler \texttt{append()}, it how has the form \texttt{append(slice, element)}
@@ -73,11 +73,7 @@ This is not an exhaustive lists, but there is also something such as the removal
 
 For this report's structure, we follow the general structure that is presented in the document given by the course's instructor. That being said, we write about the overview, design decisions and all the testing done \textit{for each component} of the compiler as three separate parts. We did this instead of writing about all three parts (overview, design decisions, testing) for each component separately since the design decisions and testing done in components up in the pipeline influenced modifications to decision decisions made and to be aware of in the future. This applies to testing as well: cases that we missed and to make sure to look into those cases in the future. What we've decided to do allows for explanation of how all components interact with each other in specific contexts (rather that going back and forth).
 
-% TODO Add more?
-
 For the conclusions, each member of the group has written their own part personally, and we indicate their name so it is clear who's experience is being read.
-
-% TODO Add more?
 
 The contributions section was agreed upon by all three of us before submission so that everyone in the group is on the same page as each other in terms of project involvement.
 
@@ -104,24 +100,28 @@ We used the flex framework for implementing the scanner. The scanner is also cal
 % TODO right?
 Another part of the scanner is recognizing certain parts of the language, like variable identifiers, or literals. In our case, literals could be a string (\texttt{"apple"}), integer (\texttt{1}), rune (\texttt{'k'}), float (\texttt{3.14}) or boolean (\texttt{True}). Another part of the language to be able to identify are comments. In GoLite, there are block comments and inline comments. We used regular expressions to match them all. In some cases, the regular expressions that used to express the rules for the identifiers, literals, etc. became quite complicated and lengthy. These regular expressions \textit{could} have been expressed using a context free grammar given the theorem that says this is true, but we opted for keeping the regular expressions. This turned out to penalize us after the first milestone because we made mistakes in our regular expression, but we believe that this is now amended.
 
-Originally, for rune scanning we had \texttt{'.'} as the regular expression. Unfortunately, this is incorrect since it does not account for rune literals \verb|\a, \b, \f, \n, \r, \t, \v, \\, \'|. This was changed to \verb|'[\^\\']'| to ignore any special rune literals so that it can be checked on further down.
+Originally, for rune scanning we had \texttt{'.'} as the regular expression. Unfortunately, this is incorrect since it does not account for the rune literals:
+\[
+    \verb|\a, \b, \f, \n, \r, \t, \v, \\, \'|.
+\]
+This was changed to \verb|'[\^\\']'| to ignore any special rune literals so that it can be checked on further down.
 
 The last thing to mention about the scanner is how it decides what token is has seen. It outputs the token of the regular expression that has the longest possible match with respect to the number of characters. An example of this would be say \texttt{==} will output \texttt{tEQ} where this represents the equality token instead of \texttt{'=''='}. The scanner will choose \texttt{tEQ} since the longest match is of length 2, in comparison to \texttt{'='}, which has length 1 (twice).
 
-In regards to testing, we thought that we did a substantial amount of it having written many test programs. However, we missed a few cases as we did not get 100\% on that portion of the first milestone. Specifically, the regular expression for octal integer literals and comments were not complete, as well as what has been mentioned above. These are some examples to what led to scanning errors and deduction of points. We think that this has been fixed in our final compiler, but we cannot guarantee that.
+In regards to testing, we thought that we did a substantial amount of it having written many test programs. However, we missed a few cases as we did not get 100\% on that portion of the first milestone. Specifically, the regular expression for octal integer literals and comments were not complete, as well as what has been mentioned above. These are some examples to what led to scanning errors and deduction of points. We think that this has been fixed in our final compiler.
 
 \subsection{Parser}
 
 The role of the parser in a compiler is to represent the tokens outputted by the lexer (scanner) in the form of a context-free grammar that defines the language. Given a certain sequence of tokens, it will yield a parsing error if the sequence cannot be represented by the grammar. 
 
-We used GNU Bison to implement the parser, which has all of its documentation online and is very complete. Considering that we knew how to work this tool from our respective second assignments, we did not run into any major problems while implementing the GoLite parser. The language itself did not have much that was different than Golang, and we had to take into consideration a subset of the rules presented in the Golang language specification\cite{gospec}. The original specification was heavily accessed throughout this phase. Any errors that we had made during the development of the parser were careless and were trivial to fix. There was one discussion that we had as a group: it was in regards to the precedence directives for certain tokens. The precedence directives are used by GNU Bison in order to break ties if a shift/reduce conflict arises when it is parsing some file. In the Bison source code file \texttt{golite.y}, the tokens that require directives are given an increasing priority as its line number in the file increases. Directives on the same line have the same priority in the order of operations. Finally, the programmer also has to give the token a left, right or no associativity directive for each token. Most were straightforward, except for the \texttt{'('} and \texttt{'['} tokens. After some discussion, we realized that it should have the \verb|%nonassoc| directive, which means that something like \texttt{x op y op z} is a syntax (parsing) error, where \texttt{op} is \texttt{(} or \texttt{[}. Using this directive on those tokens eliminated our shift/reduce conflicts that were occuring on our test files. This makes sense since for instance: \texttt{x ( y ( z} is not valid in GoLite.
+We used GNU Bison to implement the parser, which has all of its documentation online and is very complete. Considering that we knew how to work this tool from our respective second assignments, we did not run into any major problems while implementing the GoLite parser. The language itself did not have much that was different than Golang, and we had to take into consideration a subset of the rules presented in the Golang language specification \cite{gospec}. The original specification was heavily accessed throughout this phase. Any errors that we had made during the development of the parser were careless and were trivial to fix. There was one discussion that we had as a group: it was in regards to the precedence directives for certain tokens. The precedence directives are used by GNU Bison in order to break ties if a shift/reduce conflict arises when it is parsing some file. In the Bison source code file \texttt{golite.y}, the tokens that require directives are given an increasing priority as its line number in the file increases. Directives on the same line have the same priority in the order of operations. Finally, the programmer also has to give the token a left, right or no associativity directive for each token. Most were straightforward, except for the \texttt{'('} and \texttt{'['} tokens. After some discussion, we realized that it should have the \verb|%nonassoc| directive, which means that something like \texttt{x op y op z} is a syntax (parsing) error, where \texttt{op} is \texttt{(} or \texttt{[}. Using this directive on those tokens eliminated our shift/reduce conflicts that were occuring on our test files. This makes sense since for instance: \texttt{x ( y ( z} is not valid in GoLite.
 
-We also realized that the parser for GoLite is not actually an LLR(k) parser for any $k>0$. An example that shows this is the case is:
+We also realized that the parser for GoLite is not actually an LLR($k$) parser for any $k>0$. An example that shows this is the case is:
 % TODO @asa example please
-Therefore, a GLR parser is what we believe the compiler to actually be.
+Therefore, a GLR parser is what we believe it to actually be.
 % TODO reasoning?
 
-There were some fixes that occured over the course of the milestones: there was originally the rule for a simple statement (as defined in Golag) in our grammar file that had assigned \texttt{exps '=' exps} with the left and right parts to both be the same. Clearly, this is erronous. Another fix is to separate function declarations with parameters and no parameters as a different rule than those with parameters. This makes things easier to read. Many fixes were simple null pointer checks to avoid segmentation faults.
+There were some fixes in the parser that occured over the course of the milestones: there was originally the rule for a simple statement (as defined in Golag) in our grammar file that had assigned \texttt{exps '=' exps} with the left and right parts to both be the same. Clearly, this is erronous. Another fix is to separate function declarations with parameters and no parameters as a different rule than those with parameters. This makes things easier to read. Many fixes were simple null pointer checks to avoid segmentation faults.
 
 In the case of GoLite, a program file is comprised of a package declaration, and zero or more top-level declarations. The package must have a non-null name (just \texttt{package;} is a syntax error). Top-level declarations can be variables, functions or user-defined types. Within the three kinds of declarations, further rules can be applied: a list of zero or more statements, which can then have expressions, etc. 
 
@@ -133,11 +133,11 @@ Finally, Asa had written a couple of useful utility (helper) functions which can
 
 The parser is also where we implemented the semi-colon insertion rules. 
 
+% TODO BLANK IDENTIFIER
+
 \subsection{Abstract Syntax Tree (AST)}
 
-% TODO @asa @will add some stuff pls
-
-The abstract syntax tree has the tole of giving structure to the program in GoLite. During the parsing phase, the parser calls certain AST functions and uses the tree's structure (that has been decided beforehand) to form the program as a tree. The tree works in conjunction with the parser and is easiest to build while parsing. In our implementation of a GoLite compiler, our AST features quite the amount of concision\footnote{This was somewhat validated by the instructor during our group meeting.} and is meant to represent the natural structure of a program. In fact, we could argue that the structure of the AST is rather intuitive. A lot, if not all, of the labels used to represent certain parts of GoLite concepts or structures utilizes the same ones as those presented in the Golang specification\cite{gospec}. This makes it easier to read back and forth in an effort to verify its correctness since we do not have to relabel certain terms like \texttt{varspec} to whatever label we would have chosen\footnote{In some parallel universe, where we start early and there is no pandemic.}. The tree itself features many linked lists to represent the tree. In fact, the program is comprised of a linked list of entries, with the root being the package declaration, and the children nodes are the top-level declarations. The children themselves, depending on what they are have their children represented by a pointer to a linked list, and this continues until the leaves which could be an identifier, a slice, an element in an array, a literal or a field in a (GoLite) struct.
+The abstract syntax tree has the tole of giving structure to the program in GoLite. During the parsing phase, the parser calls certain AST functions and uses the tree's structure (that has been decided beforehand) to form the program as a tree. The tree works in conjunction with the parser and is easiest to build while parsing. In our implementation of a GoLite compiler, our AST features quite the amount of concision\footnote{This was somewhat validated by the instructor during our group meeting.} and is meant to represent the natural structure of a program. In fact, we could argue that the structure of the AST is rather intuitive. A lot, if not all, of the labels used to represent certain parts of GoLite concepts or structures utilizes the same ones as those presented in the Golang specification \cite{gospec}. This makes it easier to read back and forth in an effort to verify its correctness since we do not have to relabel certain terms like \texttt{varspec} to whatever label we would have chosen\footnote{In some parallel universe, where we start early and there is no pandemic.}. The tree itself features many linked lists to represent the tree. In fact, the program is comprised of a linked list of entries, with the root being the package declaration, and the children nodes are the top-level declarations. The children themselves, depending on what they are have their children represented by a pointer to a linked list, and this continues until the leaves which could be an identifier, a slice, an element in an array, a literal or a field in a (GoLite) struct.
 
 The simplicity and straightforward approach to the AST made implementing the pretty printer rather simple\footnote{Simple even on limited sleep at 4 AM.}, which must traverse the tree after it has been built by the parser.
 
@@ -151,60 +151,85 @@ Given that the scanner, parser, abstract syntax tree, (pretty printer) and weede
 
 \subsection{Weeder}
 
-% TODO @asa @will, this section should be pretty small
+The weeder component of the compiler traverses over the abstract syntax tree that represents the program and verifies for any exclusive rules that are disallowed. If a weeder is necessary, the grammar in the parser accepts a superset of what actually defines the language. The parser will allow programs that are not actually syntactically valid, and leaves that for the weeder to do a final verification. If one considers these exclusive disallowed rules as ``weeds'' within the AST, then the weeder is effectively de-weeding the AST, and yields an error.
 
+In our \texttt{weed.c} source code file, we have several functions that each play a role in findings the so-called `weeds' in the tree.
+
+We perform the weeding phase on all declarations at the top-level. Then, if it runs into a function declaration, then the weeder checks all statements within the body of the function. It checks for the following:
+
+\begin{enumerate}
+    \item Existence of at most one default case in a switch statement
+    \item Mismatch of number of identifiers to expressions in short declaration
+    \item Mismatch of number of identifiers to expressions in assignment
+    \item A short declaration in the post statement in a three-part for-loop
+    \item Invalid use of the \texttt{continue} statement as a case
+    \item Invalid use of the \texttt{continue} statement if a case is true
+    \item Existence of a break statement in for-loops (with conditions) if it requires it
+    \item Existence of a terminating statement in if it requires it (non-void functions)
+\end{enumerate}
+
+Depending on the item in the list, if one of these is encounter, or passes these tests, then there are no weeds in the AST and we can move onto the next phase.
+
+In regards to testing, this is the smallest portion of the first milestone that we had written. There were some fixes that were done after the first milestone based on the test suite. Previously, we consider an expression statement that was not a function call, but this was put into the parser instead. Besides this, we used the test files that were written by us in order to test the weeder. It looks to have done a fair job.
 
 \subsection{Symbol Table}
 
-% TODO @asa
+Unfortunately, the structure of the AST is not enough to be able to typecheck, even if we included the types in the tree somehow. Therefore, we need another structure: the symbol table. The symbol table phase of the compilation process uses the information from the AST that was built during the parsing phase. It starts at the root of the abstract syntax tree, and recursively traverses the tree and enters symbols into a table. The symbol table is also where the notion of \textit{scoping} plays a role in verifying if a program is valid in a language.
 
-\subsection{Typechecker}
+In Golite, a symbol can either be an constant (base type literal), a type, a variable (identifier) or a function name. What defines a symbol is dependent on the language being compiled. The table's structure is up to the compiler's designer to decide, but there a couple of ways to design a table. There are two main approaches that were learned during the semester \cite{symtab}: flat hierarchy and cactus stack (parent pointer tree). In the former, the symbol table stores the type information of the symbols when it is being built. When using a cactus stack, the symbol points to its parent.
 
-% TODO ~@alex (not really though) @asa
+We opted for the cactus stack when designing the symbol table as it provides linear search. Our symbol table also uses \textit{weaving} which means that every symbol in the symbol table has a pointer to its declaration in the AST. Doing this allows the symbol table to have more information, and is likely to yield more a compact source code file(s) at the expense of speed \cite{symtab}. To implement our symbol table, we had a cactus stack of hash tables that would provide faster symbol lookups. In order to do this, we used a well-balanced\footnote{This is based on empirical data.} hash function:
+\[
+    \texttt{while (*str) hash = (hash << 1) + *str++;}
+\]
+Although, we used a for-loop in our implementation of this function.
+
+Again, with the weaving allowing for a compact symbol table, the code is quite concise. That being said, there were several fixes that needed to be done after testing by us, and after the test suite was released. Many of the fixes were due to scoping issues; in fact, one of the last fixes to the symbol table was just two days ago. There is constant fixing required when writing a compiler.
+
+\subsection{Type Checking}
+
+Typechecking is the final stage in code verification from a compilation standpoint: anything else is a run-time error that cannot be checked at compile-time. If an error is found by the typechecker, this is a type error due to a \textit{type rule} not being satisfied.
+
+Type rules are a formal abstraction of logical rules in prose. An example of this would be:
+\[
+    \frac{V, T, F \vdash e_1 : \tau_1 \quad V, T, F \vdash e_2 : \tau_2 \quad \tau_1 = \tau_2 \quad RT(T, \tau_1) \in \{\texttt{int}\} \quad \text{op} \in \{\texttt{+}\}}{V, T, F \vdash e_1 \ \text{op} \ e_2 : \tau_1}
+\]
+
+In prose, this states that \textit{if the expression $e_1$ is of type $\tau_1$ and the expression $e_2$ is of type $\tau_2$ under the context of $V, T, F$, $\tau_1$ and $\tau_2$ are of the same type, the base type of $\tau_1$ is an integer and the operator is binary addition, then under the context of $V, T, F$ it is provable that the expression $e_1 \ \text{op} \ e_2$ is of type $\tau_1$}.
+
+The process of type checking is recursive once more and utilizes the information from the AST and the symbol table in order to verify if every expression and statement \textit{typechecks}, which is to say that the type rules for each of them is satisfied and provable.
+
+All of the type rules are described in the GoLite specification document from the course \cite{VincentGoLite}. There were a few issues that occurred during the implementation of the typechecker. Besides what we will deem typical byg fixes of finding segmentation faults and careless errors, we were not certain if it was required to check recursive types. There was nothing in the specification document, course slides, not the social network group that provided information besides another fellow student inquiring about it. It turns out that we only discovered that this was mentioned in class and written on the board briefly. Perhaps that this will inspire us to focus more in our future courses. All that said, we did not end up implementing that portion of the type checking which led to loss of marks when tested in the second milestone. 
+
+Besides the above and an assorted array of minor mistakes made while developing the typechecking, no other issues are worth mentioning.
+
+% TODO @will testing 
 
 \subsection{Code Generation}
 
-% TODO @asa @will
+Assuming a bug-free compiler, we can claim that the input file is syntactically and semantically valid, it is free of scoping errors and the program that is represented by the input \textit{typechecks}. Assuming that we can represent the program in some other language (which we call the \textit{target language}, we can then convert the AST with the symbol table into the equivalent program in that language. This is what is called \textit{code generation}.
+
+The code generation phase requires the symbol table and the abstract syntax tree in order to output the equivalent program. It begins by traversing the AST to determine the layout of the program, and referring to the symbol table whenever it needs to check a symbol's scope and its type information. When outputting the target language's equivalent constructs, this is done by writing to a file. 
+
+Unfortunately, not all languages offer the same features, and so it is possible that one needs to implement the equivalent behaviours in the target language. This goes for something like array, slice or struct equality: in Golang and GoLite it checks if the content is actually the same, not if they refer to the same thing (as in a pointer). In a language like Java, one of the first things that beginners are taught is that \texttt{Object1 == Object2} compares their addresses, not their values. Another behaviour that needed to be implemented was the capacity of a slice. In Golang and GoLite, a slice is actually a fixed length array that is hidden. Upon an append to a full slice, a new fixed length array with double the capacity of the original array is allocated and all the original values and then this new appended element are copied into it. In other words, the capacity of a slice will be a power of 2, i.e. $2^k$ for some $k \geq 0$. Therefore, we needed to create new classes (or structures) in order to get equivalent functionality in our target language as in GoLite.
 
 \section{Conclusion}
 
-% TODO General conclusion
-% TODO Things that we would change if we would do this project again having the knowledge that we have about it now
-
 % will: i think the main focus of the conclusion should be on the project without diving too much into 
 
-\subsection{Experiences}
+In all, implementing a compiler for a language is not a trivial task. Due to its pipeline-like development process, the dependency is a path, rather than a more complex graph\footnote{Although a path is a type of graph.}. Over the course of a few months we were able to apply the concepts learned in class into what we hope is considered to be a functional compiler.
 
-\subsubsection{Alex}
+Like any project, there are difficulties encountered as time progresses. One of our main challenges was when we started to work. If we were to go back in time and do something differently, it would be to listen to our instructors \textit{constant} advice and to \textbf{start early}. Starting early might have reduced the presence of careless, hard to spot mistakes in our design and source code. This would also allow for more thorough testing, which adds to the previous argument.
 
-% Given the unprecedented global situation that we are all facing, along with
-% medical complications that worsened over the course of the semester, working on the project became increasingly challenging to do. That being said, I had a great time doing what I could: learning how something like the Go programming language works from source to machine
-% code is something that interests me greatly. This might stem from the tinkerer-side of me, which was originally had started by taking mechanical devices apart to see how they functioned. A project like this allowed for me to discover how a compiler works, and I am glad that I was able to do this.
-
-% While many at McGill or even university dislike group projects because of lack
-% of coordination and communication from fellow group members, it's peculiar for
-% me being the one that has done the least amount of work (this is my own
-% observation), given that in past projects during my academic career I felt like I was doing a reasonably amount to the majority of it.
-% That being said, I cannot begin to express the appreciation that I have for the
-% understanding and compassion that Asa and Will had showed throughout this project, as well as Alex's (instructor) understanding of my situation. I personally think that we got along really well and had a great time despite the stressful crunch times that we had been in. In terms of group projects, I would keep the group component of the project as it is, because while many find it difficult, we live in a society where collaboration and cooperation is vital. As a somewhat strange note: oddly enough, governments even seem to struggle with these things as this pandemic continues to unfold.
-
-% As for the actual content of the project, I would just say that perhaps more instructions could be given on certain components of the compiler. I understand that this is a 500 level course, and that we are (mostly) adults that should be able to forecast our abilities to do the work, although the project is inherently demanding as is the course. Perhaps there could be an easing of certain constructs within GoLite that could be removed or modified, which would make the implementation of the compiler slightly more straightforward.
-
-\subsubsection{Asa}
-
-% TODO @asa
-
-\subsubsection{Will}
-
-% TODO @will
+Also, group projects make pipeline-like development more challenging given that much coordination is required among team members. Considering the stay-at-home orders, there were other preoccupations and tasks that are in the queue for us to complete. Perhaps starting earlier, improving on organization or task assignment would be approaches consider in future projects for any of us.
 
 \section{Contributions}
 
 \subsection{Alex}
 
-To be completely honest, I do not feel comfortable saying that I did anything near a third of the work for this project. I definitely helped out in many aspects throughout the implementation and project, but I did not lead on any development of the components of the compiler besides the pretty printer, which is not really a component of the compiler. That being said, I helped Will write tester code and did testing of the components when it was necessary to do so. I took care of the pretty printer and fixing any bugs that I missed during the first milestone submission. I mainly worked on the reports (including this one), with the exception of the report for the second milestone. This is due to me falling ill and there were modifications to our implementation that were not reflected in what I had originally written. I wrote a couple of the initial regular expressions (i think?) for the scanner. I wrote the boilerplate code for the typechecker, but after looking at the submission, it doesn't appear as if there was much that was kept in the submission for the second milestone.
+I do not feel comfortable saying that I did anything near a third of the work for this project. I definitely helped out in many aspects throughout the implementation and project, but I did not lead on any development of the components of the compiler besides the pretty printer, which is not really a component of the compiler. That being said, I helped Will write tester code and did testing of the components when it was necessary to do so. I took care of the pretty printer and fixing any bugs that I missed during the first milestone submission. I mainly worked on the reports (including this one extensively), with the exception of the report for the second milestone. This is due to me falling ill and there were modifications to our implementation that were not reflected in what I had originally written. I wrote a couple of the initial regular expressions for the scanner. I wrote the boilerplate code for the typechecker, but after looking at the submission, there was not much that was kept that was written initially by me.
 
-The difficulty during the fourth milestone is the limited monitor usage that I have to be careful about, otherwise I would develop a migraine and then I am unable to do work for most of the day or until the pain subsides. Therefore, I was fortunate enough to be able to work on parts of the project that are relatively independent of other components (such as this report). I admit that it is very limited work, but so are the options to contribute to that are available at this time.
+The difficulty during the fourth milestone and final project submission is the limited monitor usage that requires caution. Too much monitor usage would cause eye-strain, unfortunately inducing a migraine which made me unable to work. That being said, I believe that I was able to manage in order to get this final report done.
 
 \subsection{Asa}
 
