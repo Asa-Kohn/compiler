@@ -12,4 +12,5 @@
  
 ### Special Instructions
 
- * *Nil*
+We got PyPy installed on mimi via Corey at CS help, however it is PyPy3 that is required for codegen testing in `execute.sh`.
+If you could please install that on whichever machine you are grading on if possible, that would be appreciated.
