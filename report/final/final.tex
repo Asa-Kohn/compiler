@@ -17,14 +17,10 @@ Alexander Krolik}
 \date{May 1, 2020}
 
 % NOTE target page size is (hard min) 15-20 (soft max) and 25 (hard max) pages
-% TODO general guideline:   whenever you are writing, write as if people are familiar
-%                           with compilers, but not Go/GoLite or vice versa.
+% TODO general guideline:   whenever you are writing, write as if people are familiar with compilers, but not Go/GoLite or vice versa.
 
 
 \usepackage{hyperref}
-
-% TODO remove this when done
-\usepackage{xcolor}
 \begin{document}
 
 \maketitle
@@ -35,12 +31,9 @@ Go or Golang is one of the youngest programming languages that has gained signif
 
 The main goal of the GoLite Project is to write a compiler that uses a proper and modular compilation pipeline that consists of multiple phases to compile a significant, yet non-trivial subset of the Go language into a chosen target language, Python. This exercise will not only allow us to build a functional compiler for a general-purpose language, but it will also enable us to gain insight into existing languages as well as exploring domain-specific languages along the development process. 
 
-There are several important differences between Golang and GoLite that are worth noting. Since the duration of this project is confined within a 13-week period, a considerable number of Golang features are not included in GoLite to reduce workload. For instance, lexical syntax, basic types, program structure, declarations, and so on have several simplified or omitted features compared to Golang \citep{VincentGoLite, AlexBlankSpecs, VincentSyntaxSpecs, VincentTypecheckSpecs}. Nevertheless, the implementation of the GoLite compiler comprises of a non-trivial subset of Golang features; for an overview of Golang to GoLite view document \cite{VincentGoLite}, for lists of detailed specifications on GoLite syntax and blank identifiers refer to \cite{VincentSyntaxSpecs} and \cite{AlexBlankSpecs}, and for typechecker specifications refer to \cite{VincentTypecheckSpecs}.
+There are several important differences between Golang and GoLite that are worth noting. Since the duration of this project is confined within a 13-week period, a considerable number of Golang features are not included in GoLite to reduce workload. For instance, lexical syntax, basic types, program structure, declarations, and so on have several simplified or omitted features compared to Golang \citep{VincentGoLite, AlexBlankSpecs, VincentSyntaxSpecs, VincentTypecheckSpecs}. Nevertheless, the implementation of the GoLite compiler comprises of a non-trivial subset of Golang features; for an overview of Golang versus GoLite view document \cite{VincentGoLite}, for lists of detailed specifications on GoLite syntax and blank identifiers refer to \cite{VincentSyntaxSpecs} and \cite{AlexBlankSpecs}, and for typechecker specifications refer to \cite{VincentTypecheckSpecs}.
 
 In the next section (section 2), this report presents the language and tools of our choice in order to implement the GoLite compiler. Then, it is followed by detailed discussions about the major components of our compiler (section 3), namely the scanner, parser, abstract syntax tree (AST), weeder, symbol table, typechecker, and code generator. More specifically in section 3, each component will have an overview and discussions focused on our design decisions and testing. Finally, this report will also include concluding remarks about the GoLite compiler and the contributions of our team members (section 4 \& section 5).
-
-% it is great! will: thx
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%% edited - end %%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 \subsection{Go versus GoLite}
 
@@ -79,7 +72,6 @@ The contributions section was agreed upon by all three of us before submission s
 
 
 \section{Language and Tool Choices}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%% edited - start %%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 This project uses C and flex \& bison as the implementation language and toolchain to build the GoLite compiler, where flex \& bison are used to perform regular expression matching and parsing of input programs (in GoLang). The justifications for this choice are primarily focused on the C language’s memory management capabilities, portability, and efficiency. Additionally, it is also worth considering that the implementation of C compilers is moreover valued as a tradition within the compilers’ context. Lastly, such language and toolchain have previously been used among all our team members to realize individual compiler exercises, MiniLang; and it is therefore straightforward to continue using the same implementation language and tools to take on a larger project \citep{ass1, ass2}.
 
 On the other hand, Python is our chosen target language; where later on, we are faced with a range of challenges such as performance issues and implementing programming constructs that are not natively supported in Python. However, the reasoning behind making such a choice simply comes from our familiarity with the language. Although x86 and MIPS assembly were originally viable candidates as target languages, we eventually decided to leave ambitious ideas for future discussions.
@@ -87,8 +79,6 @@ On the other hand, Python is our chosen target language; where later on, we are 
 A set of benchmarks was given to evaluate the correctness and efficacy of the GoLite compiler. These tests unveil significant performance issues in the Python program output by our code generator. Consequently, an additional tool is required to run those files efficiently. CPython\footnote{CPython GitHub repo: github.com/python/cpython} and PyPy\footnote{PyPy official webpage: pypy.org} were considered as a workaround to improve the runtime of our generated programs. A trial on CPython and PyPy shows considerable performance improvement with PyPy. Meanwhile, CPython yields minute improvement due to performance overhead. The main difference between CPython and PyPy is that the former mainly consists of an interpreter, whereas the latter is a Just-in-Time (JIT) compiler that yields about 4.4 times faster performance on average compared to CPython\footnote{PyPy optimization strategy: pypy.org/performance.html}. Therefore, this project requires the use of PyPy to correctly run our output programs.
 
 Finally, other tools that this project has heavily relied on for version control and debugging include Git and Valgrind. Our main communication platform is Riot.im\footnote{Riot.im official webpage: about.riot.im} via the Matrix communication protocol\footnote{Matrix official webpage: matrix.org}. This set of environment became increasingly crucial towards the end of the project as the workflow was quickly taken online and remote.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%% edited - end %%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 \section{Compiler Components}
 
@@ -133,21 +123,13 @@ Finally, Asa had written a couple of useful utility (helper) functions which can
 
 The parser is also where we implemented the semi-colon insertion rules. 
 
-% TODO BLANK IDENTIFIER
-
 \subsection{Abstract Syntax Tree (AST)}
 
 The abstract syntax tree has the tole of giving structure to the program in GoLite. During the parsing phase, the parser calls certain AST functions and uses the tree's structure (that has been decided beforehand) to form the program as a tree. The tree works in conjunction with the parser and is easiest to build while parsing. In our implementation of a GoLite compiler, our AST features quite the amount of concision\footnote{This was somewhat validated by the instructor during our group meeting.} and is meant to represent the natural structure of a program. In fact, we could argue that the structure of the AST is rather intuitive. A lot, if not all, of the labels used to represent certain parts of GoLite concepts or structures utilizes the same ones as those presented in the Golang specification \cite{gospec}. This makes it easier to read back and forth in an effort to verify its correctness since we do not have to relabel certain terms like \texttt{varspec} to whatever label we would have chosen\footnote{In some parallel universe, where we start early and there is no pandemic.}. The tree itself features many linked lists to represent the tree. In fact, the program is comprised of a linked list of entries, with the root being the package declaration, and the children nodes are the top-level declarations. The children themselves, depending on what they are have their children represented by a pointer to a linked list, and this continues until the leaves which could be an identifier, a slice, an element in an array, a literal or a field in a (GoLite) struct.
 
 The simplicity and straightforward approach to the AST made implementing the pretty printer rather simple\footnote{Simple even on limited sleep at 4 AM.}, which must traverse the tree after it has been built by the parser.
 
-% TODO add differences to @alex and @will 's implementation
-% TODO any fixes that were done over the milestones
-% TODO major design decisions that I missed?
-
 Given that the scanner, parser, abstract syntax tree, (pretty printer) and weeder were all implemented together, the testing decreased further down the pipeline. While fixing segmentation faults were definitely a priority, we might not have tested the AST as much as we could have, but given that Will had written a \textbf{very} large number of tests, we felt comfortable enough to submit what we had done by the first milestone. That being said, there were some fixes that needed to be completed, but given the simplicity of the tree's structure, the fixes required were trivial to do and were completed quickly.
-
-% @will, you know best about this so bare with my lack of knowledge
 
 \subsection{Weeder}
 
@@ -184,6 +166,8 @@ We opted for the cactus stack when designing the symbol table as it provides lin
 \]
 Although, we used a for-loop in our implementation of this function.
 
+For the blank identifier handling, we store a null symbol record in the symbol table wherever the blank identifier is in the program. Blank functions are completely ignored as they have no use. For assignment statements, any assignments to blank identifiers and evaluate the value assigned to them first. Lastly, blank parameters are named with numbers, starting at \verb|_blankparam0| for each function that takes a blank parameter
+
 Again, with the weaving allowing for a compact symbol table, the code is quite concise. That being said, there were several fixes that needed to be done after testing by us, and after the test suite was released. Many of the fixes were due to scoping issues; in fact, one of the last fixes to the symbol table was just two days ago. There is constant fixing required when writing a compiler.
 
 \subsection{Type Checking}
@@ -203,11 +187,9 @@ All of the type rules are described in the GoLite specification document from th
 
 Besides the above and an assorted array of minor mistakes made while developing the typechecking, no other issues are worth mentioning.
 
-% TODO @will testing 
-
 \subsection{Code Generation}
 
-Assuming a bug-free compiler, we can claim that the input file is syntactically and semantically valid, it is free of scoping errors and the program that is represented by the input \textit{typechecks}. Assuming that we can represent the program in some other language (which we call the \textit{target language}, we can then convert the AST with the symbol table into the equivalent program in that language. This is what is called \textit{code generation}.
+Assuming a bug-free compiler, we can claim that the input file is syntactically and semantically valid, it is free of scoping errors and the program that is represented by the input \textit{typechecks}. We can then represent the program in some other language (which we call the \textit{target language}, we can then convert the AST with the symbol table into the equivalent program in that language. This is what is called \textit{code generation}.
 
 The code generation phase requires the symbol table and the abstract syntax tree in order to output the equivalent program. It begins by traversing the AST to determine the layout of the program, and referring to the symbol table whenever it needs to check a symbol's scope and its type information. When outputting the target language's equivalent constructs, this is done by writing to a file. 
 
@@ -215,30 +197,30 @@ Unfortunately, not all languages offer the same features, and so it is possible 
 
 \section{Conclusion}
 
-% will: i think the main focus of the conclusion should be on the project without diving too much into 
+This report showed an implementation of the GoLite compiler in C following a modular compilation pipeline with components such as the scanner, parser, AST, weeder, symbol table, typechecker, and code generator. An overview of the syntactical and semantic specifications of GoLite was also discussed to emphasize a number of key differences between Golang and GoLite. Although it may seem like an implementation of the compiler could never seemingly attain perfection, it is however without a doubt that having a robust and complete test suite for proper software verification and validation is one of the most crucial aspects to obtain desired compiler behaviors. A meaningful aggregation of valid and invalid test programs is required to demonstrate appropriate outcomes, and a set of valid computation programs may explore the correctness of language features at a deeper level. Nevertheless, by merely following through a list of non-comprehensive specifications is not sufficient to holistically validate a compiler. Many tricky edge cases in type and scoping rules will require many iterations and exceptionally mindful and methodical implementations. For this reason, it is easy to underestimate the time required to properly implement certain language features. Furthermore, due to a compiler’s pipeline-like development, it is increasingly challenging to delegate team members to distinct components of the compilation pipeline and yield productive results. A possible solution that emerged naturally is by assigning team members to the implementation of the compiler, software testing, and documentation separately to allow well-defined concurrent workflow. 
 
-In all, implementing a compiler for a language is not a trivial task. Due to its pipeline-like development process, the dependency is a path, rather than a more complex graph\footnote{Although a path is a type of graph.}. Over the course of a few months we were able to apply the concepts learned in class into what we hope is considered to be a functional compiler.
+One of the main challenges that we faced include performance issues in the generated code. Different alternatives were researched and explored to find a viable solution to mitigate performance-related shortcomings. The consideration of CPython and particularly PyPy was initially our main solution. However, the use of PyPy JIT compiler does not eradicate our performance deficiencies associated with the benchmarks entirely. Therefore, a re-implementation of the code generation in C language quickly took place. Due to time constraint, and last-minute decisions, the implementation of C as a target language was incomplete, and we will rely on the use of PyPy to alleviate a fair share of performance issues.
 
-Like any project, there are difficulties encountered as time progresses. One of our main challenges was when we started to work. If we were to go back in time and do something differently, it would be to listen to our instructors \textit{constant} advice and to \textbf{start early}. Starting early might have reduced the presence of careless, hard to spot mistakes in our design and source code. This would also allow for more thorough testing, which adds to the previous argument.
+% In all, implementing a compiler for a language is not a trivial task. Due to its pipeline-like development process, the dependency is a path, rather than a more complex graph\footnote{Although a path is a type of graph.}. Over the course of a few months we were able to apply the concepts learned in class into what we hope is considered to be a functional compiler.
 
-Also, group projects make pipeline-like development more challenging given that much coordination is required among team members. Considering the stay-at-home orders, there were other preoccupations and tasks that are in the queue for us to complete. Perhaps starting earlier, improving on organization or task assignment would be approaches consider in future projects for any of us.
+% Like any project, there are difficulties encountered as time progresses. One of our main challenges was when we started to work. If we were to go back in time and do something differently, it would be to listen to our instructors \textit{constant} advice and to \textbf{start early}. Starting early might have reduced the presence of careless, hard to spot mistakes in our design and source code. This would also allow for more thorough testing, which adds to the previous argument.
+
+% Also, group projects make pipeline-like development more challenging given that much coordination is required among team members. Considering the stay-at-home orders, there were other preoccupations and tasks that are in the queue for us to complete. Perhaps starting earlier, improving on organization or task assignment would be approaches consider in future projects for any of us.
 
 \section{Contributions}
 
 \subsection{Alex}
 
-I do not feel comfortable saying that I did anything near a third of the work for this project. I definitely helped out in many aspects throughout the implementation and project, but I did not lead on any development of the components of the compiler besides the pretty printer, which is not really a component of the compiler. That being said, I helped Will write tester code and did testing of the components when it was necessary to do so. I took care of the pretty printer and fixing any bugs that I missed during the first milestone submission. I mainly worked on the reports (including this one extensively), with the exception of the report for the second milestone. This is due to me falling ill and there were modifications to our implementation that were not reflected in what I had originally written. I wrote a couple of the initial regular expressions for the scanner. I wrote the boilerplate code for the typechecker, but after looking at the submission, there was not much that was kept that was written initially by me.
+I helped out in many aspects throughout the implementation and project, but I did not lead on any development of the components of the compiler besides the pretty printer, which is not really a component of the compiler. That being said, I helped Will write tester code and did testing of the components when it was necessary to do so. I took care of the pretty printer and fixing any bugs that I missed during the first milestone submission. I mainly worked on the reports (including this one extensively with Will), with the exception of the report for the second milestone. This is due to me falling ill and there were modifications to our implementation that were not reflected in what I had originally written. I wrote a couple of the initial regular expressions for the scanner. I wrote the boilerplate code for the typechecker, but after looking at the submission, there was not much that was kept that was written initially by me.
 
 The difficulty during the fourth milestone and final project submission is the limited monitor usage that requires caution. Too much monitor usage would cause eye-strain, unfortunately inducing a migraine which made me unable to work. That being said, I believe that I was able to manage in order to get this final report done.
 
 \subsection{Asa}
 
-% TODO @asa
+Asa was chiefly responsible for a lot of the code writing. He worked on all of the components except the pretty printer where he helped Alex debug. His contributions were written by the other group members as he was making last minute code fixes in case the code generation was not fast enough.
 
 \subsection{Will}
-
-% TODO @will
-
+For a brief period at the beginning of our project, William contributed a small portion of the scanner and the weeder. Subsequently, he focused primarily on writing the majority of our test programs by following the GoLite specifications as well as Golang documentation. As it has gradually been found throughout the project that having a program tester working concurrently with the compiler programmer yields productive results when communicating newly found errors in real-time, he continued working primarily on software testing and occasionally on documentation for the rest of the project. 
 
 \nocite{*}
 
