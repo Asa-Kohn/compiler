@@ -1,128 +1,158 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 
-\usepackage{cite}
 \usepackage{amsmath}
 
-\title{COMP520 GoLite Project: Final Report}
-\author{Alexander Iannantuono, Asa Kohn, and William Chien}
+\usepackage{natbib}
+\bibliographystyle{unsrtnat}
+
+
+\title{The GoLite Project}
+\author{Alexander Iannantuono, Asa Kohn, and William Chien\\
+School of Computer Science, McGill University\\
+COMP520: Compiler Design\\
+Alexander Krolik}
 \date{May 1, 2020}
 
-% NOTE target page size is ~20 pages
-% TODO find out what
+% NOTE target page size is (hard min) 15-20 (soft max) and 25 (hard max) pages
+% TODO general guideline:   whenever you are writing, write as if people are familiar
+%                           with compilers, but not Go/GoLite or vice versa.
 
 
 \usepackage{geometry}
 \geometry{margin=1in}
 \usepackage{hyperref}
 
-% remove this when done
+% TODO remove this when done
 \usepackage{xcolor}
-
 \begin{document}
 
 \maketitle
 
 \section{Introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% edited - start %%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+Go or Golang is one of the youngest programming languages that has gained significant popularity since its release in 2009. Many software projects and companies such as Dropbox, Google, SoundCloud, Twitch, Uber, and so on have adopted or incorporated the use of this programming language into their development. Originally created by three Google employees Rob Pike, Ken Thompson, and Robert Griesemer, Golang is an open-source, statically typed, and compiled language that provides programmers the speed of C with similar legibility of a high-level language such as Python \citep{gospec, MattCompanies, VincentGoLite}. Additionally, the authors of the Go language first intended to solve a number of issues associated with Java and C++ where Golang primarily aimed to simplify development and maintenance, provide built-in concurrency support, reduce code size, and allow faster compilation and performance. Therefore, for the reasons stated above and beyond, Golang is highly adopted by dynamically-typed language programmers and big projects at large \citep{MattCompanies, VincentGoLite}.
 
-\subsection{Overview of Go}
+The main goal of the GoLite Project is to write a compiler that uses a proper and modular compilation pipeline that consists of multiple phases to compile a significant, yet non-trivial subset of the Go language into a chosen target language, Python. This exercise will not only allow us to build a functional compiler for a general-purpose language, but it will also enable us to gain insight into existing languages as well as exploring domain-specific languages along the development process. 
 
-The Go programming language is a statically typed, compiled prgramming language that gives programmers the speed of C with the legibility of high level languages like Python. It also allows for higher level constructs ``out of the box'' such a memory safety and concurrency, which is not something that one would find in a language such as C. It is increasingly popular in many software projects and is developed by three individuals \textcolor{red}{(names?)}, the legendary Ken Thompson among them. The language is also open source software, which aligns with our beliefs.
+There are several important differences between Golang and GoLite that are worth noting. Since the duration of this project is confined within a 13-week period, a considerable number of Golang features are not included in GoLite to reduce workload. For instance, lexical syntax, basic types, program structure, declarations, and so on have several simplified or omitted features compared to Golang \citep{VincentGoLite, AlexBlankSpecs, VincentSyntaxSpecs, VincentTypecheckSpecs}. Nevertheless, the implementation of the GoLite compiler comprises of a non-trivial subset of Golang features; for an overview of Golang to GoLite view document \cite{VincentGoLite}, for lists of detailed specifications on GoLite syntax and blank identifiers refer to \cite{VincentSyntaxSpecs} and \cite{AlexBlankSpecs}, and for typechecker specifications refer to \cite{VincentTypecheckSpecs}.
 
-Due to lack of ``out of the box'' features in GoLite, programs are generally longer to write. This would be the case when a program requires
-using a feature that is not supported in GoLite, but is in Go. At that point, one would have to implement the feature that is required themselves in their code and their source is therefore lengthier (assuming they are not using a library).
+In the next section (section 2), this report presents the language and tools of our choice in order to implement the GoLite compiler. Then, it is followed by detailed discussions about the major components of our compiler (section 3), namely the scanner, parser, abstract syntax tree (AST), weeder, symbol table, typechecker, and code generator. More specifically in section 3, each component will have an overview and discussions focused on our design decisions and testing. Finally, this report will also include concluding remarks about the GoLite compiler and the contributions of our team members (section 4 \& section 5).
 
-% NOTE As a side note, a language would less features for high level coding would generally have more libraries to make those features available from a third party, instead of the developers or maintainers of the language. (right?)
+% it is great! will: thx
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% edited - end %%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 \subsection{Go versus GoLite}
 
-The possibility of implementing a fully functional compiler for a language such as Go is infeasible given the time constraints of a semester\footnote{Minus two weeks for this year's course.}. Therefore, a subset of the Go language was introduced to us, and was given the name of GoLite.
+The possibility of implementing a fully functional compiler for a language such as Go is infeasible given the time constraints of a semester\footnote{Minus two weeks for this year's course.}. Therefore, a subset of the Go language was introduced to us, and was given the name of GoLite. Here is a short list of features omitted (or changed) in GoLite that is present in Golang, for those familiar:
 
-\subsubsection{Notable changes}
+\begin{enumerate}
+    \item Removal of imports
+    \item Removal of top level constant declarations
+    \item Removal of type aliasing
+    \item There are only five basic types: int, float64, bool, rune and string
+    \item Removal of slice, array and struct literals
+    \item An expression upon setting an array size is disallowed
+    \item Anonymous members are disallowed
+    \item Removal of support tags
+    \item There exists only two functions for output: print() and println()
+    \item There does not exist any input functions
+    \item A return statement allows at most one expression
+    \item Any type switch statements are no longer allowed
+    \item There are only three type of for-loops: infinite, while and three-part loops
+    \item Removal of break and continue unlabelled forms
+    \item There are four unary operators: \verb|!|, \verb|^|, \verb|+|, \verb|-|
+    \item Trailing commas in functions calls are disallowed
+    \item Slice expressions are disallowed
+    \item Simpler \texttt{append()}, it how has the form \texttt{append(slice, element)}
+\end{enumerate}
 
-% semicolon rules
-
-% program structure
-    % no packages  --> no imports
-    % no constant declarations at the top level
-    % no type aliasing
-    % function declarations (a lot)
-    % only 5 basic types: int float64 bool rune string
-    % no slice literals
-    % no array literals
-    % no expression in array size
-    % no anon members
-    % no support tags
-    % no struct literals
-    % only print() and println() for output
-    % return accepts zero or one expression only, not more
-    % no type switch statements
-    % only three type of for-loops: inf, while and three part
-    % break + continue unlabelled forms
-    % only 4 unary operators
-    % no trailing comma in function calls
-    % no slice expressions
-    % simpler append()
-    % primitive type casting
+This is not an exhaustive lists, but there is also something such as the removal of concurrency controls that are core to Golang. Another would be the \texttt{fallthrough} keyword for flow control.
 
 \subsection{Structure of Report}
 
-For this report's structure, we follow the general structure that is presented in the document given by the course's instructor. That being said, we write about the overview, design decisions and all the testing done \textit{for each component} of the compiler as three seperate parts. We did this instead of writing about all three parts (overview, design decisions, testing) for each component separately since the design decisions and testing done in components up in the pipeline influenced modifications to decision decisions made and to be aware of in the future. This applies to testing as well: cases that we missed and to make sure to look into those cases in the future. What we've decided to do allows for explanation of how all components interact with each other in specific contexts (rather that going back and forth).
+For this report's structure, we follow the general structure that is presented in the document given by the course's instructor. That being said, we write about the overview, design decisions and all the testing done \textit{for each component} of the compiler as three separate parts. We did this instead of writing about all three parts (overview, design decisions, testing) for each component separately since the design decisions and testing done in components up in the pipeline influenced modifications to decision decisions made and to be aware of in the future. This applies to testing as well: cases that we missed and to make sure to look into those cases in the future. What we've decided to do allows for explanation of how all components interact with each other in specific contexts (rather that going back and forth).
 
-
-% TODO Add more
+% TODO Add more?
 
 For the conclusions, each member of the group has written their own part personally, and we indicate their name so it is clear who's experience is being read.
 
-% TODO Add more
+% TODO Add more?
 
 The contributions section was agreed upon by all three of us before submission so that everyone in the group is on the same page as each other in terms of project involvement.
 
 
 \section{Language and Tool Choices}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% edited - start %%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+This project uses C and flex \& bison as the implementation language and toolchain to build the GoLite compiler, where flex \& bison are used to perform regular expression matching and parsing of input programs (in GoLang). The justifications for this choice are primarily focused on the C language’s memory management capabilities, portability, and efficiency. Additionally, it is also worth considering that the implementation of C compilers is moreover valued as a tradition within the compilers’ context. Lastly, such language and toolchain have previously been used among all our team members to realize individual compiler exercises, MiniLang; and it is therefore straightforward to continue using the same implementation language and tools to take on a larger project \citep{ass1, ass2}.
 
-\subsection{Language and Tools}
+On the other hand, Python is our chosen target language; where later on, we are faced with a range of challenges such as performance issues and implementing programming constructs that are not natively supported in Python. However, the reasoning behind making such a choice simply comes from our familiarity with the language. Although x86 and MIPS assembly were originally viable candidates as target languages, we eventually decided to leave ambitious ideas for future discussions.
 
-As mentioned in the first milestone, we opted for sticking with using C and the flex, bison tool-chain to implement the compiler for the project. Despite having another tool-chain available: SableCC, all three of us had already used the former tool-chain to implement the two personal assignments and agreed that we did not want to spend extra time learning a new set of tools. Given this choice, we spent a lot of time debugging as one usually does with C. Many segmentation fault and bug fixes were done to get parts working. While it was challenging to find the bugs, we managed to sort a lot of them out to complete the milestones with Asa's remarkable ability to trace bugs in C using valgrind.
+A set of benchmarks was given to evaluate the correctness and efficacy of the GoLite compiler. These tests unveil significant performance issues in the Python program output by our code generator. Consequently, an additional tool is required to run those files efficiently. CPython\footnote{CPython GitHub repo: github.com/python/cpython} and PyPy\footnote{PyPy official webpage: pypy.org} were considered as a workaround to improve the runtime of our generated programs. A trial on CPython and PyPy shows considerable performance improvement with PyPy. Meanwhile, CPython yields minute improvement due to performance overhead. The main difference between CPython and PyPy is that the former mainly consists of an interpreter, whereas the latter is a Just-in-Time (JIT) compiler that yields about 4.4 times faster performance on average compared to CPython\footnote{PyPy optimization strategy: pypy.org/performance.html}. Therefore, this project requires the use of PyPy to correctly run our output programs.
 
-As for other tools that we used, we communicated mainly through Riot.im,[link?] a client for the Matrix communication protocol. Otherwise, it was through email, text messages or the occasional phone call if the first platform was not active. Alex and Asa (?) and Will (?) had personally hoped that we could use GitHub issues to track problems to fix, and use to-do markdown files to keep track of tasks. Unfortunately, these efforts were futile and were abandoned during the first milestone.
+Finally, other tools that this project has heavily relied on for version control and debugging include Git and Valgrind. Our main communication platform is Riot.im\footnote{Riot.im official webpage: about.riot.im} via the Matrix communication protocol\footnote{Matrix official webpage: matrix.org}. This set of environment became increasingly crucial towards the end of the project as the workflow was quickly taken online and remote.
 
-\subsection{Target Language}
-
-% TODO: This section.
-
-\textcolor{red}{TODO}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%% edited - end %%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 \section{Compiler Components}
 
-% NOTE no pretty printing?
-
 \subsection{Scanner}
 
-% TODO I didn't do this (except for a regex or two), who did @asa @will
+The main task of the scanner component of the compiler is to take the source code, which is read as plain-text, and begin to output a sequence of tokens for the next component of the compiler, the parser, to understand. This is usually the most straightforward part of implementing a compiler, but completing it properly is instrumental to a successful compiler, given its pipeline-like nature. Tokens are components of a language that have meaning. In the case of GoLite, something like \texttt{var} would indicate the beginning of a variable declaration, while something like \texttt{jar} would be something like a variable identifier (or label). Tokens are the building blocks of a programming language and are specific sequence of characters. They are assigned labels to be able to refer to them as atomic entities. For instance, \texttt{!=} might be given the label \texttt{tNEQ} but it could be also given the label \texttt{tNOTEQUALS} or even \texttt{tSMOOTHIE}. The choice of the label is relatively arbitary, but it must be carried throughout the implementation of the compiler. Tokens that are more than one character long as given a label in order to refer to them. However, tokens with the length of one character can be referred to as the character that it is, or can be given a label. This is up to the individual(s) implementing the compiler to decide if \texttt{"="} is referred to as \texttt{'='} or some label that it was given. In our case, we chose the former when designing the scanner.
 
-% Implemented using flex
-% Rules for tokens (basic)
-% REGEX for everything else (put them in)
-    % identifiers
-    % literals
-    % comments
-    % basic tokens and keywords
-% some of the REGEXes could have been doing using CFGs that were easier to read
-    % some bugs were caused because of this, that we had to fix in m2
-% rejecting things that aren't supported in GoLite (put them in)
+We used the flex framework for implementing the scanner. The scanner is also called a lexer, and this is where the name f\textbf{lex} originates from
+% TODO right?
+Another part of the scanner is recognizing certain parts of the language, like variable identifiers, or literals. In our case, literals could be a string (\texttt{"apple"}), integer (\texttt{1}), rune (\texttt{'k'}), float (\texttt{3.14}) or boolean (\texttt{True}). Another part of the language to be able to identify are comments. In GoLite, there are block comments and inline comments. We used regular expressions to match them all. In some cases, the regular expressions that used to express the rules for the identifiers, literals, etc. became quite complicated and lengthy. These regular expressions \textit{could} have been expressed using a context free grammar given the theorem that says this is true, but we opted for keeping the regular expressions. This turned out to penalize us after the first milestone because we made mistakes in our regular expression, but we believe that this is now amended.
+
+Originally, for rune scanning we had \texttt{'.'} as the regular expression. Unfortunately, this is incorrect since it does not account for rune literals \verb|\a, \b, \f, \n, \r, \t, \v, \\, \'|. This was changed to \verb|'[\^\\']'| to ignore any special rune literals so that it can be checked on further down.
+
+The last thing to mention about the scanner is how it decides what token is has seen. It outputs the token of the regular expression that has the longest possible match with respect to the number of characters. An example of this would be say \texttt{==} will output \texttt{tEQ} where this represents the equality token instead of \texttt{'=''='}. The scanner will choose \texttt{tEQ} since the longest match is of length 2, in comparison to \texttt{'='}, which has length 1 (twice).
+
+In regards to testing, we thought that we did a substantial amount of it having written many test programs. However, we missed a few cases as we did not get 100\% on that portion of the first milestone. Specifically, the regular expression for octal integer literals and comments were not complete, as well as what has been mentioned above. These are some examples to what led to scanning errors and deduction of points. We think that this has been fixed in our final compiler, but we cannot guarantee that.
 
 \subsection{Parser}
 
-% TODO I didn't do this except for testing, who did? @asa @will
+The role of the parser in a compiler is to represent the tokens outputted by the lexer (scanner) in the form of a context-free grammar that defines the language. Given a certain sequence of tokens, it will yield a parsing error if the sequence cannot be represented by the grammar. 
+
+We used GNU Bison to implement the parser, which has all of its documentation online and is very complete. Considering that we knew how to work this tool from our respective second assignments, we did not run into any major problems while implementing the GoLite parser. The language itself did not have much that was different than Golang, and we had to take into consideration a subset of the rules presented in the Golang language specification\cite{gospec}. The original specification was heavily accessed throughout this phase. Any errors that we had made during the development of the parser were careless and were trivial to fix. There was one discussion that we had as a group: it was in regards to the precedence directives for certain tokens. The precedence directives are used by GNU Bison in order to break ties if a shift/reduce conflict arises when it is parsing some file. In the Bison source code file \texttt{golite.y}, the tokens that require directives are given an increasing priority as its line number in the file increases. Directives on the same line have the same priority in the order of operations. Finally, the programmer also has to give the token a left, right or no associativity directive for each token. Most were straightforward, except for the \texttt{'('} and \texttt{'['} tokens. After some discussion, we realized that it should have the \verb|%nonassoc| directive, which means that something like \texttt{x op y op z} is a syntax (parsing) error, where \texttt{op} is \texttt{(} or \texttt{[}. Using this directive on those tokens eliminated our shift/reduce conflicts that were occuring on our test files. This makes sense since for instance: \texttt{x ( y ( z} is not valid in GoLite.
+
+We also realized that the parser for GoLite is not actually an LLR(k) parser for any $k>0$. An example that shows this is the case is:
+% TODO @asa example please
+Therefore, a GLR parser is what we believe the compiler to actually be.
+% TODO reasoning?
+
+There were some fixes that occured over the course of the milestones: there was originally the rule for a simple statement (as defined in Golag) in our grammar file that had assigned \texttt{exps '=' exps} with the left and right parts to both be the same. Clearly, this is erronous. Another fix is to separate function declarations with parameters and no parameters as a different rule than those with parameters. This makes things easier to read. Many fixes were simple null pointer checks to avoid segmentation faults.
+
+In the case of GoLite, a program file is comprised of a package declaration, and zero or more top-level declarations. The package must have a non-null name (just \texttt{package;} is a syntax error). Top-level declarations can be variables, functions or user-defined types. Within the three kinds of declarations, further rules can be applied: a list of zero or more statements, which can then have expressions, etc. 
+
+Since Asa is not a fan of ``leaking like a sieve'' there are many \texttt{free()} calls within the bison source file.
+
+In terms of major design decisions, we kept many things separate instead of making a more compact grammar. An example of this is for \texttt{for}-loops. In GoLite, there are three kinds of them: infinite loops in the form of \texttt{for \{ \}}, \texttt{while} loops in the form of \texttt{for expr  \{ \}} where \texttt{expr} is an expression (which is to be checked later in the typechecker) and the three part loop in the form of \texttt{for init;expr;iter; \{ \}} where the \texttt{init}, \texttt{expr} and \texttt{iter} are the initialization simple statement, condition expression and simple statement that is performed at the end of each iteration of the loop. In our compiler, we have two different rules for the \texttt{for} loop that do and do not have an expression between the two semicolons \texttt{;}. One could have put this as one rule and checked if the expression just pointed to \texttt{NULL}, but we believe that the way that keeping it separate is easier to read and debug.
+
+Finally, Asa had written a couple of useful utility (helper) functions which can be found in \texttt{utils.c} named \texttt{estrdup} and \texttt{emalloc} which yields an error if \texttt{malloc} fails and \texttt{estrdup} uses the former function to properly allocate space for a string and returns a pointer. This reduces any `off by one' errors that could be done by string allocation. 
+
+The parser is also where we implemented the semi-colon insertion rules. 
 
 \subsection{Abstract Syntax Tree (AST)}
 
-% TODO @asa @will
+% TODO @asa @will add some stuff pls
+
+The abstract syntax tree has the tole of giving structure to the program in GoLite. During the parsing phase, the parser calls certain AST functions and uses the tree's structure (that has been decided beforehand) to form the program as a tree. The tree works in conjunction with the parser and is easiest to build while parsing. In our implementation of a GoLite compiler, our AST features quite the amount of concision\footnote{This was somewhat validated by the instructor during our group meeting.} and is meant to represent the natural structure of a program. In fact, we could argue that the structure of the AST is rather intuitive. A lot, if not all, of the labels used to represent certain parts of GoLite concepts or structures utilizes the same ones as those presented in the Golang specification\cite{gospec}. This makes it easier to read back and forth in an effort to verify its correctness since we do not have to relabel certain terms like \texttt{varspec} to whatever label we would have chosen\footnote{In some parallel universe, where we start early and there is no pandemic.}. The tree itself features many linked lists to represent the tree. In fact, the program is comprised of a linked list of entries, with the root being the package declaration, and the children nodes are the top-level declarations. The children themselves, depending on what they are have their children represented by a pointer to a linked list, and this continues until the leaves which could be an identifier, a slice, an element in an array, a literal or a field in a (GoLite) struct.
+
+The simplicity and straightforward approach to the AST made implementing the pretty printer rather simple\footnote{Simple even on limited sleep at 4 AM.}, which must traverse the tree after it has been built by the parser.
+
+% TODO add differences to @alex and @will 's implementation
+% TODO any fixes that were done over the milestones
+% TODO major design decisions that I missed?
+
+Given that the scanner, parser, abstract syntax tree, (pretty printer) and weeder were all implemented together, the testing decreased further down the pipeline. While fixing segmentation faults were definitely a priority, we might not have tested the AST as much as we could have, but given that Will had written a \textbf{very} large number of tests, we felt comfortable enough to submit what we had done by the first milestone. That being said, there were some fixes that needed to be completed, but given the simplicity of the tree's structure, the fixes required were trivial to do and were completed quickly.
+
+% @will, you know best about this so bare with my lack of knowledge
 
 \subsection{Weeder}
 
-% TODO @asa @will
+% TODO @asa @will, this section should be pretty small
+
 
 \subsection{Symbol Table}
 
@@ -130,7 +160,7 @@ As for other tools that we used, we communicated mainly through Riot.im,[link?] 
 
 \subsection{Typechecker}
 
-% TODO ~@alex @asa
+% TODO ~@alex (not really though) @asa
 
 \subsection{Code Generation}
 
@@ -138,24 +168,27 @@ As for other tools that we used, we communicated mainly through Riot.im,[link?] 
 
 \section{Conclusion}
 
+% TODO General conclusion
+% TODO Things that we would change if we would do this project again having the knowledge that we have about it now
+
+% will: i think the main focus of the conclusion should be on the project without diving too much into 
+
 \subsection{Experiences}
 
 \subsubsection{Alex}
 
-% TODO @alex
+% Given the unprecedented global situation that we are all facing, along with
+% medical complications that worsened over the course of the semester, working on the project became increasingly challenging to do. That being said, I had a great time doing what I could: learning how something like the Go programming language works from source to machine
+% code is something that interests me greatly. This might stem from the tinkerer-side of me, which was originally had started by taking mechanical devices apart to see how they functioned. A project like this allowed for me to discover how a compiler works, and I am glad that I was able to do this.
 
-Given the unprecedented global situation that we are all facing, along with
-medical complications that worsened over the course of the semester, working on the project became increasingly challenging to do. That being said, I had a great time doing what I could: learning how something like the Go programming language works from source to machine
-code is something that interests me greatly. This might stem from the tinkerer-side of me, which was originally had started by taking mechanical devices apart to see how they functioned. A project like this allowed for me to discover how a compiler works, and I am glad that I was able to do this.
+% While many at McGill or even university dislike group projects because of lack
+% of coordination and communication from fellow group members, it's peculiar for
+% me being the one that has done the least amount of work (this is my own
+% observation), given that in past projects during my academic career I felt like I was doing a reasonably amount to the majority of it.
+% That being said, I cannot begin to express the appreciation that I have for the
+% understanding and compassion that Asa and Will had showed throughout this project, as well as Alex's (instructor) understanding of my situation. I personally think that we got along really well and had a great time despite the stressful crunch times that we had been in. In terms of group projects, I would keep the group component of the project as it is, because while many find it difficult, we live in a society where collaboration and cooperation is vital. As a somewhat strange note: oddly enough, governments even seem to struggle with these things as this pandemic continues to unfold.
 
-While many at McGill or even university dislike group projects because of lack
-of coordination and communication from fellow group members, it's peculiar for
-me being the one that has done the least amount of work (this is my own
-observation), given that in past projects during my academic career I felt like I was doing a reasonably amount to the majority of it.
-That being said, I cannot begin to express the appreciation that I have for the
-understanding and compassion that Asa and Will had showed throughout this project, as well as Alex's (instructor) understanding of my situation. I personally think that we got along really well and had a great time despite the stressful crunch times that we had been in. In terms of group projects, I would keep the group component of the project as it is, because while many find it difficult, we live in a society where collaboration and cooperation is vital. As a somewhat strange note: oddly enough, governments even seem to struggle with these things as this pandemic continues to unfold.
-
-As for the actual content of the project, I would just say that perhaps more instructions could be given on certain components of the compiler. I understand that this is a 500 level course, and that we are (mostly) adults that should be able to forecast our abilities to do the work, although the project is inherently demanding as is the course. Perhaps there could be an easing of certain constructs within GoLite that could be removed or modified, which would make the implementation of the compiler slightly more straightforward.
+% As for the actual content of the project, I would just say that perhaps more instructions could be given on certain components of the compiler. I understand that this is a 500 level course, and that we are (mostly) adults that should be able to forecast our abilities to do the work, although the project is inherently demanding as is the course. Perhaps there could be an easing of certain constructs within GoLite that could be removed or modified, which would make the implementation of the compiler slightly more straightforward.
 
 \subsubsection{Asa}
 
@@ -171,9 +204,7 @@ As for the actual content of the project, I would just say that perhaps more ins
 
 To be completely honest, I do not feel comfortable saying that I did anything near a third of the work for this project. I definitely helped out in many aspects throughout the implementation and project, but I did not lead on any development of the components of the compiler besides the pretty printer, which is not really a component of the compiler. That being said, I helped Will write tester code and did testing of the components when it was necessary to do so. I took care of the pretty printer and fixing any bugs that I missed during the first milestone submission. I mainly worked on the reports (including this one), with the exception of the report for the second milestone. This is due to me falling ill and there were modifications to our implementation that were not reflected in what I had originally written. I wrote a couple of the initial regular expressions (i think?) for the scanner. I wrote the boilerplate code for the typechecker, but after looking at the submission, it doesn't appear as if there was much that was kept in the submission for the second milestone.
 
-The difficulty during the fourth milestone is the limited monitor usage that I have to be careful about, otherwise I develop a migraine and then I am unable to do work for most of the day or until the pain subsides. Therefore, I was fortunate enough to be able to work on parts of the project that are relatively independent of other components (such as this report) or the benchmarks that are required for the final milestone. I admit that it is very limited work, but so are the options to contribute that are available at this time.
-
-% I am hoping to write the benchmarks for the fourth milestone, but this did not occur
+The difficulty during the fourth milestone is the limited monitor usage that I have to be careful about, otherwise I would develop a migraine and then I am unable to do work for most of the day or until the pain subsides. Therefore, I was fortunate enough to be able to work on parts of the project that are relatively independent of other components (such as this report). I admit that it is very limited work, but so are the options to contribute to that are available at this time.
 
 \subsection{Asa}
 
@@ -183,9 +214,9 @@ The difficulty during the fourth milestone is the limited monitor usage that I h
 
 % TODO @will
 
+
 \nocite{*}
 
-\bibliography{refs.bib}{}
-\bibliographystyle{plain}
+\bibliography{refs}
 
 \end{document}
