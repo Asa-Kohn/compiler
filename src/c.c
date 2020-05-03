@@ -661,6 +661,10 @@ static void c_free(const char *var, struct tree_type *type, int indent,
     }
     else if(r->kind == tree_type_kind_array)
     {
+        print_indent(indent);
+        printf("if(%s.data)\n", var);
+        print_indent(indent);
+        printf("{\n");
         char *index = emalloc(snprintf(NULL, 0, "%s.data[%d].%s",
                                        var, r->array.len - 1,
                                        c_get_suffix(r->array.type)) + 1);
@@ -668,16 +672,18 @@ static void c_free(const char *var, struct tree_type *type, int indent,
         {
             sprintf(index, "%s.data[%d].%s",
                     var, i, c_get_suffix(r->array.type));
-            c_free(index, r->array.type, indent, nest, ref);
+            c_free(index, r->array.type, indent + 1, nest, ref);
         }
-        print_indent(indent);
+        print_indent(indent + 1);
         printf("free(%s.data);\n", var);
         free(index);
+        print_indent(indent);
+        printf("}\n");
     }
     else if(r->kind == tree_type_kind_slice)
     {
         print_indent(indent);
-        printf("if(");
+        printf("if(%s.data && ", var);
         if(ref)
             printf("--");
         printf("%s.data->refcount == 0)\n", var);
@@ -693,7 +699,7 @@ static void c_free(const char *var, struct tree_type *type, int indent,
                               1);
         sprintf(index, "%s.data->data[_free%d].%s",
                 var, nest, c_get_suffix(r->slice.type));
-        c_free(index, r->slice.type, indent + 2, nest + 1, 0);
+        c_free(index, r->slice.type, indent + 2, nest + 1, ref);
         free(index);
         print_indent(indent + 1);
         printf("}\n");
@@ -706,6 +712,10 @@ static void c_free(const char *var, struct tree_type *type, int indent,
     }
     else if(r->kind == tree_type_kind_struct)
     {
+        print_indent(indent);
+        printf("if(%s)\n", var);
+        print_indent(indent);
+        printf("{\n");
         int len = 0;
         for(struct tree_fields *field = r->structtype.fields; field;
             field = field->next)
@@ -717,12 +727,23 @@ static void c_free(const char *var, struct tree_type *type, int indent,
             field = field->next, i++)
         {
             sprintf(fieldstr, "%s[%d].%s", var, i, c_get_suffix(field->type));
-            c_free(fieldstr, field->type, indent, nest, ref);
+            c_free(fieldstr, field->type, indent + 1, nest, ref);
         }
         free(fieldstr);
-        print_indent(indent);
+        print_indent(indent + 1);
         printf("free(%s);\n", var);
+        print_indent(indent);
+        printf("}\n");
     }
+}
+
+static void c_free_var(size_t var, struct tree_type *type, int indent)
+{
+    char *s = emalloc(snprintf(NULL, 0,
+                               "_%zd.%s", var, c_get_suffix(type)) + 1);
+    sprintf(s, "_%zd.%s", var, c_get_suffix(type));
+    c_free(s, type, indent, 0, 1);
+    free(s);
 }
 
 static void c_free_temp(int offset, struct tree_type *type, int indent)
@@ -744,8 +765,8 @@ static void c_increfcount(char *var, struct tree_type *type, int indent)
     struct tree_type *r = rt(type);
     if(r->kind == tree_type_kind_array)
     {
-        char *index = emalloc(snprintf(NULL, 0, "%s.a.data[%d]", var,
-                                       r->array.len - 1) + 1);
+        char *index = emalloc(snprintf(NULL, 0, "%s.a.data[%d]",
+                                       var, r->array.len - 1) + 1);
         for(int i = 0; i < r->array.len; i++)
         {
             sprintf(index, "%s.a.data[%d]", var, i);
@@ -757,6 +778,16 @@ static void c_increfcount(char *var, struct tree_type *type, int indent)
     {
         print_indent(indent);
         printf("%s.s.data->refcount++;\n", var);
+        print_indent(indent);
+        printf("for(int i = 0; i < %s.s.len; i++)\n", var);
+        print_indent(indent);
+        printf("{\n");
+        char *index = emalloc(snprintf(NULL, 0, "%s.s.data->data[i]", var) + 1);
+        sprintf(index, "%s.s.data->data[i]", var);
+        c_increfcount(index, type->slice.type, indent + 1);
+        print_indent(indent);
+        printf("}\n");
+        free(index);
     }
     else if(r->kind == tree_type_kind_struct)
     {
@@ -919,12 +950,6 @@ static void c_stmt(struct tree_stmt *stmt, int offset, int indent,
         int sd_offset = offset;
         struct tree_idents *left;
         struct tree_exps *right;
-        for(left = stmt->shortdecl.idents; left; left = left->next)
-            if(left->ident->symbol && left->ident->declared)
-            {
-//                print_indent(indent);
-//                printf("union obj _%zd;\n", left->ident->symbol->num);
-            }
         for(left = stmt->shortdecl.idents, right = stmt->shortdecl.exps; left;
             left = left->next, right = right->next)
         {
@@ -1017,8 +1042,10 @@ static void c_stmt(struct tree_stmt *stmt, int offset, int indent,
     }
     else if(stmt->kind == tree_stmt_kind_return)
     {
+        if(stmt->exp)
+            c_exp(stmt->exp, offset, indent);
         for(size_t i = 0; symbols[i].name; i++)
-            if(symbols[i].scope == scope)
+            if(symbols[i].scope == scope && symbols[i].kind == symbol_kind_var)
             {
                 char *var = emalloc(snprintf(NULL, 0, "_%zd.%s",
                                              symbols[i].num,
@@ -1030,7 +1057,6 @@ static void c_stmt(struct tree_stmt *stmt, int offset, int indent,
             }
         if(stmt->exp)
         {
-            c_exp(stmt->exp, offset, indent);
             print_indent(indent);
             printf("return stack[%d];\n", offset);
         }
@@ -1232,12 +1258,6 @@ static void c_varspec(struct tree_var_spec *node, int offset, int indent)
     if(!node)
         return;
 
-    for(struct tree_var_spec *spec = node; spec; spec = spec->next)
-        if(spec->ident->symbol)
-        {
-//            print_indent(indent);
-//            printf("union obj _%zd;\n", spec->ident->symbol->num);
-        }
     c_varsinit(node, offset, indent);
 }
 
@@ -1309,6 +1329,7 @@ static void c_varsinit(struct tree_var_spec *spec, int offset, int indent)
         {
             if(c->val)
             {
+                c_free_var(c->ident->symbol->num, c->type, indent);
                 c_stack_increfcount(vi_offset,
                                     c->ident->symbol->type, indent);
                 print_indent(indent);
@@ -1524,38 +1545,41 @@ static void c_funcdecl(struct tree_func_decl *node, int indent,
     for(struct tree_params *param = node->params; param; param = param->next)
     {
         if(param->ident->symbol)
+        {
+            last_param = param->ident->symbol->num;
             printf("union obj _%zd", param->ident->symbol->num);
+        }
         else
             printf("union obj _blankparam%zd", blanknum++);
         if(param->next)
             printf(", ");
-        last_param = param->ident->symbol->num;
     }
     printf(")\n");
     print_indent(indent);
     printf("{\n");
+    char *var = emalloc(snprintf(NULL, 0, "_%zd", last_param) + 1);
+    for(struct tree_params *param = node->params; param; param = param->next)
+    {
+        if(param->ident->symbol)
+        {
+            sprintf(var, "_%zd", param->ident->symbol->num);
+            c_increfcount(var, param->type, indent + 1);
+        }
+    }
     print_indent(indent + 1);
     printf("union obj temp, temp2;\n");
     print_indent(indent + 1);
     printf("union obj stack[%d];\n", max_depth_stmts(node->body));
     for(size_t i = last_param + 1; symbols[i].name; i++)
-        if(symbols[i].scope == node)
+        if(symbols[i].scope == node && symbols[i].kind == symbol_kind_var)
         {
             print_indent(indent + 1);
             printf("union obj _%zd = {0};\n", i);
         }
     c_stmts(node->body, 0, indent + 1, (struct iterstate) {0}, symbols, node);
     for(size_t i = 0; symbols[i].name; i++)
-        if(symbols[i].scope == node)
-        {
-            char *var = emalloc(snprintf(NULL, 0, "_%zd.%s",
-                                         symbols[i].num,
-                                         c_get_suffix(symbols[i].type)));
-            sprintf(var, "_%zd.%s",
-                    symbols[i].num, c_get_suffix(symbols[i].type));
-            c_free(var, symbols[i].type, indent + 1, 0, 1);
-            free(var);
-        }
+        if(symbols[i].scope == node && symbols[i].kind == symbol_kind_var)
+            c_free_var(symbols[i].num, symbols[i].type, indent + 1);
     print_indent(indent);
     printf("}\n");
 }
