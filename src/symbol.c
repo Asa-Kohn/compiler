@@ -218,10 +218,12 @@ static void gather_exp(struct symbol_rec *symbols, struct tree_exp *node,
 }
 
 static void gather_stmts(struct symbol_rec *symbols, struct tree_stmts *node,
-                         struct scopetable *table, size_t *index);
+                         struct scopetable *table, size_t *index,
+                         struct tree_func_decl *scope);
 
 static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
-                        struct scopetable *table, size_t *index)
+                        struct scopetable *table, size_t *index,
+                        struct tree_func_decl *scope)
 {
     if(!node)
         return;
@@ -233,7 +235,7 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             break;
         case tree_stmt_kind_block:;
             struct scopetable blocktable = {.table = {NULL}, .parent = table};
-            gather_stmts(symbols, node->block, &blocktable, index);
+            gather_stmts(symbols, node->block, &blocktable, index, scope);
             scopetable_free(blocktable);
             break;
         case tree_stmt_kind_assign:
@@ -268,12 +270,15 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                     }
                 if(strcmp(ident->ident->name, "_") == 0)
                     continue;
-                if(!(ident->ident->symbol =
+                if((ident->ident->symbol =
                      scopetable_getleaf(table->table, ident->ident->name)))
+                    ident->ident->declared = 0;
+                else
                 {
+                    ident->ident->declared = 1;
                     newdecl = 1;
                     symbols[*index].num = *index;
-                    symbols[*index].scope = symbol_scope_local;
+                    symbols[*index].scope = scope;
                     symbols[*index].name = ident->ident->name;
                     symbols[*index].kind = symbol_kind_var;
                     symbols[*index].type = NULL;
@@ -321,7 +326,7 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                         exit(1);
                     }
                     symbols[*index].num = *index;
-                    symbols[*index].scope = symbol_scope_local;
+                    symbols[*index].scope = scope;
                     symbols[*index].name = j->ident->name;
                     symbols[*index].kind = symbol_kind_var;
                     symbols[*index].type = j->type;
@@ -341,7 +346,8 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                 node->type_spec.ident->symbol = NULL;
             else
             {
-                if(scopetable_getleaf(table->table, node->type_spec.ident->name))
+                if(scopetable_getleaf(table->table,
+                                      node->type_spec.ident->name))
                 {
                     fprintf(stderr,
                             "Error: symbol \"%s\" redeclared on line %d\n",
@@ -349,12 +355,13 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                     exit(1);
                 }
                 symbols[*index].num = *index;
-                symbols[*index].scope = symbol_scope_local;
+                symbols[*index].scope = scope;
                 symbols[*index].name = node->type_spec.ident->name;
                 symbols[*index].kind = symbol_kind_type;
                 symbols[*index].type = node->type_spec.type;
                 scopetable_add(table->table,
-                               node->type_spec.ident->symbol = &symbols[*index]);
+                               node->type_spec.ident->symbol =
+                               &symbols[*index]);
                 (*index)++;
             }
             break;
@@ -367,14 +374,14 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             struct scopetable outertable = {.table = {NULL}, .parent = table};
             struct scopetable innertable =
                 {.table = {NULL}, .parent = &outertable};
-            gather_stmt(symbols, node->ifstmt.init, &outertable, index);
+            gather_stmt(symbols, node->ifstmt.init, &outertable, index, scope);
             gather_exp(symbols, node->ifstmt.condition, &outertable, index);
-            gather_stmts(symbols, node->ifstmt.body, &innertable, index);
+            gather_stmts(symbols, node->ifstmt.body, &innertable, index, scope);
             scopetable_free(innertable);
             innertable = (struct scopetable) {.table = {NULL},
                                               .parent = &outertable};
             gather_stmts(symbols, node->ifstmt.elsebody,
-                         &innertable, index);
+                         &innertable, index, scope);
             scopetable_free(innertable);
             scopetable_free(outertable);
             break;
@@ -382,7 +389,8 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             outertable = (struct scopetable){.table = {NULL}, .parent = table};
             innertable =
                 (struct scopetable){.table = {NULL}, .parent = &outertable};
-            gather_stmt(symbols, node->switchstmt.init, &outertable, index);
+            gather_stmt(symbols, node->switchstmt.init, &outertable, index,
+                        scope);
             gather_exp(symbols, node->switchstmt.exp, &outertable, index);
             for(struct tree_cases *cases = node->switchstmt.cases; cases;
                 cases = cases->next)
@@ -391,7 +399,7 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
                                                .parent = &innertable};
                 for(struct tree_exps *exp = cases->val; exp; exp = exp->next)
                     gather_exp(symbols, exp->exp, &casetable, index);
-                gather_stmts(symbols, cases->body, &casetable, index);
+                gather_stmts(symbols, cases->body, &casetable, index, scope);
                 scopetable_free(casetable);
             }
             scopetable_free(innertable);
@@ -401,10 +409,11 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
             outertable = (struct scopetable){.table = {NULL}, .parent = table};
             innertable =
                 (struct scopetable){.table = {NULL}, .parent = &outertable};
-            gather_stmt(symbols, node->forstmt.init, &outertable, index);
+            gather_stmt(symbols, node->forstmt.init, &outertable, index, scope);
             gather_exp(symbols, node->forstmt.condition, &outertable, index);
-            gather_stmt(symbols, node->forstmt.iter, &outertable, index);
-            gather_stmts(symbols, node->forstmt.body, &innertable, index);
+            gather_stmt(symbols, node->forstmt.iter, &outertable, index, scope);
+            gather_stmts(symbols, node->forstmt.body, &innertable, index,
+                         scope);
             break;
         default:
             break;
@@ -412,12 +421,13 @@ static void gather_stmt(struct symbol_rec *symbols, struct tree_stmt *node,
 }
 
 static void gather_stmts(struct symbol_rec *symbols, struct tree_stmts *node,
-                         struct scopetable *table, size_t *index)
+                         struct scopetable *table, size_t *index,
+                         struct tree_func_decl *scope)
 {
     if(!node)
         return;
-    gather_stmt(symbols, &node->stmt, table, index);
-    gather_stmts(symbols, node->next, table, index);
+    gather_stmt(symbols, &node->stmt, table, index, scope);
+    gather_stmts(symbols, node->next, table, index, scope);
 }
 
 static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
@@ -456,7 +466,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                         exit(1);
                     }
                     symbols[*index].num = *index;
-                    symbols[*index].scope = symbol_scope_global;
+                    symbols[*index].scope = NULL;
                     symbols[*index].name = j->ident->name;
                     symbols[*index].kind = symbol_kind_var;
                     symbols[*index].type = j->type;
@@ -489,7 +499,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                     exit(1);
                 }
                 symbols[*index].num = *index;
-                symbols[*index].scope = symbol_scope_global;
+                symbols[*index].scope = NULL;
                 symbols[*index].name = i->type_spec.ident->name;
                 symbols[*index].kind = symbol_kind_type;
                 symbols[*index].type = i->type_spec.type;
@@ -515,7 +525,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                     exit(1);
                 }
                 symbols[*index].num = *index;
-                symbols[*index].scope = symbol_scope_global;
+                symbols[*index].scope = NULL;
                 symbols[*index].name = i->func_decl.ident->name;
                 symbols[*index].kind = symbol_kind_func;
                 symbols[*index].func = &i->func_decl;
@@ -543,7 +553,7 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                     exit(1);
                 }
                 symbols[*index].num = *index;
-                symbols[*index].scope = symbol_scope_local;
+                symbols[*index].scope = &i->func_decl;
                 symbols[*index].name = c->ident->name;
                 symbols[*index].kind = symbol_kind_var;
                 symbols[*index].type = c->type;
@@ -551,7 +561,8 @@ static void gather_program(struct symbol_rec *symbols, struct tree_decls *node,
                                c->ident->symbol = &symbols[*index]);
                 (*index)++;
             }
-            gather_stmts(symbols, i->func_decl.body, &innertable, index);
+            gather_stmts(symbols, i->func_decl.body, &innertable, index,
+                         &i->func_decl);
             scopetable_free(innertable);
         }
     }

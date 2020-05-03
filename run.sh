@@ -30,7 +30,7 @@ fi
 
 if [[ $1 == "codegen" ]]
 then
-    ./src/winnipeg codegen < $2 > ${2%.go}.py && echo OK
+    ./src/winnipeg codegen < $2 > ${2%.go}.c && echo OK
 else
     ./src/winnipeg "$1" < "$2"
 fi

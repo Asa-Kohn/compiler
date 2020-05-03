@@ -9,7 +9,7 @@
 #include "symbol.h"
 #include "symbolprint.h"
 #include "type.h"
-#include "python.h"
+#include "c.h"
 
 int yylex();
 int print_tokens = 0;
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
         weed(root);
         struct symbol_rec *symbols = symbol_weave(root);
         typecheck(root);
-        py_program(root, symbols);
+        c_program(root, symbols);
     }
 
     return 0;

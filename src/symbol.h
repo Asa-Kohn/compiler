@@ -13,12 +13,6 @@ enum symbol_kind
     symbol_kind_func
 };
 
-enum symbol_scope
-{
-    symbol_scope_global,
-    symbol_scope_local
-};
-
 struct symbol_const
 {
     int constval;
@@ -29,7 +23,7 @@ struct symbol_rec
 {
     size_t num;
     char *name;
-    enum symbol_scope scope;
+    struct tree_func_decl *scope;
     enum symbol_kind kind;
     union
     {

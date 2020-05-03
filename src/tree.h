@@ -204,6 +204,7 @@ struct tree_type_struct
 struct tree_ident
 {
     char *name;
+    int declared;
     struct symbol_rec *symbol;
 };
 
